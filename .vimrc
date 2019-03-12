@@ -39,15 +39,14 @@ syntax on
 set background=dark
 set termguicolors
 let g:gruvbox_contrast_dark='medium'
-let g:airline_theme='gruvbox'
 let g:gruvbox_italics=1
 colorscheme gruvbox
+let g:airline_theme='gruvbox'
 let g:minimap_highlight='Visual'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#whitespace#enabled = 1
-let g:airline#extensions#branch#enabled = 1
-let g:airline_powerline_fonts = 1
 let g:airline_section_z = ''
+let g:airline_powerline_fonts = 1
 let g:syntastic_check_on_wq = 0
 set hidden
 set incsearch
