@@ -72,21 +72,48 @@ filetype plugin indent on
 
 "Shortcuts
 let mapleader="\<Space>"
-nmap <leader>T :enew<cr>
-nmap <leader>l :bnext<CR>
-nmap <leader>h :bprevious<CR>
-nmap <leader>bq :bp <BAR> bd #<CR>
-nmap <leader>bl :ls<CR>
-nmap <leader>n :NERDTree<CR>
+
+nnoremap ! :!
+nnoremap <leader>w :w<cr>
+"replace the word under cursor
+nnoremap <leader>* :%s/\<<c-r><c-w>\>//g<left><left>
+"toggle showing hidden characters
+nnoremap <silent> <leader>s :set nolist!<cr>
+"toggle spell checking
+nnoremap <leader>ss :setlocal spell!<cr>
+"override system files by typing :w!!
+cnoremap w!! %!sudo tee > /dev/null %
+"remove search highlight
+nmap <leader>q :nohlsearch<CR>
+nnoremap <leader>T :enew<cr>
+nnoremap <Tab> :bnext<CR>
+nnoremap <S-Tab> :bprevious<CR>
+nnoremap <leader>bq :bp <BAR> bd! #<CR>
+nnoremap <leader>ba :bufdo bd!<cr>
+nnoremap <leader>bl :ls<CR>
+"cycle between last two open buffers
+nnoremap <leader><leader> <c-^>
+nnoremap <leader>n :NERDTree<CR>
+nnoremap <leader>t :NERDTreeToggle<CR>
+nnoremap <leader>f :NERDTreeFind<CR>
+
+"move lines around
+nnoremap <leader>k :m-2<cr>==
+nnoremap <leader>j :m+<cr>==
+xnoremap <leader>k :m-2<cr>gv=gv
+xnoremap <leader>j :m'>+<cr>gv=gv
+
 autocmd VimEnter * NERDTree
 autocmd VimEnter * wincmd p
 autocmd BufReadPost * if @% !~# '\.git[\/\\]COMMIT_EDITMSG$' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-au InsertEnter * set nopaste
+autocmd InsertEnter * set nopaste
+
+"GitGutter
+nnoremap <c-N> :GitGutterNextHunk<CR>
+nnoremap <c-P> :GitGutterPrevHunk<CR>
+nnoremap <c-U> :GitGutterUndoHunk<CR>
 
 "vim-go
-map <C-n> :cnext<CR>
-map <C-m> :cprevious<CR>
-nnoremap <leader>a :cclose<CR>
 autocmd FileType go nmap <leader>b  <Plug>(go-build)
 autocmd FileType go nmap <leader>r  <Plug>(go-run)
-autocmd FileType go nmap <Leader>i <Plug>(go-info)
+autocmd FileType go nmap <Leader>i  <Plug>(go-imports)
