@@ -49,6 +49,7 @@ set nobackup
 set noswapfile
 set autowrite
 set inccommand=nosplit
+set updatetime=750
 
 let NERDTreeMinimalUI = 1
 let NERDTreeDirArrows = 1
@@ -96,6 +97,8 @@ nnoremap <leader><leader> <c-^>
 nnoremap <leader>n :NERDTree<CR>
 nnoremap <leader>t :NERDTreeToggle<CR>
 nnoremap <leader>f :NERDTreeFind<CR>
+nnoremap <leader>d :windo difft<CR>
+nnoremap <leader>D :windo diffoff<CR>
 
 "move lines around
 nnoremap <leader>k :m-2<cr>==
@@ -111,9 +114,9 @@ autocmd InsertEnter * set nopaste
 "GitGutter
 nnoremap <c-N> :GitGutterNextHunk<CR>
 nnoremap <c-P> :GitGutterPrevHunk<CR>
-nnoremap <c-U> :GitGutterUndoHunk<CR>
 
 "vim-go
 autocmd FileType go nmap <leader>b  <Plug>(go-build)
 autocmd FileType go nmap <leader>r  <Plug>(go-run)
 autocmd FileType go nmap <Leader>i  <Plug>(go-imports)
+let g:go_fmt_command = "goimports"
