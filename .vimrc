@@ -51,20 +51,20 @@ set autowrite
 set inccommand=nosplit
 set updatetime=750
 
-let NERDTreeMinimalUI = 1
-let NERDTreeDirArrows = 1
+let NERDTreeMinimalUI=1
+let NERDTreeDirArrows=1
 let g:gruvbox_contrast_dark='hard'
 let g:gruvbox_italics=1
 let g:airline_theme='gruvbox'
 let g:minimap_highlight='Visual'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#whitespace#enabled = 1
-let g:airline_section_z = ''
-let g:airline_powerline_fonts = 1
-let g:syntastic_check_on_wq = 0
-let g:indentLine_char = '│'
-let g:vim_json_syntax_conceal = 0
-let g:omni_sql_no_default_maps = 1
+let g:airline#extensions#tabline#enabled=1
+let g:airline#extensions#whitespace#enabled=1
+let g:airline_section_z=''
+let g:airline_powerline_fonts=1
+let g:syntastic_check_on_wq=0
+let g:indentLine_char='│'
+let g:vim_json_syntax_conceal=0
+let g:omni_sql_no_default_maps=1
 
 language en_US
 syntax on
@@ -111,12 +111,20 @@ autocmd VimEnter * wincmd p
 autocmd BufReadPost * if @% !~# '\.git[\/\\]COMMIT_EDITMSG$' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 autocmd InsertEnter * set nopaste
 
-"GitGutter
-nnoremap <c-N> :GitGutterNextHunk<CR>
-nnoremap <c-P> :GitGutterPrevHunk<CR>
-
 "vim-go
 autocmd FileType go nmap <leader>b  <Plug>(go-build)
 autocmd FileType go nmap <leader>r  <Plug>(go-run)
 autocmd FileType go nmap <Leader>i  <Plug>(go-imports)
-let g:go_fmt_command = "goimports"
+autocmd FileType go nmap <Leader>v  <Plug>(go-vet)
+let g:go_fmt_command="goimports"
+let g:go_highlight_extra_types=1
+let g:go_highlight_operators=1
+let g:go_highlight_functions=1
+let g:go_highlight_function_parameters=1
+let g:go_highlight_function_calls=1
+let g:go_highlight_types=1
+let g:go_highlight_fields=1
+
+"terraform
+let g:terraform_align=1
+let g:terraform_fmt_on_save=1
