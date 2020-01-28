@@ -17,6 +17,7 @@ call vundle#begin()
   Plugin 'elzr/vim-json'
   Plugin 'hashivim/vim-terraform'
   Plugin 'fatih/vim-go'
+  Plugin 'itspriddle/vim-shellcheck'
 call vundle#end()
 
 set ttyfast
@@ -51,8 +52,7 @@ set autowrite
 set inccommand=nosplit
 set updatetime=750
 
-let NERDTreeMinimalUI=1
-let NERDTreeDirArrows=1
+"Theme
 let g:gruvbox_contrast_dark='hard'
 let g:gruvbox_italics=1
 let g:airline_theme='gruvbox'
@@ -61,7 +61,6 @@ let g:airline#extensions#tabline#enabled=1
 let g:airline#extensions#whitespace#enabled=1
 let g:airline_section_z=''
 let g:airline_powerline_fonts=1
-let g:syntastic_check_on_wq=0
 let g:indentLine_char='│'
 let g:vim_json_syntax_conceal=0
 let g:omni_sql_no_default_maps=1
@@ -128,3 +127,12 @@ let g:go_highlight_fields=1
 "terraform
 let g:terraform_align=1
 let g:terraform_fmt_on_save=1
+
+"NERDTree
+let NERDTreeMinimalUI=1
+let NERDTreeDirArrows=1
+let g:NERDTreeUpdateOnWrite=0
+
+"Syntastic
+let g:syntastic_check_on_wq=0
+let g:syntastic_auto_loc_list=0
