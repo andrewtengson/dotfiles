@@ -18,6 +18,8 @@ call vundle#begin()
   Plugin 'hashivim/vim-terraform'
   Plugin 'fatih/vim-go'
   Plugin 'itspriddle/vim-shellcheck'
+  Plugin 'mustache/vim-mustache-handlebars'
+  Plugin 'dbeniamine/cheat.sh-vim'
 call vundle#end()
 
 set ttyfast
