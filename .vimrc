@@ -53,7 +53,7 @@ set nobackup
 set noswapfile
 set autowrite
 set inccommand=nosplit
-set updatetime=750
+set updatetime=300
 
 " Theme
 let g:gruvbox_contrast_dark='hard'
@@ -154,19 +154,8 @@ let g:coc_global_extensions = [
   \ 'coc-yaml',
   \ ]
 
-" TextEdit might fail if hidden is not set.
-set hidden
-
-" Some servers have issues with backup files, see #649.
-set nobackup
-set nowritebackup
-
 " Give more space for displaying messages.
 set cmdheight=2
-
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=300
 
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
