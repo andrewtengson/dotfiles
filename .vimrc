@@ -270,5 +270,3 @@ nnoremap <silent> <leader>i  :<C-u>CocList diagnostics<cr>
 nnoremap <silent> <leader>e  :<C-u>CocList extensions<cr>
 " Show commands
 nnoremap <silent> <leader>c  :<C-u>CocList commands<cr>
-" Resume latest coc list
-nnoremap <silent> <leader>p  :<C-u>CocListResume<CR>
