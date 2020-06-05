@@ -8,11 +8,11 @@ call vundle#begin()
   Plugin 'Xuyuanp/nerdtree-git-plugin'
   Plugin 'ryanoasis/vim-devicons'
   Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
+  Plugin 'tpope/vim-fugitive'
+  Plugin 'airblade/vim-gitgutter'
   Plugin 'godlygeek/tabular'
   Plugin 'Yggdroot/indentLine'
   Plugin 'dbeniamine/cheat.sh-vim'
-  Plugin 'tpope/vim-fugitive'
-  Plugin 'airblade/vim-gitgutter'
   Plugin 'itspriddle/vim-shellcheck'
   Plugin 'mustache/vim-mustache-handlebars'
   Plugin 'pangloss/vim-javascript'
@@ -20,6 +20,7 @@ call vundle#begin()
   Plugin 'fatih/vim-go'
   Plugin 'elzr/vim-json'
   Plugin 'rodjek/vim-puppet'
+  Plugin 'sheerun/vim-polyglot'
   Plugin 'neoclide/coc.nvim'
 call vundle#end()
 
@@ -67,6 +68,7 @@ let g:airline_powerline_fonts=1
 let g:indentLine_char='│'
 let g:vim_json_syntax_conceal=0
 let g:omni_sql_no_default_maps=1
+let g:webdevicons_enable_airline_statusline=0
 
 language en_US
 syntax on
