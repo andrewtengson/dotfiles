@@ -1,12 +1,6 @@
 {
   "suggest.noselect": false,
-  "coc.preferences.formatOnSaveFiletypes": [
-    "javascript",
-    "typescript",
-    "json",
-    "terraform",
-    "go"
-  ],
+  "coc.preferences.formatOnSaveFiletypes": ["*"],
   "languageserver": {
     "terraform": {
       "command": "terraform-lsp",

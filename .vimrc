@@ -155,6 +155,8 @@ let g:coc_global_extensions = [
   \ 'coc-go',
   \ 'coc-json',
   \ 'coc-yaml',
+  \ 'coc-html',
+  \ 'coc-css',
   \ ]
 
 " Give more space for displaying messages.
