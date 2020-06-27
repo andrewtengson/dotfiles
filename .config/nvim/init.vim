@@ -157,7 +157,8 @@ let g:coc_global_extensions = [
   \ 'coc-yaml',
   \ 'coc-html',
   \ 'coc-css',
-  \ 'coc-jedi'
+  \ 'coc-jedi',
+  \ 'coc-flutter'
   \ ]
 
 " Give more space for displaying messages.
