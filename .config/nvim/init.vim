@@ -22,6 +22,7 @@ call vundle#begin()
   Plugin 'rodjek/vim-puppet'
   Plugin 'sheerun/vim-polyglot'
   Plugin 'neoclide/coc.nvim'
+  Plugin 'dart-lang/dart-vim-plugin'
 call vundle#end()
 
 set ttyfast
@@ -146,6 +147,7 @@ let g:NERDTreeUpdateOnWrite=0
 " Syntastic
 let g:syntastic_check_on_wq=0
 let g:syntastic_auto_loc_list=0
+let g:syntastic_mode_map = { 'passive_filetypes': ['dart'] }
 
 " coc config
 let g:coc_global_extensions = [
