@@ -16,13 +16,13 @@ call vundle#begin()
   Plugin 'itspriddle/vim-shellcheck'
   Plugin 'mustache/vim-mustache-handlebars'
   Plugin 'pangloss/vim-javascript'
-  Plugin 'hashivim/vim-terraform'
-  Plugin 'fatih/vim-go'
+  Plugin 'neoclide/coc.nvim'
   Plugin 'elzr/vim-json'
   Plugin 'rodjek/vim-puppet'
   Plugin 'sheerun/vim-polyglot'
-  Plugin 'neoclide/coc.nvim'
   Plugin 'dart-lang/dart-vim-plugin'
+  Plugin 'hashivim/vim-terraform'
+  Plugin 'fatih/vim-go'
 call vundle#end()
 
 set ttyfast
@@ -108,6 +108,7 @@ nnoremap <leader>f :NERDTreeFind<CR>
 nnoremap <leader>d :windo difft<CR>
 nnoremap <leader>D :windo diffoff<CR>
 nnoremap <leader>p :GitGutterPreviewHunk<CR>
+nnoremap <leader>u :GitGutterUndoHunk<CR>
 
 " move lines around
 nnoremap <leader>k :m-2<cr>==
@@ -161,7 +162,7 @@ let g:coc_global_extensions = [
   \ 'coc-yaml',
   \ 'coc-html',
   \ 'coc-css',
-  \ 'coc-jedi',
+  \ 'coc-python',
   \ 'coc-flutter'
   \ ]
 
