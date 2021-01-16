@@ -145,7 +145,8 @@ let g:terraform_fmt_on_save=1
 " NERDTree
 let NERDTreeMinimalUI=1
 let NERDTreeDirArrows=1
-let g:NERDTreeUpdateOnWrite=0
+let g:NERDTreeGitStatusUpdateOnWrite=0
+let NERDTreeHighlightCursorline=0
 
 " Syntastic
 let g:syntastic_check_on_wq=0
