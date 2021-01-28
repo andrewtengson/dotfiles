@@ -164,7 +164,8 @@ let g:coc_global_extensions = [
   \ 'coc-html',
   \ 'coc-css',
   \ 'coc-python',
-  \ 'coc-flutter'
+  \ 'coc-flutter',
+  \ 'coc-sh'
   \ ]
 
 " Give more space for displaying messages.
