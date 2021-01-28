@@ -1,0 +1,11 @@
+#!/bin/bash
+
+alias \
+  terraform@0.12='/usr/local/opt/terraform@0.12/bin/terraform' \
+  terraform@0.13='/usr/local/opt/terraform@0.13/bin/terraform' \
+  vi='nvim' \
+  vim='nvim' \
+  sssh='/Users/andrew.tengson/Documents/projects/sssh/sssh.sh' \
+  cp='cp -iv' \
+  mv='mv -iv' \
+  rm='rm -v'
