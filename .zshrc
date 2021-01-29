@@ -14,4 +14,4 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
-source ~/.aliasrc
+source ~/.config/aliasrc
