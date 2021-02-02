@@ -119,8 +119,6 @@ xnoremap <leader>j :m'>+<cr>gv=gv
 " exit terminal
 tnoremap <Esc> <C-\><C-n>
 
-autocmd VimEnter * NERDTree
-autocmd VimEnter * wincmd p
 autocmd BufReadPost * if @% !~# '\.git[\/\\]COMMIT_EDITMSG$' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 autocmd InsertEnter * set nopaste
 
