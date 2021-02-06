@@ -11,6 +11,7 @@ DISABLE_AUTO_UPDATE="true"
 DISABLE_AUTO_TITLE="true"
 
 plugins=(
+  zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
