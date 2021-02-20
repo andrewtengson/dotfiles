@@ -1,29 +1,33 @@
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-  Plugin 'VundleVim/Vundle.vim'
-  Plugin 'vim-airline/vim-airline'
-  Plugin 'morhetz/gruvbox'
-  Plugin 'scrooloose/nerdtree'
-  Plugin 'scrooloose/syntastic'
-  Plugin 'Xuyuanp/nerdtree-git-plugin'
-  Plugin 'ryanoasis/vim-devicons'
-  Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
-  Plugin 'tpope/vim-fugitive'
-  Plugin 'airblade/vim-gitgutter'
-  Plugin 'godlygeek/tabular'
-  Plugin 'Yggdroot/indentLine'
-  Plugin 'dbeniamine/cheat.sh-vim'
-  Plugin 'itspriddle/vim-shellcheck'
-  Plugin 'mustache/vim-mustache-handlebars'
-  Plugin 'pangloss/vim-javascript'
-  Plugin 'neoclide/coc.nvim'
-  Plugin 'elzr/vim-json'
-  Plugin 'rodjek/vim-puppet'
-  Plugin 'sheerun/vim-polyglot'
-  Plugin 'dart-lang/dart-vim-plugin'
-  Plugin 'hashivim/vim-terraform'
-  Plugin 'fatih/vim-go'
-call vundle#end()
+if empty(glob('~/.local/share/nvim/site/autoload/plug.vim'))
+  silent !curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+  Plug 'VundleVim/Vundle.vim'
+  Plug 'vim-airline/vim-airline'
+  Plug 'morhetz/gruvbox'
+  Plug 'scrooloose/nerdtree'
+  Plug 'scrooloose/syntastic'
+  Plug 'Xuyuanp/nerdtree-git-plugin'
+  Plug 'ryanoasis/vim-devicons'
+  Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+  Plug 'tpope/vim-fugitive'
+  Plug 'airblade/vim-gitgutter'
+  Plug 'godlygeek/tabular'
+  Plug 'Yggdroot/indentLine'
+  Plug 'itspriddle/vim-shellcheck'
+  Plug 'mustache/vim-mustache-handlebars'
+  Plug 'pangloss/vim-javascript'
+  Plug 'neoclide/coc.nvim'
+  Plug 'elzr/vim-json'
+  Plug 'rodjek/vim-puppet'
+  Plug 'sheerun/vim-polyglot'
+  Plug 'dart-lang/dart-vim-plugin'
+  Plug 'hashivim/vim-terraform'
+  Plug 'fatih/vim-go'
+call plug#end()
 
 set ttyfast
 set nocompatible
@@ -145,6 +149,7 @@ let NERDTreeMinimalUI=1
 let NERDTreeDirArrows=1
 let g:NERDTreeGitStatusUpdateOnWrite=0
 let NERDTreeHighlightCursorline=0
+let g:NERDTreeLimitedSyntax=1
 
 " Syntastic
 let g:syntastic_check_on_wq=0
