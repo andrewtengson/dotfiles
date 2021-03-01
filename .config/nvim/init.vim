@@ -9,7 +9,6 @@ call plug#begin('~/.vim/plugged')
   Plug 'vim-airline/vim-airline'
   Plug 'morhetz/gruvbox'
   Plug 'scrooloose/nerdtree'
-  Plug 'scrooloose/syntastic'
   Plug 'Xuyuanp/nerdtree-git-plugin'
   Plug 'ryanoasis/vim-devicons'
   Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
@@ -68,7 +67,7 @@ let g:airline_theme='gruvbox'
 let g:minimap_highlight='Visual'
 let g:airline#extensions#tabline#enabled=1
 let g:airline#extensions#whitespace#enabled=1
-let g:airline_section_z=''
+let g:airline_section_z='%p%% %l:%v'
 let g:airline_powerline_fonts=1
 let g:airline_left_sep = "\uE0B8"
 let g:airline_right_sep = "\uE0BA"
@@ -82,6 +81,15 @@ syntax on
 colorscheme gruvbox
 filetype plugin indent on
 set omnifunc=syntaxcomplete#Complete
+
+" WSL yank support
+let s:clip = '/mnt/c/Windows/System32/clip.exe'  " change this path according to your mount point
+if executable(s:clip)
+  augroup WSLYank
+  autocmd!
+  autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
+  augroup END
+endif
 
 " Shortcuts
 let mapleader="\<Space>"
