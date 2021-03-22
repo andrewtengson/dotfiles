@@ -46,7 +46,7 @@ set ignorecase
 set smartcase
 set hlsearch
 set relativenumber
-set clipboard=unnamed
+set clipboard=unnamedplus
 set wildmenu
 set wildmode=longest:full,full
 set completeopt=longest,menuone,preview
@@ -76,7 +76,6 @@ let g:vim_json_syntax_conceal=0
 let g:omni_sql_no_default_maps=1
 let g:webdevicons_enable_airline_statusline=0
 
-language en_US
 syntax on
 colorscheme gruvbox
 filetype plugin indent on
