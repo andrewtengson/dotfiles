@@ -20,6 +20,7 @@ call plug#begin('~/.vim/plugged')
   Plug 'mustache/vim-mustache-handlebars'
   Plug 'pangloss/vim-javascript'
   Plug 'neoclide/coc.nvim'
+  Plug 'vim-syntastic/syntastic'
   Plug 'elzr/vim-json'
   Plug 'rodjek/vim-puppet'
   Plug 'sheerun/vim-polyglot'
