@@ -131,8 +131,8 @@ xnoremap <leader>j :m'>+<cr>gv=gv
 " quickfix lists
 nnoremap <C-k> :cnext<CR>zz
 nnoremap <C-j> :cprev<CR>zz
-nnoremap <leader>k :lnext<CR>zz
-nnoremap <leader>j :lprev<CR>zz
+nnoremap <leader>K :lnext<CR>zz
+nnoremap <leader>J :lprev<CR>zz
 
 " exit terminal
 tnoremap <Esc> <C-\><C-n>
