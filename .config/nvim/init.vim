@@ -121,6 +121,9 @@ nnoremap <leader>d :windo difft<CR>
 nnoremap <leader>D :windo diffoff<CR>
 nnoremap <leader>p :GitGutterPreviewHunk<CR>
 nnoremap <leader>u :GitGutterUndoHunk<CR>
+nmap <leader>gs :G<CR>
+nmap <leader>gj :diffget //3<CR>
+nmap <leader>gf :diffget //2<CR>
 
 " move lines around
 nnoremap <leader>k :m-2<cr>==
@@ -143,7 +146,7 @@ autocmd InsertEnter * set nopaste
 " vim-go
 autocmd FileType go nmap <leader>b  <Plug>(go-build)
 autocmd FileType go nmap <leader>r  <Plug>(go-run)
-autocmd FileType go nmap <Leader>i  <Plug>(go-imports)
+autocmd FileType go nmap <Leader>I  <Plug>(go-imports)
 autocmd FileType go nmap <Leader>v  <Plug>(go-vet)
 let g:go_fmt_command="goimports"
 let g:go_highlight_extra_types=1
@@ -182,7 +185,8 @@ let g:coc_global_extensions = [
   \ 'coc-css',
   \ 'coc-python',
   \ 'coc-flutter',
-  \ 'coc-sh'
+  \ 'coc-sh',
+  \ 'coc-cfn-lint'
   \ ]
 
 " Give more space for displaying messages.
