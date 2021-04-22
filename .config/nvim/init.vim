@@ -183,7 +183,7 @@ let g:coc_global_extensions = [
   \ 'coc-yaml',
   \ 'coc-html',
   \ 'coc-css',
-  \ 'coc-python',
+  \ 'coc-jedi',
   \ 'coc-flutter',
   \ 'coc-sh',
   \ 'coc-cfn-lint'
