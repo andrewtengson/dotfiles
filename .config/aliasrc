@@ -9,3 +9,9 @@ alias \
   cp='cp -iv' \
   mv='mv -iv' \
   rm='rm -v'
+
+if [[ "$(uname -s)" == "Linux" ]]; then
+  alias \
+    pbcopy='xsel --clipboard --input' \
+    pbpaste='xsel --clipboard --output'
+fi
