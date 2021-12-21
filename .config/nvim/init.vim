@@ -70,10 +70,12 @@ let g:airline#extensions#tabline#enabled=1
 let g:airline#extensions#whitespace#enabled=1
 let g:airline_section_z='%p%% %l:%v'
 let g:airline_powerline_fonts=1
-let g:airline_left_sep = "\uE0B8"
-let g:airline_right_sep = "\uE0BA"
+let g:airline_left_sep="\uE0B8"
+let g:airline_right_sep="\uE0BA"
 let g:indentLine_char='│'
 let g:vim_json_syntax_conceal=0
+let g:vim_markdown_conceal=0
+let g:vim_markdown_conceal_code_blocks=0
 let g:omni_sql_no_default_maps=1
 let g:webdevicons_enable_airline_statusline=0
 
@@ -172,6 +174,7 @@ let g:NERDTreeLimitedSyntax=1
 let g:syntastic_check_on_wq=0
 let g:syntastic_auto_loc_list=0
 let g:syntastic_mode_map = { 'passive_filetypes': ['dart'] }
+let g:syntastic_python_checkers=['python3']
 
 " coc config
 let g:coc_global_extensions = [
@@ -186,7 +189,8 @@ let g:coc_global_extensions = [
   \ 'coc-jedi',
   \ 'coc-flutter',
   \ 'coc-sh',
-  \ 'coc-cfn-lint'
+  \ 'coc-cfn-lint',
+  \ 'coc-clangd'
   \ ]
 
 " Give more space for displaying messages.
