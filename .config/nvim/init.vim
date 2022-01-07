@@ -93,6 +93,14 @@ if executable(s:clip)
   augroup END
 endif
 
+" Unicode Highlight
+augroup Hiunicode
+  autocmd!
+  autocmd BufEnter *
+    \ syntax match nonascii "[^\x00-\x7F]" |
+    \ highlight nonascii ctermfg=NONE ctermbg=red
+augroup END
+
 " Shortcuts
 let mapleader="\<Space>"
 
@@ -132,6 +140,7 @@ nnoremap <leader>k :m-2<cr>==
 nnoremap <leader>j :m+<cr>==
 xnoremap <leader>k :m-2<cr>gv=gv
 xnoremap <leader>j :m'>+<cr>gv=gv
+vnoremap p "_dP
 
 " quickfix lists
 nnoremap <C-k> :cnext<CR>zz
