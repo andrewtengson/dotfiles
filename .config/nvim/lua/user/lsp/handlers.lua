@@ -78,9 +78,17 @@ local function lsp_keymaps(bufnr)
 end
 
 M.on_attach = function(client, bufnr)
-  if client.name == "tsserver" then
-    client.resolved_capabilities.document_formatting = false
+  local servers = {
+    "tsserver",
+    "jsonls"
+  }
+
+  for _, server in ipairs(servers) do
+    if client.name == server then
+      client.resolved_capabilities.document_formatting = false
+    end
   end
+
   lsp_keymaps(bufnr)
   lsp_highlight_document(client)
 end
