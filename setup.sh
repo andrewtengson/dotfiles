@@ -22,16 +22,13 @@ dotfiles=(
   ".zshrc"
   ".tmux.conf"
   ".oh-my-zsh/custom/themes/agnoster-mod.zsh-theme"
-  ".config/nvim/coc-settings.json"
-  ".config/nvim/init.vim"
+  ".config/nvim"
   ".config/aliasrc"
 )
 
 for file in "${dotfiles[@]}"; do
   create_symlink "${file}"
 done
-
-ln -sfn "${HOME}/.config/nvim/init.vim" "${HOME}/.vimrc"
 
 # zsh-syntax-highlighting
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
