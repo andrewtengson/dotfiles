@@ -67,9 +67,7 @@ keymap("n", "<C-j>", ":cprev<CR>zz", opts)
 keymap("n", "<leader>K", ":lnext<CR>zz", opts)
 keymap("n", "<leader>J", ":lprev<CR>zz", opts)
 
-
 -- Insert --
-
 
 -- Visual --
 -- Stay in indent mode
@@ -103,5 +101,11 @@ keymap("c", "w!!", "%!sudo tee > /dev/null %", opts)
 keymap("n", "<leader>e", ":NvimTreeToggle<cr>", opts)
 
 -- Telescope
-keymap("n", "<leader>f", "<cmd>lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({ previewer = false }))<cr>", opts)
+keymap(
+  "n",
+  "<leader>f",
+  "<cmd>lua require'telescope.builtin'.find_files(require('telescope.themes').get_dropdown({ previewer = false }))<cr>",
+  opts
+)
 keymap("n", "<c-t>", "<cmd>Telescope live_grep<cr>", opts)
+keymap("n", "<leader>p", "<cmd> Telescope projects<cr>", opts)

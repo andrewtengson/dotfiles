@@ -1,5 +1,5 @@
 -- autocmd! remove all autocommands, if entered under a group it will clear that group
-vim.cmd [[
+vim.cmd([[
   augroup _general_settings
     autocmd!
     autocmd FileType qf,help,man,lspinfo nnoremap <silent> <buffer> q :close<CR> 
@@ -47,5 +47,4 @@ vim.cmd [[
 
   autocmd BufReadPost * if @% !~# '\.git[\/\\]COMMIT_EDITMSG$' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
   autocmd InsertEnter * set nopaste
-]]
-
+]])

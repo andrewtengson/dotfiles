@@ -82,6 +82,10 @@ nvim_tree.setup({
         { key = { "l", "<CR>", "o" }, cb = tree_cb("edit") },
         { key = "h", cb = tree_cb("close_node") },
         { key = "v", cb = tree_cb("vsplit") },
+        {
+          key = "A",
+          cb = ":lua if not vim.g.nvim_tree_expand then vim.cmd([[ NvimTreeResize 100 ]]); vim.g.nvim_tree_expand=true else vim.cmd([[ NvimTreeResize 30 ]]); vim.g.nvim_tree_expand=false end <cr>",
+        },
       },
     },
     number = false,

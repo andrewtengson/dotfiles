@@ -27,20 +27,20 @@ local options = {
   sidescrolloff = 2,
   cmdheight = 2,
   splitbelow = true,
-  splitright =true,
+  splitright = true,
   backup = false,
   swapfile = false,
   autowrite = true,
   inccommand = "nosplit",
   signcolumn = "yes",
   wrap = false,
-  updatetime=300,
+  updatetime = 300,
 }
 
-vim.opt.shortmess:append "c"
+vim.opt.shortmess:append("c")
 
 for k, v in pairs(options) do
   vim.opt[k] = v
 end
 
-vim.cmd "set whichwrap+=<,>,[,],h,l"
+vim.cmd("set whichwrap+=<,>,[,],h,l")
