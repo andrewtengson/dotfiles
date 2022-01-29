@@ -82,6 +82,7 @@ return packer.startup(function(use)
   -- Languages
   use("hashivim/vim-terraform")
   use("rodjek/vim-puppet")
+  use("pearofducks/ansible-vim")
 
   -- Telescope
   use("nvim-telescope/telescope.nvim")

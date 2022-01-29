@@ -12,7 +12,8 @@ local servers = {
   "sqls",
   "sumneko_lua",
   "terraformls",
-  "tsserver"
+  "tsserver",
+  "ansiblels",
 }
 
 for _, name in pairs(servers) do
