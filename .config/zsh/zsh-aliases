@@ -10,8 +10,13 @@ alias \
   mv='mv -iv' \
   rm='rm -v'
 
-if [[ "$(uname -s)" == "Linux" ]]; then
-  alias \
+case "$(uname -s)" in
+  "Linux") alias \
     pbcopy='xsel --clipboard --input' \
-    pbpaste='xsel --clipboard --output'
-fi
+    pbpaste='xsel --clipboard --output' \
+    ls='ls --color=auto'
+  ;;
+  "Darwin") alias \
+    ls='ls -G'
+  ;;
+esac

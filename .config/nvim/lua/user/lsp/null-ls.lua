@@ -26,9 +26,11 @@ null_ls.setup({
     formatting.stylua,
     formatting.terraform_fmt,
     formatting.shellharden,
+    formatting.golines,
 
     diagnostics.shellcheck,
     diagnostics.flake8,
     diagnostics.ansiblelint,
+    diagnostics.write_good,
   },
 })

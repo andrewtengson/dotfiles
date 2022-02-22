@@ -1,0 +1,74 @@
+#!/bin/bash
+
+vpn() {
+  local pid_file="$HOME/.openconnect.pid"
+  local user=''
+  local authgroup=''
+  local endpoint=''
+
+  case "${1}" in
+    up)
+      sudo openconnect --background --pid-file "$pid_file" --user "$user" --authgroup "$authgroup" "$endpoint"
+      ;;
+    down)
+      sudo kill -2 "$(cat "$pid_file")" && sudo rm "$pid_file"
+      ;;
+    *)
+      echo "Unsupported option!"
+      false
+      ;;
+  esac
+}
+
+totp() {
+  totp_home="$HOME/.totp/"
+  key="$totp_home/${1:-jump}.asc"
+
+  if [[ -f $key ]]; then
+    decrypted_key="$(gpg --decrypt "$key")"
+    oathtool --totp -b "$decrypted_key" | pbcopy
+    echo "Copied ${1:-jump} OTP to clipboard!"
+  else
+    echo "$key: No such file or directory"
+  fi
+}
+
+realpath() {
+  [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
+
+update_puppet() {
+  local app_name=$1
+  local version=$2
+  current_version=$(grep "\$version=" site.pp | head -n 1 | cut -d '=' -f 2 | tr -d " ',")
+
+  if [[ "$current_version" != "$version" ]]; then
+    echo "Updating site.pp version from $current_version to $version..."
+    sed -Ei '' "s/(version=)(.*)/\1'$version'/g" site.pp
+
+    if ! [[ -d "$app_name-$version" ]]; then
+      echo "Copying config dir..."
+      cp -r "$app_name-$current_version" "$app_name-$version"
+    fi
+  else
+    echo "Same version is already set."
+  fi
+}
+
+SSH_ENV="$HOME/.ssh/environment"
+
+function start_agent {
+  /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "$SSH_ENV"
+  chmod 600 "$SSH_ENV"
+  . "$SSH_ENV" > /dev/null
+  /usr/bin/ssh-add;
+}
+
+if [ -f "$SSH_ENV" ]; then
+  . "$SSH_ENV" > /dev/null
+  ps -ef | grep "$SSH_AGENT_PID" | grep ssh-agent$ > /dev/null || {
+    start_agent;
+  }
+else
+  start_agent;
+fi

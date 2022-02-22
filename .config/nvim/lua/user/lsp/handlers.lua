@@ -82,12 +82,22 @@ M.on_attach = function(client, bufnr)
     "tsserver",
     "jsonls",
     "terraformls",
+    "gopls",
   }
 
   for _, server in ipairs(servers) do
     if client.name == server then
       client.resolved_capabilities.document_formatting = false
     end
+  end
+
+  if client.resolved_capabilities.document_formatting then
+    vim.cmd([[
+    augroup LspFormatting
+      autocmd! * <buffer>
+      autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()
+    augroup END
+    ]])
   end
 
   lsp_keymaps(bufnr)
