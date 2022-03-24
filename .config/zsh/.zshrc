@@ -22,9 +22,13 @@ zsh_add_plugin zsh-users/zsh-syntax-highlighting
 autoload -U compinit
 zmodload -i zsh/complist
 zstyle ':completion:*' menu select
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 _comp_options+=(globdots)
 compinit
 
 autoload -Uz colors && colors
 
 bindkey -e
+bindkey -M menuselect '^[[Z' reverse-menu-complete

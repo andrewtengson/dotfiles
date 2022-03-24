@@ -2,9 +2,9 @@
 
 vpn() {
   local pid_file="$HOME/.openconnect.pid"
-  local user=''
-  local authgroup=''
-  local endpoint=''
+  local user='andrew.tengson'
+  local authgroup='AD_Paymaya-PE-VPN'
+  local endpoint='https://vpn.corp.voyager.ph'
 
   case "${1}" in
     up)
@@ -21,7 +21,7 @@ vpn() {
 }
 
 totp() {
-  totp_home="$HOME/.totp/"
+  totp_home="$HOME/.totp"
   key="$totp_home/${1:-jump}.asc"
 
   if [[ -f $key ]]; then
@@ -57,7 +57,7 @@ update_puppet() {
 
 SSH_ENV="$HOME/.ssh/environment"
 
-function start_agent {
+start_agent() {
   /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "$SSH_ENV"
   chmod 600 "$SSH_ENV"
   . "$SSH_ENV" > /dev/null
@@ -72,3 +72,11 @@ if [ -f "$SSH_ENV" ]; then
 else
   start_agent;
 fi
+
+aws_profile() {
+  if [[ -n "${1}" ]]; then
+    export AWS_PROFILE="${1}"
+  else
+    echo "$AWS_PROFILE"
+  fi
+}
