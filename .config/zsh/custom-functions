@@ -80,3 +80,26 @@ aws_profile() {
     echo "$AWS_PROFILE"
   fi
 }
+
+aws_ec2_search() {
+  local input=$1
+  local region=${2:=ap-southeast-1}
+  local query='Reservations[*].Instances[*].{Domain: Tags[?Key==`domain`].Value | [0],InstanceId: InstanceId, Ip: PrivateIpAddress, State: State.Name}'
+
+  # domain tag search
+  if [[ $input =~ [a-zA-Z0-9_.-]+ ]]; then
+    local filter="Name='tag:domain',Values=*$input*"
+  fi
+
+  # ip search
+  if [[ $input =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]; then
+    local filter="Name='ip-address',Values=$input"
+  fi
+
+  # private ip search
+  if [[ $input =~ (^127\.)\|(^10\.)\|(^172\.1[6-9]\.)\|(^172\.2[0-9]\.)\|(^172\.3[0-1]\.)\|(^192\.168\.) ]]; then
+    local filter="Name='private-ip-address',Values=$input"
+  fi
+
+  aws ec2 describe-instances --output table --filter "$filter" --query "$query" --region "$region"
+}
