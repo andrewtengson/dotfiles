@@ -20,6 +20,14 @@ vim.g.nvim_tree_icons = {
     symlink = "",
   },
 }
+vim.g.nvim_tree_show_icons = {
+  git = 1,
+  folders = 1,
+  files = 1,
+  folder_arrows = 1,
+  tree_width = 30,
+}
+vim.g.nvim_tree_root_folder_modifier = ":t"
 vim.cmd([[highlight NvimTreeFolderIcon ctermfg=214 guifg=#fabd2f ]])
 
 local status_ok, nvim_tree = pcall(require, "nvim-tree")
@@ -43,7 +51,6 @@ nvim_tree.setup({
     "dashboard",
     "alpha",
   },
-  auto_close = true,
   open_on_tab = false,
   hijack_cursor = false,
   update_cwd = true,
@@ -90,16 +97,5 @@ nvim_tree.setup({
     },
     number = false,
     relativenumber = false,
-  },
-  quit_on_open = 0,
-  git_hl = 1,
-  disable_window_picker = 0,
-  root_folder_modifier = ":t",
-  show_icons = {
-    git = 1,
-    folders = 1,
-    files = 1,
-    folder_arrows = 1,
-    tree_width = 30,
   },
 })

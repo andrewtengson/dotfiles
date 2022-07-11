@@ -11,6 +11,7 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
+setopt hist_ignore_space
 
 source $ZDOTDIR/zsh-functions
 zsh_add_file zsh-exports

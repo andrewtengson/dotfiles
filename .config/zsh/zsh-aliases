@@ -8,7 +8,7 @@ alias \
   sssh="~/Documents/projects/sssh/sssh.sh" \
   cp='cp -iv' \
   mv='mv -iv' \
-  rm='rm -v'
+  rm='rm -iv'
 
 case "$(uname -s)" in
   "Linux") alias \
