@@ -24,6 +24,5 @@ null_ls.setup({
     diagnostics.flake8,
     diagnostics.ansiblelint,
     diagnostics.write_good,
-    diagnostics.rstcheck,
   },
 })
