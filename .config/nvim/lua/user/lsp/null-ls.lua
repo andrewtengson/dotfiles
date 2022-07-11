@@ -18,10 +18,12 @@ null_ls.setup({
     formatting.terraform_fmt,
     formatting.shellharden,
     formatting.golines,
+    formatting.rustfmt,
 
     diagnostics.shellcheck,
     diagnostics.flake8,
     diagnostics.ansiblelint,
     diagnostics.write_good,
+    diagnostics.rstcheck,
   },
 })

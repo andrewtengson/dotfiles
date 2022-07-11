@@ -15,6 +15,7 @@ local servers = {
   "tsserver",
   "ansiblels",
   "clangd",
+  "rust_analyzer",
 }
 
 for _, name in pairs(servers) do
