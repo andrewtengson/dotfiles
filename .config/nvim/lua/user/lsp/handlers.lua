@@ -84,6 +84,7 @@ M.on_attach = function(client, bufnr)
     "terraformls",
     "gopls",
     "sumneko_lua",
+    "jdtls",
   }
 
   for _, server in ipairs(servers) do

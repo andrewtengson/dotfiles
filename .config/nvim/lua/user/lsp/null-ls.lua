@@ -19,6 +19,7 @@ null_ls.setup({
     formatting.shellharden,
     formatting.golines,
     formatting.rustfmt,
+    formatting.google_java_format,
 
     diagnostics.shellcheck,
     diagnostics.flake8,
