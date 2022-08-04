@@ -18,7 +18,6 @@ null_ls.setup({
     formatting.terraform_fmt,
     formatting.shellharden,
     formatting.golines,
-    formatting.rustfmt,
     formatting.google_java_format,
 
     diagnostics.shellcheck,
