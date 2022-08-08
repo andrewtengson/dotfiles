@@ -7,6 +7,9 @@ vpn() {
   if ! [[ -d "$config_dir" ]]; then mkdir "$config_dir"; fi
 
   # Load `user`, `authgroup`, and `endpoint` vars from config.
+  local user
+  local authgroup
+  local endpoint
   source "$config_dir/config"
 
   case "${1}" in
@@ -24,8 +27,8 @@ vpn() {
 }
 
 totp() {
-  totp_home="$HOME/.totp"
-  key="$totp_home/${1:-jump}.asc"
+  local totp_home="$HOME/.totp"
+  local key="$totp_home/${1:-jump}.asc"
 
   if [[ -f $key ]]; then
     decrypted_key="$(gpg --decrypt "$key")"
@@ -43,6 +46,7 @@ realpath() {
 update_puppet() {
   local app_name=$1
   local version=$2
+  local current_version
   current_version=$(grep "\$version=" site.pp | head -n 1 | cut -d '=' -f 2 | tr -d " ',")
 
   if [[ "$current_version" != "$version" ]]; then
