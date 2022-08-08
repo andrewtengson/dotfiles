@@ -1,10 +1,13 @@
 #!/bin/bash
 
 vpn() {
-  local pid_file="$HOME/.openconnect.pid"
-  local user='andrew.tengson'
-  local authgroup='AD_Paymaya-PE-VPN'
-  local endpoint='https://vpn.corp.voyager.ph'
+  local config_dir="$HOME/.openconnect"
+  local pid_file="$config_dir/pid"
+
+  if ! [[ -d "$config_dir" ]]; then mkdir "$config_dir"; fi
+
+  # Load `user`, `authgroup`, and `endpoint` vars from config.
+  source "$config_dir/config"
 
   case "${1}" in
     up)
