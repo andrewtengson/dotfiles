@@ -84,6 +84,7 @@ return packer.startup(function(use)
   use("rodjek/vim-puppet")
   use("pearofducks/ansible-vim")
   use("towolf/vim-helm")
+  use("darfink/vim-plist")
 
   -- Telescope
   use("nvim-telescope/telescope.nvim")
