@@ -12,7 +12,7 @@ null_ls.setup({
   on_attach = require("user.lsp.handlers").on_attach,
   debug = false,
   sources = {
-    formatting.prettier.with({ extra_args = { "--no-semi" } }),
+    formatting.prettier,
     formatting.yapf,
     formatting.stylua,
     formatting.terraform_fmt,
@@ -21,7 +21,6 @@ null_ls.setup({
     formatting.google_java_format,
 
     diagnostics.shellcheck,
-    diagnostics.flake8,
     diagnostics.ansiblelint,
     diagnostics.write_good,
   },
