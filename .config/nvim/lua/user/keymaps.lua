@@ -35,9 +35,6 @@ keymap("n", "<leader>s", ":set nolist!<cr>", opts)
 -- Toggle spell checking
 keymap("n", "<leader>ss", ":setlocal spell!<cr>", opts)
 
--- Remove search highlight
-keymap("n", "<leader>q", ":nohlsearch<CR>", opts)
-
 -- Navigate buffers
 keymap("n", "<Tab>", ":bnext<CR>", opts)
 keymap("n", "<S-Tab>", ":bprevious<CR>", opts)
