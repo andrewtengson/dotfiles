@@ -17,6 +17,7 @@ local servers = {
   "clangd",
   "rust_analyzer",
   "jdtls",
+  "pylsp",
 }
 
 for _, name in pairs(servers) do
