@@ -21,7 +21,6 @@ create_symlink() {
 dotfiles=(
   ".zshrc"
   ".tmux.conf"
-  ".oh-my-zsh/custom/themes/agnoster-mod.zsh-theme"
   ".config/nvim"
   ".config/zsh"
 )
