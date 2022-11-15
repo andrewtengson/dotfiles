@@ -126,8 +126,8 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS"
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}!"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}@"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}$GEAR"
 
   [[ -n "$symbols" ]] && prompt_segment $PRIMARY_FG default " $symbols "
@@ -144,7 +144,6 @@ prompt_virtualenv() {
 
 ## Main prompt
 prompt_agnoster_main() {
-  RETVAL=$?
   CURRENT_BG='NONE'
   for prompt_segment in "${AGNOSTER_PROMPT_SEGMENTS[@]}"; do
     [[ -n $prompt_segment ]] && $prompt_segment
@@ -152,6 +151,7 @@ prompt_agnoster_main() {
 }
 
 prompt_agnoster_precmd() {
+  RETVAL=$?
   vcs_info
   PROMPT="%{%f%b%k%}$(prompt_agnoster_main) "
 }
