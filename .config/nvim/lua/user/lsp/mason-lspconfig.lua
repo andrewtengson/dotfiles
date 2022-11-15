@@ -20,11 +20,11 @@ local servers = {
   "pylsp",
 }
 
-require("mason-lspconfig").setup({
+mason_lspconfig.setup({
   ensure_installed = servers,
 })
 
-require("mason-lspconfig").setup_handlers({
+mason_lspconfig.setup_handlers({
   function(server_name)
     local server_opts = {
       on_attach = require("user.lsp.handlers").on_attach,
