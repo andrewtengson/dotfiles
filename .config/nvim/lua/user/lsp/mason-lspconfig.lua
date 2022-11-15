@@ -9,6 +9,7 @@ local servers = {
   "gopls",
   "jsonls",
   "pyright",
+  "pylsp",
   "sqls",
   "sumneko_lua",
   "terraformls",
@@ -17,7 +18,6 @@ local servers = {
   "clangd",
   "rust_analyzer",
   "jdtls",
-  "pylsp",
 }
 
 mason_lspconfig.setup({

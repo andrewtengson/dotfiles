@@ -78,10 +78,12 @@ return packer.startup(function(use)
   use("neovim/nvim-lspconfig") -- enable LSP
   use("williamboman/mason.nvim")
   use("williamboman/mason-lspconfig.nvim")
+  use("jayp0521/mason-null-ls.nvim")
   use("jose-elias-alvarez/null-ls.nvim") -- for formatters and linters
 
   -- DAP
   use("mfussenegger/nvim-dap")
+  use("jayp0521/mason-nvim-dap.nvim")
 
   -- Languages
   use("hashivim/vim-terraform")
@@ -93,6 +95,7 @@ return packer.startup(function(use)
   -- Telescope
   use("nvim-telescope/telescope.nvim")
   use("nvim-telescope/telescope-media-files.nvim")
+  use("nvim-telescope/telescope-dap.nvim")
 
   -- Treesitter
   use({

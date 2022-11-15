@@ -104,3 +104,23 @@ keymap(
 )
 keymap("n", "<c-t>", "<cmd>Telescope live_grep<cr>", opts)
 keymap("n", "<leader>p", "<cmd> Telescope projects<cr>", opts)
+keymap("n", "<leader>dt", "<cmd> Telescope dap commands<cr>", opts)
+
+-- Dap
+keymap("n", "<leader>db", "<cmd> DapToggleBreakpoint<cr>", opts)
+keymap("n", "<leader>dn", "<cmd> DapContinue<cr>", opts)
+keymap("n", "<leader>dr", "<cmd> DapToggleRepl<cr>", opts)
+keymap("n", "<leader>dsj", "<cmd> DapStepOver<cr>", opts)
+keymap("n", "<leader>dsk", "<cmd> DapStepOut<cr>", opts)
+keymap("n", "<leader>dsl", "<cmd> DapStepInto<cr>", opts)
+keymap(
+  "n",
+  "<leader>d?",
+  "<cmd> lua local widgets=require'dap.ui.widgets';widgets.centered_float(widgets.scopes)<cr>",
+  opts
+)
+keymap("n", "<leader>di", "<cmd> lua require'dap.ui.widgets'.hover()<cr>", opts)
+keymap("v", "<leader>di", "<cmd> lua require'dap.ui.widgets'.visual_hover()<cr>", opts)
+keymap("n", "<leader>dk", "<cmd> lua require'dap'.up()<cr>", opts)
+keymap("n", "<leader>dj", "<cmd> lua require'dap'.down()<cr>", opts)
+keymap("n", "<leader>dc", "<cmd> lua require'dap'.close()<cr>", opts)
