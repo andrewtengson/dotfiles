@@ -20,7 +20,6 @@ null_ls.setup({
     formatting.golines,
     formatting.google_java_format,
 
-    diagnostics.shellcheck,
     diagnostics.ansiblelint,
     diagnostics.write_good,
   },
