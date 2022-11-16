@@ -108,8 +108,9 @@ keymap("n", "<leader>dt", "<cmd> Telescope dap commands<cr>", opts)
 
 -- Dap
 keymap("n", "<leader>db", "<cmd> DapToggleBreakpoint<cr>", opts)
+keymap("n", "<leader>dB", "<cmd> lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>", opts)
 keymap("n", "<leader>dn", "<cmd> DapContinue<cr>", opts)
-keymap("n", "<leader>dr", "<cmd> DapToggleRepl<cr>", opts)
+keymap("n", "<leader>dr", "<cmd> lua require'dap'.repl.toggle({height=10})<cr>", opts)
 keymap("n", "<leader>dsj", "<cmd> DapStepOver<cr>", opts)
 keymap("n", "<leader>dsk", "<cmd> DapStepOut<cr>", opts)
 keymap("n", "<leader>dsl", "<cmd> DapStepInto<cr>", opts)
@@ -124,3 +125,4 @@ keymap("v", "<leader>di", "<cmd> lua require'dap.ui.widgets'.visual_hover()<cr>"
 keymap("n", "<leader>dk", "<cmd> lua require'dap'.up()<cr>", opts)
 keymap("n", "<leader>dj", "<cmd> lua require'dap'.down()<cr>", opts)
 keymap("n", "<leader>dc", "<cmd> lua require'dap'.close()<cr>", opts)
+keymap("n", "<leader>du", "<cmd> lua require'dapui'.toggle()<cr>", opts)
