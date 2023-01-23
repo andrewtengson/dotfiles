@@ -23,7 +23,12 @@ dotfiles=(
   ".tmux.conf"
   ".config/nvim"
   ".config/zsh"
+  ".zprofile"
 )
+
+if ! "$(which brew)"; then
+ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
+fi
 
 for file in "${dotfiles[@]}"; do
   create_symlink "$file"
