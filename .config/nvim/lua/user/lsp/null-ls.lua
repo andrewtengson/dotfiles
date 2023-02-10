@@ -23,9 +23,11 @@ null_ls.setup({
     formatting.shellharden,
     formatting.golines,
     formatting.google_java_format,
+    formatting.yapf,
 
     diagnostics.ansiblelint,
     diagnostics.write_good,
+    diagnostics.shellcheck,
   },
 })
 
