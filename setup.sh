@@ -23,11 +23,13 @@ dotfiles=(
   ".tmux.conf"
   ".config/nvim"
   ".config/zsh"
-  ".zprofile"
 )
 
-if ! "$(which brew)"; then
- /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
+if [[ "$(uname -s)" == "Darwin" ]] || [[ $USER == "deck" ]]; then
+  if ! "$(which brew)"; then
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
+  create_symlink ".zprofile"
 fi
 
 for file in "${dotfiles[@]}"; do
