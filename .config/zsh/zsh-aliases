@@ -5,7 +5,7 @@ alias \
   terraform@0.13='/usr/local/opt/terraform@0.13/bin/terraform' \
   vi='nvim' \
   vim='nvim' \
-  sssh="~/Documents/projects/sssh/sssh.sh" \
+  sssh="~/Documents/projects/maya-gitlab/sssh/sssh.sh" \
   cp='cp -iv' \
   mv='mv -iv' \
   rm='rm -iv'
