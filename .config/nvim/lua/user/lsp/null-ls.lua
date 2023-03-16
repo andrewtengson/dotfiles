@@ -25,7 +25,6 @@ null_ls.setup({
     formatting.google_java_format,
     formatting.yapf,
 
-    diagnostics.ansiblelint,
     diagnostics.write_good,
     diagnostics.shellcheck,
   },

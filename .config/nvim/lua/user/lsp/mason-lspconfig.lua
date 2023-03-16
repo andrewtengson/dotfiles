@@ -10,7 +10,7 @@ local servers = {
   "jsonls",
   "pyright",
   "sqls",
-  "sumneko_lua",
+  "lua_ls",
   "terraformls",
   "tsserver",
   "ansiblels",
@@ -35,8 +35,8 @@ mason_lspconfig.setup_handlers({
       server_opts = vim.tbl_deep_extend("force", jsonls_opts, server_opts)
     end
 
-    if server_name == "sumneko_lua" then
-      local sumneko_opts = require("user.lsp.settings.sumneko_lua")
+    if server_name == "lua_ls" then
+      local sumneko_opts = require("user.lsp.settings.lua_ls")
       server_opts = vim.tbl_deep_extend("force", sumneko_opts, server_opts)
     end
 
