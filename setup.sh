@@ -18,6 +18,13 @@ create_symlink() {
   fi
 }
 
+realpath() {
+  [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
+
+script_dir="$(realpath "$(dirname "${0}")")"
+cd "$script_dir"
+
 dotfiles=(
   ".zshrc"
   ".tmux.conf"
