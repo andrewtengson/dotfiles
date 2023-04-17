@@ -24,6 +24,7 @@ null_ls.setup({
     formatting.golines,
     formatting.google_java_format,
     formatting.yapf,
+    formatting.rustfmt,
 
     diagnostics.write_good,
     diagnostics.shellcheck,
