@@ -17,6 +17,10 @@ vpn() {
       sudo openconnect --background --pid-file "$pid_file" --user "$user" --authgroup "$authgroup" "$endpoint"
       ;;
     down)
+      if ! [[ -f $pid_file ]]; then
+        echo "openconnect is not running!"
+        return
+      fi
       sudo kill -2 "$(cat "$pid_file")" && sudo rm "$pid_file"
       ;;
     *)
