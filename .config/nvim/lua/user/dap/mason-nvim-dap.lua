@@ -7,6 +7,7 @@ local sources = {
   "bash",
   "python",
   "node2",
+  "codelldb",
 }
 
 mason_nvim_dap.setup({
