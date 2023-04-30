@@ -45,6 +45,7 @@ dapui.setup({
       step_back = "",
       run_last = "ﯩ",
       terminate = "",
+      disconnect = "",
     },
   },
 })
