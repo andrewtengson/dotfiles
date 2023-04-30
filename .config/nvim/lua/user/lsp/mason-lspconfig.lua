@@ -9,7 +9,7 @@ local servers = {
   "gopls",
   "jsonls",
   "pyright",
-  "sqls",
+  "sqlls",
   "lua_ls",
   "terraformls",
   "tsserver",
@@ -43,6 +43,11 @@ mason_lspconfig.setup_handlers({
     if server_name == "ansiblels" then
       local ansiblels_opts = require("user.lsp.settings.ansiblels")
       server_opts = vim.tbl_deep_extend("force", ansiblels_opts, server_opts)
+    end
+
+    if server_name == "rust_analyzer" then
+      local rust_analyzer_opts = require("user.lsp.settings.rust_analyzer")
+      server_opts = vim.tbl_deep_extend("force", rust_analyzer_opts, server_opts)
     end
 
     require("lspconfig")[server_name].setup(server_opts)
