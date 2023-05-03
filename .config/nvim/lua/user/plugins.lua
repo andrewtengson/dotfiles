@@ -59,7 +59,7 @@ return packer.startup(function(use)
   use("ahmedkhalf/project.nvim")
 
   -- Colorschemes
-  use("morhetz/gruvbox")
+  use("gruvbox-community/gruvbox")
 
   -- cmp plugins
   use("hrsh7th/nvim-cmp") -- The completion plugin
