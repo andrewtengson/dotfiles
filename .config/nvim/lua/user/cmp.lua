@@ -120,8 +120,12 @@ cmp.setup({
     select = false,
   },
   window = {
-    bordered = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+    completion = {
+      border = "single",
+      winhighlight = "Normal:CmpPmenu,CursorLine:CmpSel,Search:PmenuSel",
+    },
     documentation = {
+      border = "single",
       winhighlight = "Normal:CmpDoc",
     },
   },
