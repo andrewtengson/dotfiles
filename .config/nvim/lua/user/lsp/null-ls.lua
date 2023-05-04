@@ -29,6 +29,7 @@ null_ls.setup({
     diagnostics.write_good,
     diagnostics.shellcheck,
   },
+  border = "single",
 })
 
 mason_null_ls.setup({
