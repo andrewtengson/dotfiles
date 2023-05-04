@@ -27,7 +27,6 @@ null_ls.setup({
     formatting.rustfmt,
 
     diagnostics.write_good,
-    diagnostics.shellcheck,
   },
   border = "single",
 })

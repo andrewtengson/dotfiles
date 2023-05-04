@@ -45,8 +45,6 @@ return packer.startup(function(use)
   use("nvim-lua/popup.nvim") -- An implementation of the Popup API from vim in Neovim
   use("nvim-lua/plenary.nvim") -- Useful lua functions used ny lots of plugins
   use("lukas-reineke/indent-blankline.nvim")
-  use("itspriddle/vim-shellcheck")
-  use("mustache/vim-mustache-handlebars")
   use("windwp/nvim-autopairs") -- Autopairs, integrates with both cmp and treesitter
   use("numToStr/Comment.nvim")
   use("kyazdani42/nvim-web-devicons")
@@ -87,12 +85,19 @@ return packer.startup(function(use)
   use("rcarriga/nvim-dap-ui")
 
   -- Languages
-  use("hashivim/vim-terraform")
-  use("rodjek/vim-puppet")
-  use("pearofducks/ansible-vim")
-  use("towolf/vim-helm")
-  use("darfink/vim-plist")
-  use("saecki/crates.nvim")
+  use({ "hashivim/vim-terraform", event = { "BufRead *.tf,*.hcl" } })
+  use({ "rodjek/vim-puppet", event = { "BufRead *.pp" } })
+  use({ "pearofducks/ansible-vim", event = { "BufRead *.yaml,*.yml" } })
+  use({ "towolf/vim-helm", event = { "BufRead *.yaml,*.yml" } })
+  use({ "darfink/vim-plist", event = { "BufRead *.plist" } })
+  use({
+    "saecki/crates.nvim",
+    event = { "BufRead Cargo.toml" },
+    config = function()
+      require("user.crates")
+    end,
+  })
+  use({ "mustache/vim-mustache-handlebars", event = { "BufRead *.yaml,*.yml" } })
 
   -- Telescope
   use("nvim-telescope/telescope.nvim")
