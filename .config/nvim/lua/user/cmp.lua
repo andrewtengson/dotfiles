@@ -120,14 +120,8 @@ cmp.setup({
     select = false,
   },
   window = {
-    completion = {
-      border = "single",
-      winhighlight = "Normal:CmpPmenu,CursorLine:CmpSel,Search:PmenuSel",
-    },
-    documentation = {
-      border = "single",
-      winhighlight = "Normal:CmpDoc",
-    },
+    completion = cmp.config.window.bordered(),
+    documentation = cmp.config.window.bordered(),
   },
   experimental = {
     ghost_text = true,
