@@ -31,15 +31,11 @@ vpn() {
 }
 
 totp() {
-  local totp_home="$HOME/.totp"
-  local key="$totp_home/${1:-jump}.asc"
+  local key="${1:-maya/ad/otp}"
 
-  if [[ -f $key ]]; then
-    decrypted_key="$(gpg --decrypt "$key")"
+  if decrypted_key="$(pass "$key")"; then
     oathtool --totp -b "$decrypted_key" | pbcopy
-    echo "Copied ${1:-jump} OTP to clipboard!"
-  else
-    echo "$key: No such file or directory"
+    echo "Copied ${key} OTP to clipboard!"
   fi
 }
 
