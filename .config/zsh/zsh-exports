@@ -4,3 +4,8 @@ export PATH=$PATH:/usr/local/opt/openjdk/bin
 export PATH=$PATH:~/Documents/projects/flutter/bin
 export PATH=$PATH:~/go/bin
 export PATH=$PATH:~/.krew/bin
+
+if type brew &>/dev/null; then
+  export FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+  export FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+fi
