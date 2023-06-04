@@ -19,7 +19,7 @@ vim.g.indent_blankline_char = "▏"
 -- vim.g.indent_blankline_char = "▎"
 vim.g.indent_blankline_show_trailing_blankline_indent = false
 vim.g.indent_blankline_show_first_indent_level = true
-vim.g.indent_blankline_use_treesitter = true
+vim.g.indent_blankline_use_treesitter = false
 vim.g.indent_blankline_show_current_context = false
 vim.g.indent_blankline_context_patterns = {
   "class",
@@ -43,8 +43,6 @@ vim.g.indent_blankline_context_patterns = {
   "import_statement",
   "operation_type",
 }
--- HACK: work-around for https://github.com/lukas-reineke/indent-blankline.nvim/issues/59
-vim.wo.colorcolumn = "99999"
 
 -- vim.cmd [[highlight IndentBlanklineIndent1 guifg=#E06C75 gui=nocombine]]
 -- vim.cmd [[highlight IndentBlanklineIndent2 guifg=#E5C07B gui=nocombine]]
