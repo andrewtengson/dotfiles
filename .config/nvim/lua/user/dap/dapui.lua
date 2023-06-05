@@ -93,7 +93,7 @@ function _G.dap_run_config_with_args()
     if input == nil then
       return
     end
-    local args = vim.split(input, " ", true)
+    local args = vim.split(input, " ")
     mConfig.args = args
     dap.run(mConfig)
   end)
