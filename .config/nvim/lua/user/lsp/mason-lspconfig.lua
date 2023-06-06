@@ -17,6 +17,8 @@ local servers = {
   "clangd",
   "rust_analyzer",
   "jdtls",
+  "html",
+  "cssls",
 }
 
 mason_lspconfig.setup({
