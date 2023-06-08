@@ -94,7 +94,7 @@ keymap("c", "w!!", "%!sudo tee > /dev/null %", opts)
 
 -- Nvimtree
 keymap("n", "<leader>e", ":NvimTreeToggle<cr>", opts)
-keymap("n", "<leader>F", ":NvimTreeFindFileToggle<cr>", opts)
+keymap("n", "<leader>F", ":NvimTreeFindFile<cr>", opts)
 
 -- Telescope
 keymap(
