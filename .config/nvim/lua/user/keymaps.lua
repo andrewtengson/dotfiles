@@ -122,3 +122,10 @@ keymap("n", "<leader>dk", "<cmd> lua require'dap'.up()<cr>", opts)
 keymap("n", "<leader>dj", "<cmd> lua require'dap'.down()<cr>", opts)
 keymap("n", "<leader>dc", "<cmd> lua require'dap'.close()<cr>", opts)
 keymap("n", "<leader>du", "<cmd> lua require'dapui'.toggle()<cr>", opts)
+
+-- Open links
+local open_cmd = "xdg-open"
+if vim.fn.has("mac") == 1 then
+  open_cmd = "open"
+end
+keymap("n", "gx", ":execute '!" .. open_cmd .. " '.shellescape(expand('<cfile>'), 1)<CR>", opts)
