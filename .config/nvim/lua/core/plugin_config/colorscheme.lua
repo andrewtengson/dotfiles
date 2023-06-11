@@ -11,3 +11,4 @@ vim.g.gruvbox_italics = 1
 vim.opt.background = "dark"
 vim.cmd("highlight link FloatBorder Normal")
 vim.cmd("highlight link NormalFloat Normal")
+vim.cmd("highlight link markdownError NONE")
