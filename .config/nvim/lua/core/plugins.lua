@@ -105,6 +105,7 @@ local plugins = {
 
 local opts = {
   ui = {
+    border = "single",
     icons = {
       cmd = "",
       config = "󱐋",
