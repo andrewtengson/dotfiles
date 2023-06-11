@@ -1,12 +1,5 @@
-local dapui_status_ok, dapui = pcall(require, "dapui")
-if not dapui_status_ok then
-  return
-end
-
-local dap_status_ok, dap = pcall(require, "dap")
-if not dap_status_ok then
-  return
-end
+local dap = require("dap")
+local dapui = require("dapui")
 
 dapui.setup({
   icons = { expanded = "", collapsed = "", current_frame = "" },

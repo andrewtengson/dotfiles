@@ -1,8 +1,3 @@
-local status_ok, indent_blankline = pcall(require, "indent_blankline")
-if not status_ok then
-  return
-end
-
 vim.g.indent_blankline_buftype_exclude = { "terminal", "nofile" }
 vim.g.indent_blankline_filetype_exclude = {
   "help",
@@ -55,7 +50,7 @@ vim.g.indent_blankline_context_patterns = {
 -- vim.opt.listchars:append "space:"
 -- vim.opt.listchars:append "eol:↴"
 
-indent_blankline.setup({
+require("indent_blankline").setup({
   -- show_end_of_line = true,
   -- space_char_blankline = " ",
   -- show_current_context = true,

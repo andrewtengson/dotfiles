@@ -1,7 +1,4 @@
-local status_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
-if not status_ok then
-  return
-end
+local mason_lspconfig = require("mason-lspconfig")
 
 local servers = {
   "bashls",
