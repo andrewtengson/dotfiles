@@ -1,4 +1,4 @@
-require("nvim_web_devicons").setup({
+require("nvim-web-devicons").setup({
   override = {
     pp = {
       icon = "",

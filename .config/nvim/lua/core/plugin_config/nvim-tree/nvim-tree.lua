@@ -4,7 +4,7 @@ vim.cmd([[highlight NvimTreeFolderIcon ctermfg=214 guifg=#fabd2f ]])
 
 local on_attach = require("core.plugin_config.nvim-tree.on-attach").on_attach
 
-require("nvim_tree").setup({
+require("nvim-tree").setup({
   renderer = {
     root_folder_modifier = ":t",
     icons = {
