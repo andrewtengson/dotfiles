@@ -7,7 +7,7 @@ if not status_ok then
   return
 end
 
-local on_attach = require("user.nvim-tree.on-attach").on_attach
+local on_attach = require("core.plugin_config.nvim-tree.on-attach").on_attach
 
 nvim_tree.setup({
   renderer = {
