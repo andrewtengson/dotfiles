@@ -13,48 +13,114 @@ vim.opt.rtp:prepend(lazypath)
 
 local plugins = {
   -- My plugins here
-  "nvim-lua/popup.nvim", -- An implementation of the Popup API from vim in Neovim
-  "nvim-lua/plenary.nvim", -- Useful lua functions used ny lots of plugins
-  "lukas-reineke/indent-blankline.nvim",
-  "windwp/nvim-autopairs", -- Autopairs, integrates with both cmp and treesitter
-  "numToStr/Comment.nvim",
-  "kyazdani42/nvim-web-devicons",
-  "kyazdani42/nvim-tree.lua",
-  { "akinsho/bufferline.nvim", branch = "main" },
-  "moll/vim-bbye",
-  "nvim-lualine/lualine.nvim",
-  { "akinsho/toggleterm.nvim", branch = "main" },
-  "lewis6991/impatient.nvim",
-  "ahmedkhalf/project.nvim",
-  "MunifTanjim/nui.nvim",
+  {
+    "nvim-lua/popup.nvim",
+  }, -- An implementation of the Popup API from vim in Neovim
+  {
+    "nvim-lua/plenary.nvim",
+  }, -- Useful lua functions used ny lots of plugins
+  {
+    "lukas-reineke/indent-blankline.nvim",
+  },
+  {
+    "windwp/nvim-autopairs",
+  }, -- Autopairs, integrates with both cmp and treesitter
+  {
+    "numToStr/Comment.nvim",
+  },
+  {
+    "kyazdani42/nvim-web-devicons",
+  },
+  {
+    "kyazdani42/nvim-tree.lua",
+  },
+  {
+    "akinsho/bufferline.nvim",
+    branch = "main",
+  },
+  {
+    "moll/vim-bbye",
+  },
+  {
+    "nvim-lualine/lualine.nvim",
+  },
+  {
+    "akinsho/toggleterm.nvim",
+    branch = "main",
+  },
+  {
+    "lewis6991/impatient.nvim",
+  },
+  {
+    "ahmedkhalf/project.nvim",
+  },
+  {
+    "MunifTanjim/nui.nvim",
+  },
 
   -- Colorschemes
-  "gruvbox-community/gruvbox",
+  {
+    "gruvbox-community/gruvbox",
+  },
 
   -- cmp plugins
-  "hrsh7th/nvim-cmp", -- The completion plugin
-  "hrsh7th/cmp-buffer", -- buffer completions
-  "hrsh7th/cmp-path", -- path completions
-  "hrsh7th/cmp-cmdline", -- cmdline completions
-  "saadparwaiz1/cmp_luasnip", -- snippet completions
-  "hrsh7th/cmp-nvim-lsp",
-  "hrsh7th/cmp-nvim-lua",
+  {
+    "hrsh7th/nvim-cmp",
+  }, -- The completion plugin
+  {
+    "hrsh7th/cmp-buffer",
+  }, -- buffer completions
+  {
+    "hrsh7th/cmp-path",
+  }, -- path completions
+  {
+    "hrsh7th/cmp-cmdline",
+  }, -- cmdline completions
+  {
+    "saadparwaiz1/cmp_luasnip",
+  }, -- snippet completions
+  {
+    "hrsh7th/cmp-nvim-lsp",
+  },
+  {
+    "hrsh7th/cmp-nvim-lua",
+  },
 
   -- snippets
-  "L3MON4D3/LuaSnip", --snippet engine
-  "rafamadriz/friendly-snippets", -- a bunch of snippets to use
+  {
+    "L3MON4D3/LuaSnip",
+  }, --snippet engine
+  {
+    "rafamadriz/friendly-snippets",
+  }, -- a bunch of snippets to use
 
   -- LSP
-  "neovim/nvim-lspconfig", -- enable LSP
-  "williamboman/mason.nvim",
-  "williamboman/mason-lspconfig.nvim",
-  "jayp0521/mason-null-ls.nvim",
-  "jose-elias-alvarez/null-ls.nvim", -- for formatters and linters
+  {
+    "neovim/nvim-lspconfig",
+  }, -- enable LSP
+  {
+    "williamboman/mason.nvim",
+  },
+  {
+    "williamboman/mason-lspconfig.nvim",
+  },
+  {
+    "jayp0521/mason-null-ls.nvim",
+  },
+  {
+    "jose-elias-alvarez/null-ls.nvim",
+  }, -- for formatters and linters
 
   -- DAP
-  "mfussenegger/nvim-dap",
-  "jayp0521/mason-nvim-dap.nvim",
-  "rcarriga/nvim-dap-ui",
+  {
+    "mfussenegger/nvim-dap",
+  },
+  {
+    "jayp0521/mason-nvim-dap.nvim",
+  },
+  {
+    "rcarriga/nvim-dap-ui",
+  },
 
   -- Languages
   {
@@ -90,20 +156,34 @@ local plugins = {
   },
 
   -- Telescope
-  "nvim-telescope/telescope.nvim",
-  "nvim-telescope/telescope-media-files.nvim",
-  "nvim-telescope/telescope-dap.nvim",
+  {
+    "nvim-telescope/telescope.nvim",
+  },
+  {
+    "nvim-telescope/telescope-media-files.nvim",
+  },
+  {
+    "nvim-telescope/telescope-dap.nvim",
+  },
 
   -- Treesitter
   {
     "nvim-treesitter/nvim-treesitter",
   },
-  "nvim-treesitter/nvim-treesitter-context",
-  "JoosepAlviste/nvim-ts-context-commentstring",
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+  },
+  {
+    "JoosepAlviste/nvim-ts-context-commentstring",
+  },
 
   -- Git
-  "lewis6991/gitsigns.nvim",
-  "tpope/vim-fugitive",
+  {
+    "lewis6991/gitsigns.nvim",
+  },
+  {
+    "tpope/vim-fugitive",
+  },
 
   -- ChatGPT
   {
