@@ -57,19 +57,37 @@ local plugins = {
   "rcarriga/nvim-dap-ui",
 
   -- Languages
-  { "hashivim/vim-terraform", event = { "BufRead *.tf,*.hcl" } },
-  { "rodjek/vim-puppet", event = { "BufRead *.pp" } },
-  { "pearofducks/ansible-vim", event = { "BufRead *.yaml,*.yml" } },
-  { "towolf/vim-helm", event = { "BufRead *.yaml,*.yml" } },
-  { "darfink/vim-plist", event = { "BufRead *.plist" } },
+  {
+    "hashivim/vim-terraform",
+    ft = "terraform",
+  },
+  {
+    "rodjek/vim-puppet",
+    ft = "puppet",
+  },
+  {
+    "pearofducks/ansible-vim",
+    ft = "yaml",
+  },
+  {
+    "towolf/vim-helm",
+    ft = "yaml",
+  },
+  {
+    "darfink/vim-plist",
+    ft = "plist",
+  },
   {
     "saecki/crates.nvim",
-    event = { "BufRead Cargo.toml" },
+    event = { "BufEnter Cargo.toml" },
     config = function()
       require("core.plugin_config.crates")
     end,
   },
-  { "mustache/vim-mustache-handlebars", event = { "BufRead *.yaml,*.yml" } },
+  {
+    "mustache/vim-mustache-handlebars",
+    ft = "yaml",
+  },
 
   -- Telescope
   "nvim-telescope/telescope.nvim",
