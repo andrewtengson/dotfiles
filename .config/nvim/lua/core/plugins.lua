@@ -137,7 +137,7 @@ local plugins = {
   },
   {
     "towolf/vim-helm",
-    ft = "yaml",
+    ft = "helm",
   },
   {
     "darfink/vim-plist",
@@ -152,7 +152,7 @@ local plugins = {
   },
   {
     "mustache/vim-mustache-handlebars",
-    ft = "yaml",
+    ft = { "helm", "yaml" },
   },
 
   -- Telescope
