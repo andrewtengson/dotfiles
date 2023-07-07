@@ -199,6 +199,17 @@ local plugins = {
       require("core.plugin_config.chatgpt")
     end,
   },
+
+  -- Obsidian
+  {
+    "epwalsh/obsidian.nvim",
+    lazy = true,
+    event = { "BufReadPre " .. vim.fn.expand("~") .. "/Documents/obsidian-vault/**.md" },
+    opts = {
+      dir = "~/Documents/obsidian-vault",
+      disable_frontmatter = true,
+    },
+  },
 }
 
 local opts = {
