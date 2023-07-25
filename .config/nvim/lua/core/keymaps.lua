@@ -59,10 +59,10 @@ keymap("n", "<A-k>", "<Esc>:m .-2<CR>==gi", opts)
 keymap("v", "p", '"_dP', opts)
 
 -- Quickfix lists
-keymap("n", "<C-k>", ":cnext<CR>zz", opts)
-keymap("n", "<C-j>", ":cprev<CR>zz", opts)
-keymap("n", "<leader>K", ":lnext<CR>zz", opts)
-keymap("n", "<leader>J", ":lprev<CR>zz", opts)
+keymap("n", "<C-j>", ":cnext<CR>zz", opts)
+keymap("n", "<C-k>", ":cprev<CR>zz", opts)
+keymap("n", "<leader>J", ":lnext<CR>zz", opts)
+keymap("n", "<leader>K", ":lprev<CR>zz", opts)
 
 -- Insert --
 
