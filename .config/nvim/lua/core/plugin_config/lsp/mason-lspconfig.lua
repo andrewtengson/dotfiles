@@ -16,6 +16,7 @@ local servers = {
   "jdtls",
   "html",
   "cssls",
+  "taplo",
 }
 
 mason_lspconfig.setup({
