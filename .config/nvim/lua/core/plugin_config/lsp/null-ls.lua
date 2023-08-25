@@ -15,10 +15,13 @@ null_ls.setup({
     formatting.shellharden,
     formatting.golines,
     formatting.google_java_format,
-    formatting.yapf,
+    formatting.black,
     formatting.rustfmt,
 
     diagnostics.write_good,
+    diagnostics.mypy,
+    diagnostics.ruff,
+    diagnostics.jsonlint,
   },
   border = "single",
 })

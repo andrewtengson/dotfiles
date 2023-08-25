@@ -17,6 +17,7 @@ configs.setup({
     "gitignore",
     "go",
     "gomod",
+    "graphql",
     "hcl",
     "html",
     "http",
