@@ -1,7 +1,7 @@
 [Appearance]
 AntiAliasFonts=false
 ColorScheme=gruvbox_dark
-Font=ProggyCleanTTSZ Nerd Font Mono,12,-1,5,50,0,0,0,0,0
+Font=ProggyCleanSZ Nerd Font Mono,12,-1,5,50,0,0,0,0,0
 
 [General]
 Command=/bin/zsh
