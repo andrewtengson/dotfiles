@@ -12,7 +12,8 @@ case "$(uname -s)" in
   "Linux") alias \
     pbcopy='xsel --clipboard --input' \
     pbpaste='xsel --clipboard --output' \
-    ls='ls --color=auto'
+    ls='ls --color=auto' \
+    open='xdg-open'
   ;;
   "Darwin") alias \
     ls='ls -G'
