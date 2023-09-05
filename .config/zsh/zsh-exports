@@ -2,9 +2,9 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export EDITOR=nvim
 export PATH=$PATH:/usr/local/opt/openjdk/bin
-export PATH=$PATH:~/Documents/projects/flutter/bin
 export PATH=$PATH:~/go/bin
 export PATH=$PATH:~/.krew/bin
+export PATH=$PATH:~/.local/bin/
 
 if type brew &>/dev/null; then
   export FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
