@@ -3,6 +3,7 @@ local sources = {
   "python",
   "node2",
   "codelldb",
+  "delve",
 }
 
 local mason_nvim_dap = require("mason-nvim-dap")
