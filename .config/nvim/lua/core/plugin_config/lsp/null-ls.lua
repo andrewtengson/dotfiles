@@ -24,6 +24,7 @@ null_ls.setup({
     diagnostics.mypy,
     diagnostics.ruff,
     diagnostics.jsonlint,
+    diagnostics.golangci_lint,
   },
   border = "single",
 })
