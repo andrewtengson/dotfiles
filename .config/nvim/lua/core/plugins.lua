@@ -21,6 +21,8 @@ local plugins = {
   }, -- Useful lua functions used ny lots of plugins
   {
     "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {},
   },
   {
     "windwp/nvim-autopairs",
