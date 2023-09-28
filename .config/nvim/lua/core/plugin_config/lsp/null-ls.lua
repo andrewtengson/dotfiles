@@ -11,7 +11,6 @@ null_ls.setup({
   sources = {
     formatting.prettier,
     formatting.stylua,
-    formatting.terraform_fmt,
     formatting.shellharden,
     formatting.golines,
     formatting.gofumpt,
