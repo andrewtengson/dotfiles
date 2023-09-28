@@ -6,7 +6,6 @@ local servers = {
   "gopls",
   "jsonls",
   "pyright",
-  "sqlls",
   "lua_ls",
   "terraformls",
   "tsserver",
