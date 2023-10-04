@@ -14,3 +14,7 @@ UnderlineLinksEnabled=false
 [Scrolling]
 HighlightScrolledLines=false
 HistorySize=10000
+ScrollBarPosition=2
+
+[Terminal Features]
+BellMode=3
