@@ -18,6 +18,7 @@ null_ls.setup({
     formatting.google_java_format,
     formatting.black,
     formatting.rustfmt,
+    formatting.terraform_fmt,
 
     diagnostics.write_good,
     diagnostics.mypy,
