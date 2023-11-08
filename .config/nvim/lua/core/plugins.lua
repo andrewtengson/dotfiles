@@ -110,7 +110,7 @@ local plugins = {
     "jayp0521/mason-null-ls.nvim",
   },
   {
-    "jose-elias-alvarez/null-ls.nvim",
+    "nvimtools/none-ls.nvim",
   }, -- for formatters and linters
 
   -- DAP
