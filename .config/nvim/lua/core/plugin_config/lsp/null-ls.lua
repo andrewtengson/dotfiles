@@ -20,7 +20,6 @@ null_ls.setup({
     formatting.rustfmt,
     formatting.terraform_fmt,
 
-    diagnostics.write_good,
     diagnostics.mypy,
     diagnostics.ruff,
     diagnostics.jsonlint,
