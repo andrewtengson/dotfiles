@@ -222,6 +222,12 @@ local plugins = {
       disable_frontmatter = true,
     },
   },
+
+  -- Codeium
+  {
+    "Exafunction/codeium.vim",
+    event = "BufEnter",
+  },
 }
 
 local opts = {
