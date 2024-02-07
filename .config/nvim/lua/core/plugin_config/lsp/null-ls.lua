@@ -24,7 +24,6 @@ null_ls.setup({
     diagnostics.ruff,
     diagnostics.jsonlint,
     diagnostics.golangci_lint,
-    diagnostics.terraform_validate,
   },
   border = "single",
 })
