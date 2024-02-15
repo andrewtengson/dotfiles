@@ -33,3 +33,7 @@ autoload -Uz colors && colors
 
 bindkey -e
 bindkey -M menuselect '^[[Z' reverse-menu-complete
+
+if command zoxide > /dev/null 2>&1; then
+  eval "$(zoxide init --cmd cd zsh)"
+fi
