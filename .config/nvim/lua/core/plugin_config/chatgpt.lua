@@ -9,4 +9,10 @@ require("chatgpt").setup({
     top_p = 1,
     n = 1,
   },
+  chat = {
+    sessions_window = {
+      active_sign = " 󰄮 ",
+      inactive_sign = " 󰄱 ",
+    },
+  },
 })
