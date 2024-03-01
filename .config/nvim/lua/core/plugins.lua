@@ -228,6 +228,27 @@ local plugins = {
     "Exafunction/codeium.vim",
     event = "BufEnter",
   },
+
+  -- Silicon
+  {
+    "michaelrommel/nvim-silicon",
+    lazy = true,
+    cmd = "Silicon",
+    config = function()
+      require("core.plugin_config.silicon")
+    end,
+  },
+
+  -- WhichKey
+  {
+    "folke/which-key.nvim",
+    keys = { "<leader>", "<c-r>", "<c-w>", '"', "'", "`", "c", "v", "g" },
+    cmd = "WhichKey",
+    config = function(_, opts)
+      local wk = require("which-key")
+      wk.setup(opts)
+    end,
+  },
 }
 
 local opts = {

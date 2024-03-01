@@ -18,11 +18,6 @@ vim.g.maplocalleader = " "
 --   term_mode = "t",
 --   command_mode = "c",
 
--- Normal --
-
--- :! shortcut
-keymap("n", "!", ":!", opts)
-
 -- Save
 keymap("n", "<leader>w", ":w<CR>", opts)
 
@@ -30,7 +25,7 @@ keymap("n", "<leader>w", ":w<CR>", opts)
 keymap("n", "<leader>*", ":%s/\\<<c-r><c-w>\\>//g<left><left>", opts)
 
 -- Toggle showing hidden characters
-keymap("n", "<leader>s", ":set nolist!<cr>", opts)
+keymap("n", "<leader>sh", ":set nolist!<cr>", opts)
 
 -- Toggle spell checking
 keymap("n", "<leader>ss", ":setlocal spell!<cr>", opts)
@@ -45,8 +40,8 @@ keymap("n", "<leader>bl", ":ls<CR>", opts)
 keymap("n", "<leader><leader>", "<c-^>", opts)
 
 -- Diff
-keymap("n", "<leader>d", ":windo difft<CR>", opts)
-keymap("n", "<leader>D", ":windo diffoff<CR>", opts)
+keymap("n", "<leader>dw", ":windo difft<CR>", opts)
+keymap("n", "<leader>do", ":windo diffoff<CR>", opts)
 
 -- Git
 keymap("n", "<leader>gs", ":G<CR>", opts)
@@ -122,6 +117,9 @@ keymap("n", "<leader>dk", "<cmd> lua require'dap'.up()<cr>", opts)
 keymap("n", "<leader>dj", "<cmd> lua require'dap'.down()<cr>", opts)
 keymap("n", "<leader>dc", "<cmd> lua require'dap'.close()<cr>", opts)
 keymap("n", "<leader>du", "<cmd> lua require'dapui'.toggle()<cr>", opts)
+
+-- Silicon
+keymap("v", "<leader>sc", ":Silicon<cr>", opts)
 
 -- Open links
 local open_cmd = "xdg-open"
