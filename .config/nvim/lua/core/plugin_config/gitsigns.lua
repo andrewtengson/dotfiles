@@ -43,6 +43,7 @@ require("gitsigns").setup({
 
   on_attach = function(bufnr)
     local gs = package.loaded.gitsigns
+    local wk = require("which-key")
 
     local function map(mode, l, r, opts)
       opts = opts or {}
@@ -71,6 +72,11 @@ require("gitsigns").setup({
       return "<Ignore>"
     end, { expr = true })
 
+    wk.register({
+      ["[c"] = { "Previous Hunk" },
+      ["]c"] = { "Next Hunk" },
+    }, { mode = "n" })
+
     -- Actions
     map("n", "<leader>hs", gs.stage_hunk)
     map("n", "<leader>hr", gs.reset_hunk)
@@ -94,7 +100,29 @@ require("gitsigns").setup({
     end)
     map("n", "<leader>td", gs.toggle_deleted)
 
+    wk.register({
+      ["<leader>hs"] = { "Stage Hunk" },
+      ["<leader>hr"] = { "Reset Hunk" },
+      ["<leader>hS"] = { "Stage Buffer" },
+      ["<leader>hu"] = { "Undo Stage Hunk" },
+      ["<leader>hR"] = { "Reset Buffer" },
+      ["<leader>hp"] = { "Preview Hunk" },
+      ["<leader>hb"] = { "Blame Line" },
+      ["<leader>tb"] = { "Toggle Blame Line" },
+      ["<leader>hd"] = { "Diff This" },
+      ["<leader>hD"] = { "Diff This ~" },
+      ["<leader>td"] = { "Toggle Deleted" },
+    }, { mode = "n" })
+
+    wk.register({
+      ["<leader>hs"] = { "Stage Hunk" },
+      ["<leader>hr"] = { "Reset Hunk" },
+    }, { mode = "v" })
+
     -- Text object
     map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>")
+    wk.register({
+      ["ih"] = { "Select Hunk" },
+    }, { mode = { "o", "x" } })
   end,
 })
