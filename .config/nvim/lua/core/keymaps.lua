@@ -96,6 +96,7 @@ keymap("n", "<leader>f", "<cmd>lua require'telescope.builtin'.find_files()<cr>",
 keymap("n", "<c-t>", "<cmd>Telescope live_grep<cr>", opts)
 keymap("n", "<leader>p", "<cmd> Telescope projects<cr>", opts)
 keymap("n", "<leader>dt", "<cmd> Telescope dap commands<cr>", opts)
+keymap("n", "<leader>vh", "<cmd> Telescope help_tags<cr>", opts)
 
 -- Dap
 keymap("n", "<leader>db", "<cmd> DapToggleBreakpoint<cr>", opts)

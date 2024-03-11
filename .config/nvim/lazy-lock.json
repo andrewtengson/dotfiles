@@ -45,6 +45,7 @@
   "telescope-media-files.nvim": { "branch": "master", "commit": "0826c7a730bc4d36068f7c85cf4c5b3fd9fb570a" },
   "telescope.nvim": { "branch": "master", "commit": "0f865f17af4f9bc1587a0132414cdfd32d91852e" },
   "toggleterm.nvim": { "branch": "main", "commit": "b49df5cdce67a8964d1b027dae94bde212092b51" },
+  "undotree": { "branch": "main", "commit": "eab459ab87dd249617b5f7187bb69e614a083047" },
   "vim-bbye": { "branch": "master", "commit": "25ef93ac5a87526111f43e5110675032dbcacf56" },
   "vim-fugitive": { "branch": "master", "commit": "2a388ef5ba55fd7d50cbefe5767c0e7b65708eef" },
   "vim-helm": { "branch": "master", "commit": "86cc6766db60b8cc5731068d0c2111dee1f2b328" },

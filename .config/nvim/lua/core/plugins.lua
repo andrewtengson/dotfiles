@@ -249,6 +249,16 @@ local plugins = {
       wk.setup(opts)
     end,
   },
+
+  -- Undotree
+  {
+    "jiaoshijie/undotree",
+    keys = { { "<leader>u", "<cmd>lua require('undotree').toggle()<cr>" } },
+    dependencies = "nvim-lua/plenary.nvim",
+    config = function()
+      require("core.plugin_config.undotree")
+    end,
+  },
 }
 
 local opts = {
