@@ -219,6 +219,12 @@ local plugins = {
     event = { "BufReadPre " .. vim.fn.expand("~") .. "/Documents/obsidian-vault/**.md" },
     opts = {
       dir = "~/Documents/obsidian-vault",
+      daily_notes = {
+        folder = "Dailies",
+      },
+      ui = {
+        enable = false,
+      },
       disable_frontmatter = true,
     },
   },
