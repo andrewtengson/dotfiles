@@ -265,6 +265,16 @@ local plugins = {
       require("core.plugin_config.undotree")
     end,
   },
+
+  -- Harpoon
+  {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
+    config = function()
+      require("core.plugin_config.harpoon")
+    end,
+  },
 }
 
 local opts = {
