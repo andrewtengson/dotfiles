@@ -24,6 +24,7 @@ null_ls.setup({
     diagnostics.ruff,
     diagnostics.jsonlint,
     diagnostics.golangci_lint,
+    diagnostics.ansiblelint,
   },
   border = "single",
 })
