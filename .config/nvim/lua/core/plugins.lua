@@ -275,6 +275,12 @@ local plugins = {
       require("core.plugin_config.harpoon")
     end,
   },
+
+  -- Trouble
+  {
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+  },
 }
 
 local opts = {
