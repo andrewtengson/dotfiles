@@ -17,6 +17,7 @@ local servers = {
   "cssls",
   "taplo",
   "ltex",
+  "ruff_lsp",
 }
 
 mason_lspconfig.setup({
