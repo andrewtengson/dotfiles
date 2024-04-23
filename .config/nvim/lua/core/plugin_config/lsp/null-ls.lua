@@ -17,15 +17,11 @@ null_ls.setup({
     formatting.goimports_reviser,
     formatting.google_java_format,
     formatting.black,
-    formatting.rustfmt,
     formatting.terraform_fmt,
 
     diagnostics.mypy,
-    diagnostics.ruff,
-    diagnostics.jsonlint,
     diagnostics.golangci_lint,
     diagnostics.ansiblelint,
-    diagnostics.shellcheck,
   },
   border = "single",
 })
