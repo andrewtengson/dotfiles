@@ -34,6 +34,10 @@ autoload -Uz colors && colors
 bindkey -e
 bindkey -M menuselect '^[[Z' reverse-menu-complete
 
+autoload edit-command-line
+zle -N edit-command-line
+bindkey '^x^e' edit-command-line
+
 if which zoxide > /dev/null 2>&1; then
   eval "$(zoxide init --cmd cd zsh)"
 fi
