@@ -59,6 +59,9 @@ local plugins = {
   {
     "MunifTanjim/nui.nvim",
   },
+  {
+    "nvim-neotest/nvim-nio",
+  },
 
   -- Colorschemes
   {
