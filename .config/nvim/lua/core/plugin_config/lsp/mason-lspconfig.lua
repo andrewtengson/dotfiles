@@ -18,6 +18,7 @@ local servers = {
   "taplo",
   "ltex",
   "ruff_lsp",
+  "yamlls",
 }
 
 mason_lspconfig.setup({
@@ -54,6 +55,11 @@ mason_lspconfig.setup_handlers({
     if server_name == "terraformls" then
       local terraformls_opts = require("core.plugin_config.lsp.settings.terraformls")
       server_opts = vim.tbl_deep_extend("force", terraformls_opts, server_opts)
+    end
+
+    if server_name == "yamlls" then
+      local yamlls_opts = require("core.plugin_config.lsp.settings.yamlls")
+      server_opts = vim.tbl_deep_extend("force", yamlls_opts, server_opts)
     end
 
     require("lspconfig")[server_name].setup(server_opts)

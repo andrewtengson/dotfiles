@@ -169,6 +169,9 @@ local plugins = {
       vim.cmd([[silent! GoInstallDeps]])
     end,
   },
+  {
+    "b0o/schemastore.nvim",
+  },
 
   -- Telescope
   {
