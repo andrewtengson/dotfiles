@@ -9,4 +9,5 @@ export PATH=$PATH:~/.local/bin/
 if type brew &>/dev/null; then
   export FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
   export FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+  export PATH=$(brew --prefix)/opt/ruby/bin:$PATH
 fi
