@@ -65,7 +65,17 @@ local plugins = {
 
   -- Colorschemes
   {
-    "gruvbox-community/gruvbox",
+    "ellisonleao/gruvbox.nvim",
+    config = function(_, opts)
+      require("gruvbox").setup(opts)
+    end,
+    opts = {
+      contrast = "hard",
+      invert_selection = true,
+      invert_signs = true,
+      invert_tabline = true,
+      invert_intend_guides = true,
+    },
   },
 
   -- cmp plugins
