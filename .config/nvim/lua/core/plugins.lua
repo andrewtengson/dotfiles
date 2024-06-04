@@ -72,8 +72,6 @@ local plugins = {
     opts = {
       contrast = "hard",
       invert_selection = true,
-      invert_signs = true,
-      invert_tabline = true,
       invert_intend_guides = true,
     },
   },
