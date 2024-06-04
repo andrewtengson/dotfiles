@@ -130,9 +130,7 @@ end
 keymap("n", "gx", ":execute '!" .. open_cmd .. " '.shellescape(expand('<cfile>'), 1)<CR>", opts)
 
 -- Trouble
-keymap("n", "<leader>xx", "<cmd>TroubleToggle<cr>", opts)
-keymap("n", "<leader>xw", "<cmd>TroubleToggle workspace_diagnostics<cr>", opts)
-keymap("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", opts)
-keymap("n", "<leader>xq", "<cmd>TroubleToggle quickfix<cr>", opts)
-keymap("n", "<leader>xl", "<cmd>TroubleToggle loclist<cr>", opts)
-keymap("n", "gR", "<cmd>TroubleToggle lsp_references<cr>", opts)
+keymap("n", "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", opts)
+keymap("n", "<leader>xq", "<cmd>Trouble quickfix toggle<cr>", opts)
+keymap("n", "<leader>xl", "<cmd>Trouble loclist toggle<cr>", opts)
+keymap("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", opts)
