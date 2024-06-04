@@ -1,6 +1,5 @@
 local colorscheme = "gruvbox"
 
-vim.api.nvim_exec("colorscheme gruvbox", false)
 local status_ok, _ = pcall(vim.api.nvim_exec, "colorscheme " .. colorscheme, false)
 if not status_ok then
   vim.notify("colorscheme " .. colorscheme .. " not found!")
