@@ -138,7 +138,7 @@ prompt_virtualenv() {
   if [[ -n $VIRTUAL_ENV ]]; then
     color=cyan
     prompt_segment $color $PRIMARY_FG
-    print -Pn " $(basename $VIRTUAL_ENV) "
+    print -Pn " venv "
   fi
 }
 
