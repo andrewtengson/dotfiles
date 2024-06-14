@@ -19,7 +19,9 @@ null_ls.setup({
     formatting.black,
     formatting.terraform_fmt,
 
-    diagnostics.mypy,
+    diagnostics.mypy.with({
+      extra_args = { "--python-executable", "python" },
+    }),
     diagnostics.golangci_lint,
     diagnostics.ansiblelint,
   },
