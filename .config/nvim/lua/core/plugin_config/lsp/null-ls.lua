@@ -18,6 +18,7 @@ null_ls.setup({
     formatting.google_java_format,
     formatting.black,
     formatting.terraform_fmt,
+    formatting.sql_formatter,
 
     diagnostics.mypy.with({
       extra_args = { "--python-executable", "python" },
