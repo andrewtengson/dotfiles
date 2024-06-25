@@ -22,39 +22,65 @@ local plugins = {
   {
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
-    opts = {},
+    config = function()
+      require("core.plugin_config.indent-blankline")
+    end,
   },
   {
     "windwp/nvim-autopairs",
+    config = function()
+      require("core.plugin_config.autopairs")
+    end,
   }, -- Autopairs, integrates with both cmp and treesitter
   {
     "numToStr/Comment.nvim",
+    config = function()
+      require("core.plugin_config.comment")
+    end,
   },
   {
     "kyazdani42/nvim-web-devicons",
   },
   {
     "kyazdani42/nvim-tree.lua",
+    config = function()
+      require("core.plugin_config.nvim-tree")
+    end,
   },
   {
     "akinsho/bufferline.nvim",
     branch = "main",
+    config = function()
+      require("core.plugin_config.bufferline")
+    end,
   },
   {
     "moll/vim-bbye",
   },
   {
     "nvim-lualine/lualine.nvim",
+    config = function()
+      require("core.plugin_config.lualine")
+    end,
   },
   {
     "akinsho/toggleterm.nvim",
     branch = "main",
+    config = function()
+      require("core.plugin_config.toggleterm")
+    end,
   },
   {
     "lewis6991/impatient.nvim",
+    config = function()
+      require("core.plugin_config.impatient")
+    end,
   },
   {
     "ahmedkhalf/project.nvim",
+    config = function()
+      require("core.plugin_config.project")
+    end,
   },
   {
     "MunifTanjim/nui.nvim",
@@ -88,6 +114,9 @@ local plugins = {
   }, -- path completions
   {
     "hrsh7th/cmp-cmdline",
+    config = function()
+      require("core.plugin_config.cmp")
+    end,
   }, -- cmdline completions
   {
     "saadparwaiz1/cmp_luasnip",
@@ -206,6 +235,9 @@ local plugins = {
   -- Git
   {
     "lewis6991/gitsigns.nvim",
+    config = function()
+      require("core.plugin_config.gitsigns")
+    end,
   },
   {
     "tpope/vim-fugitive",
