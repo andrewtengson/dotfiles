@@ -62,6 +62,11 @@ mason_lspconfig.setup_handlers({
       server_opts = vim.tbl_deep_extend("force", yamlls_opts, server_opts)
     end
 
+    if server_name == "basedpyright" then
+      local basedpyright_opts = require("core.plugin_config.lsp.settings.basedpyright")
+      server_opts = vim.tbl_deep_extend("force", basedpyright_opts, server_opts)
+    end
+
     require("lspconfig")[server_name].setup(server_opts)
   end,
 })
