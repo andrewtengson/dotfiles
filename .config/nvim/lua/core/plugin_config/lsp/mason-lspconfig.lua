@@ -5,7 +5,7 @@ local servers = {
   "dockerls",
   "gopls",
   "jsonls",
-  "pyright",
+  "basedpyright",
   "lua_ls",
   "terraformls",
   "tsserver",
