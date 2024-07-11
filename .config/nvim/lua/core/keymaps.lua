@@ -134,3 +134,11 @@ keymap("n", "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", opts)
 keymap("n", "<leader>xq", "<cmd>Trouble quickfix toggle<cr>", opts)
 keymap("n", "<leader>xl", "<cmd>Trouble loclist toggle<cr>", opts)
 keymap("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", opts)
+
+-- Molten
+keymap("n", "<leader>mi", ":MoltenInit<cr>", opts)
+keymap("n", "<leader>me", ":MoltenEvaluateOperator<cr>", opts)
+keymap("n", "<leader>rr", ":MoltenReevaluateCell<cr>", opts)
+keymap("v", "<leader>r", ":<C-u>MoltenEvaluateVisual<cr>gv<esc>", opts)
+keymap("n", "<leader>oh", ":MoltenHideOutput<cr>", opts)
+keymap("n", "<leader>os", ":noautocmd MoltenEnterOutput<cr>", opts)

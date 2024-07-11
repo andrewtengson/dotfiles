@@ -88,6 +88,13 @@ local plugins = {
   {
     "nvim-neotest/nvim-nio",
   },
+  {
+    "jmbuhr/otter.nvim",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+    },
+    opts = {},
+  },
 
   -- Colorschemes
   {
@@ -208,6 +215,62 @@ local plugins = {
   },
   {
     "b0o/schemastore.nvim",
+  },
+  {
+    "benlubas/molten-nvim",
+    build = ":UpdateRemotePlugins",
+    init = function()
+      vim.g.molten_auto_open_output = false
+      vim.g.molten_wrap_output = true
+      vim.g.molten_virt_text_output = true
+      vim.g.molten_virt_lines_off_by_1 = true
+    end,
+  },
+  {
+    "GCBallesteros/jupytext.nvim",
+    config = true,
+    opts = {
+      style = "markdown",
+      output_extension = "md",
+      force_ft = "markdown",
+    },
+  },
+  {
+    "quarto-dev/quarto-nvim",
+    dependencies = {
+      "jmbuhr/otter.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    ft = { "quarto", "markdown" },
+    config = function(_, opts)
+      require("quarto").setup(opts)
+      require("quarto").activate()
+      local runner = require("quarto.runner")
+      vim.keymap.set("n", "<leader>rc", runner.run_cell, { desc = "run cell", silent = true })
+      vim.keymap.set("n", "<leader>ra", runner.run_above, { desc = "run cell and above", silent = true })
+      vim.keymap.set("n", "<leader>rA", runner.run_all, { desc = "run all cells", silent = true })
+      vim.keymap.set("n", "<leader>rl", runner.run_line, { desc = "run line", silent = true })
+      vim.keymap.set("n", "<leader>RA", function()
+        runner.run_all(true)
+      end, { desc = "run all cells of all languages", silent = true })
+    end,
+    opts = {
+      lspFeatures = {
+        languages = { "python" },
+        chunks = "all",
+        diagnostics = {
+          enabled = true,
+          triggers = { "BufWritePost" },
+        },
+        completion = {
+          enabled = true,
+        },
+      },
+      codeRunner = {
+        enabled = true,
+        default_method = "molten",
+      },
+    },
   },
 
   -- Telescope
@@ -356,6 +419,9 @@ local opts = {
         "‒",
       },
     },
+  },
+  rocks = {
+    hererocks = true,
   },
 }
 
