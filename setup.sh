@@ -30,6 +30,7 @@ dotfiles=(
   ".tmux.conf"
   ".config/nvim"
   ".config/zsh"
+  ".config/kitty"
 )
 
 if [[ "$(uname -s)" == "Darwin" ]] || [[ $USER == "deck" ]]; then
