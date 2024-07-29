@@ -19,6 +19,7 @@ local servers = {
   "ltex",
   "ruff_lsp",
   "yamlls",
+  "biome",
 }
 
 mason_lspconfig.setup({
