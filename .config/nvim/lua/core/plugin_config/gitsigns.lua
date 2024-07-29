@@ -67,9 +67,9 @@ require("gitsigns").setup({
       return "<Ignore>"
     end, { expr = true })
 
-    wk.register({
-      ["[c"] = { "Previous Hunk" },
-      ["]c"] = { "Next Hunk" },
+    wk.add({
+      { "[c", desc = "Previous Hunk" },
+      { "]c", desc = "Next Hunk" },
     }, { mode = "n" })
 
     -- Actions
@@ -95,29 +95,29 @@ require("gitsigns").setup({
     end)
     map("n", "<leader>td", gs.toggle_deleted)
 
-    wk.register({
-      ["<leader>hs"] = { "Stage Hunk" },
-      ["<leader>hr"] = { "Reset Hunk" },
-      ["<leader>hS"] = { "Stage Buffer" },
-      ["<leader>hu"] = { "Undo Stage Hunk" },
-      ["<leader>hR"] = { "Reset Buffer" },
-      ["<leader>hp"] = { "Preview Hunk" },
-      ["<leader>hb"] = { "Blame Line" },
-      ["<leader>tb"] = { "Toggle Blame Line" },
-      ["<leader>hd"] = { "Diff This" },
-      ["<leader>hD"] = { "Diff This ~" },
-      ["<leader>td"] = { "Toggle Deleted" },
+    wk.add({
+      { "<leader>hs", desc = "Stage Hunk" },
+      { "<leader>hr", desc = "Reset Hunk" },
+      { "<leader>hS", desc = "Stage Buffer" },
+      { "<leader>hu", desc = "Undo Stage Hunk" },
+      { "<leader>hR", desc = "Reset Buffer" },
+      { "<leader>hp", desc = "Preview Hunk" },
+      { "<leader>hb", desc = "Blame Line" },
+      { "<leader>tb", desc = "Toggle Blame Line" },
+      { "<leader>hd", desc = "Diff This" },
+      { "<leader>hD", desc = "Diff This ~" },
+      { "<leader>td", desc = "Toggle Deleted" },
     }, { mode = "n" })
 
-    wk.register({
-      ["<leader>hs"] = { "Stage Hunk" },
-      ["<leader>hr"] = { "Reset Hunk" },
+    wk.add({
+      { "<leader>hs", desc = "Stage Hunk" },
+      { "<leader>hr", desc = "Reset Hunk" },
     }, { mode = "v" })
 
     -- Text object
     map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>")
-    wk.register({
-      ["ih"] = { "Select Hunk" },
+    wk.add({
+      { "ih", desc = "Select Hunk" },
     }, { mode = { "o", "x" } })
   end,
 })

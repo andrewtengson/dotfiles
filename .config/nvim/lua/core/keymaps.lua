@@ -120,7 +120,9 @@ keymap("n", "<leader>dc", "<cmd> lua require'dap'.close()<cr>", opts)
 keymap("n", "<leader>du", "<cmd> lua require'dapui'.toggle()<cr>", opts)
 
 -- Silicon
-keymap("v", "<leader>sc", ":Silicon<cr>", opts)
+keymap("v", "<leader>ss", "<cmd> lua require'nvim-silicon'.shoot()<cr>", opts)
+keymap("v", "<leader>sf", "<cmd> lua require'nvim-silicon'.file()<cr>", opts)
+keymap("v", "<leader>sc", "<cmd> lua require'nvim-silicon'.clip()<cr>", opts)
 
 -- Open links
 local open_cmd = "xdg-open"

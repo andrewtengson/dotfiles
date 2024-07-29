@@ -76,95 +76,102 @@ end
 
 local function toggle_telescope(harpoon_files)
   pickers
-    .new(
-      themes.get_dropdown({
-        --TODO: make previewer work.
-        previewer = false,
-      }),
-      {
-        prompt_title = "Harpoon",
-        finder = generate_new_finder(harpoon_files),
-        previewer = conf.file_previewer({}),
-        sorter = conf.generic_sorter({}),
-        -- Initial mode, change this to your liking. Normal mode is better for navigating with j/k
-        initial_mode = "normal",
-        -- Make telescope select buffer from harpoon list
-        attach_mappings = function(_, map)
-          actions.select_default:replace(function(prompt_bufnr)
-            local curr_entry = action_state.get_selected_entry()
-            if not curr_entry then
-              return
-            end
-            actions.close(prompt_bufnr)
+      .new(
+        themes.get_dropdown({
+          --TODO: make previewer work.
+          previewer = false,
+        }),
+        {
+          prompt_title = "Harpoon",
+          finder = generate_new_finder(harpoon_files),
+          previewer = conf.file_previewer({}),
+          sorter = conf.generic_sorter({}),
+          -- Initial mode, change this to your liking. Normal mode is better for navigating with j/k
+          initial_mode = "normal",
+          -- Make telescope select buffer from harpoon list
+          attach_mappings = function(_, map)
+            actions.select_default:replace(function(prompt_bufnr)
+              local curr_entry = action_state.get_selected_entry()
+              if not curr_entry then
+                return
+              end
+              actions.close(prompt_bufnr)
 
-            harpoon:list():select(curr_entry.index)
-          end)
-          -- Delete entries in insert mode from harpoon list with <C-d>
-          -- Change the keybinding to your liking
-          map({ "n", "i" }, "<C-d>", function(prompt_bufnr)
-            local curr_picker = action_state.get_current_picker(prompt_bufnr)
-
-            curr_picker:delete_selection(function(selection)
-              harpoon:list():removeAt(selection.index)
+              harpoon:list():select(curr_entry.index)
             end)
-          end)
-          -- Move entries up and down with <C-j> and <C-k>
-          -- Change the keybinding to your liking
-          map({ "n", "i" }, "<C-j>", function(prompt_bufnr)
-            move_mark_down(prompt_bufnr, harpoon_files)
-          end)
-          map({ "n", "i" }, "<C-k>", function(prompt_bufnr)
-            move_mark_up(prompt_bufnr, harpoon_files)
-          end)
+            -- Delete entries in insert mode from harpoon list with <C-d>
+            -- Change the keybinding to your liking
+            map({ "n", "i" }, "<C-d>", function(prompt_bufnr)
+              local curr_picker = action_state.get_current_picker(prompt_bufnr)
 
-          return true
-        end,
-      }
-    )
-    :find()
+              curr_picker:delete_selection(function(selection)
+                harpoon:list():removeAt(selection.index)
+              end)
+            end)
+            -- Move entries up and down with <C-j> and <C-k>
+            -- Change the keybinding to your liking
+            map({ "n", "i" }, "<C-j>", function(prompt_bufnr)
+              move_mark_down(prompt_bufnr, harpoon_files)
+            end)
+            map({ "n", "i" }, "<C-k>", function(prompt_bufnr)
+              move_mark_up(prompt_bufnr, harpoon_files)
+            end)
+
+            return true
+          end,
+        }
+      )
+      :find()
 end
 
-wk.register({
-  ["<leader>na"] = {
+wk.add({
+  {
+    "<leader>na",
     function()
       harpoon:list():append()
     end,
-    "Add to harpoon list",
+    desc = "Add to harpoon list",
   },
-  ["<leader>nd"] = {
+  {
+    "<leader>nd",
     function()
       harpoon:list():remove()
     end,
-    "Remove from harpoon list",
+    desc = "Remove from harpoon list",
   },
-  ["<leader>n1"] = {
+  {
+    "<leader>n1",
     function()
       harpoon:list():select(1)
     end,
-    "Select harpoon mark 1",
+    desc = "Select harpoon mark 1",
   },
-  ["<leader>n2"] = {
+  {
+    "<leader>n2",
     function()
       harpoon:list():select(2)
     end,
-    "Select harpoon mark 2",
+    desc = "Select harpoon mark 2",
   },
-  ["<leader>n3"] = {
+  {
+    "<leader>n3",
     function()
       harpoon:list():select(3)
     end,
-    "Select harpoon mark 3",
+    desc = "Select harpoon mark 3",
   },
-  ["<leader>n4"] = {
+  {
+    "<leader>n4",
     function()
       harpoon:list():select(4)
     end,
-    "Select harpoon mark 4",
+    desc = "Select harpoon mark 4",
   },
-  ["<leader>ne"] = {
+  {
+    "<leader>ne",
     function()
       toggle_telescope(harpoon:list())
     end,
-    "Toggle harpoon menu",
+    desc = "Toggle harpoon menu",
   },
 }, { mode = "n" })
