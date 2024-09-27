@@ -8,7 +8,7 @@ local servers = {
   "basedpyright",
   "lua_ls",
   "terraformls",
-  "tsserver",
+  "ts_ls",
   "ansiblels",
   "clangd",
   "rust_analyzer",
