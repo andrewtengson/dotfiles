@@ -11,3 +11,7 @@ if type brew &>/dev/null; then
   export FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
   export PATH=$(brew --prefix)/opt/ruby/bin:$PATH
 fi
+
+if type nvim >/dev/null 2>&1; then
+  export MANPAGER="nvim +Man!"
+fi
