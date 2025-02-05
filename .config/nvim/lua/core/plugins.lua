@@ -399,7 +399,11 @@ local plugins = {
     lazy = false,
     version = "*",
     build = "make",
-    opts = {},
+    opts = {
+      hints = {
+        enabled = false,
+      },
+    },
     dependencies = {
       "stevearc/dressing.nvim",
       "nvim-lua/plenary.nvim",
