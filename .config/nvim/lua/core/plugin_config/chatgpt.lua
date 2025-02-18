@@ -1,7 +1,7 @@
 require("chatgpt").setup({
-  api_key_cmd = "pass openai/chatgpt.nvim/token",
+  api_key_cmd = "pass openai/token",
   openai_params = {
-    model = "gpt-3.5-turbo",
+    model = "o1-mini",
     frequency_penalty = 0,
     presence_penalty = 0,
     max_tokens = 8192,
