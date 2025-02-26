@@ -1,6 +1,6 @@
 require("avante_lib").load()
 require("avante").setup({
-  provider = "openai",
+  provider = "claude",
   openai = {
     endpoint = "https://api.openai.com/v1",
     api_key_name = "cmd:pass openai/token",
@@ -13,7 +13,17 @@ require("avante").setup({
   claude = {
     endpoint = "https://api.anthropic.com",
     api_key_name = "cmd:pass anthropic/token",
-    model = "claude-3-5-sonnet-20241022",
+    model = "claude-3-7-sonnet-20250219",
+    timeout = 30000,
+    temperature = 0,
+    max_tokens = 8000,
+  },
+  azure = {
+    endpoint = "https://isse-sre-east-us-2.openai.azure.com",
+    api_key_name = "cmd:pass azure-ai/isse-sre-east-us-2/token",
+    model = "o3-mini",
+    deployment = "o3-mini",
+    api_version = "2024-12-01-preview",
     timeout = 30000,
     temperature = 0,
     max_tokens = 8000,
