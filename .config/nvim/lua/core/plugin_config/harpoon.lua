@@ -128,7 +128,7 @@ wk.add({
   {
     "<leader>na",
     function()
-      harpoon:list():append()
+      harpoon:list():add()
     end,
     desc = "Add to harpoon list",
   },
