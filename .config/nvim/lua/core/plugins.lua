@@ -392,20 +392,9 @@ local plugins = {
     dependencies = { "nvim-tree/nvim-web-devicons" },
   },
 
-  -- Snacks
+  -- Dressing
   {
-    "folke/snacks.nvim",
-    priority = 1000,
-    lazy = false,
-    opts = {
-      bigfile = { enabled = true },
-      input = { enabled = true },
-      picker = { enabled = true },
-      notifier = { enabled = true },
-      quickfile = { enabled = true },
-      words = { enabled = true },
-    },
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    "stevearc/dressing.nvim",
   },
 
   -- Avante
