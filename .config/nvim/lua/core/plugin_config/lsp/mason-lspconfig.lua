@@ -20,6 +20,7 @@ local servers = {
   "ruff",
   "yamlls",
   "biome",
+  "tailwindcss",
 }
 
 mason_lspconfig.setup({
@@ -66,6 +67,11 @@ mason_lspconfig.setup_handlers({
     if server_name == "basedpyright" then
       local basedpyright_opts = require("core.plugin_config.lsp.settings.basedpyright")
       server_opts = vim.tbl_deep_extend("force", basedpyright_opts, server_opts)
+    end
+
+    if server_name == "biome" then
+      local biome_opts = require("core.plugin_config.lsp.settings.biome")
+      server_opts = vim.tbl_deep_extend("force", biome_opts, server_opts)
     end
 
     require("lspconfig")[server_name].setup(server_opts)
