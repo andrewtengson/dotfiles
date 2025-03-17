@@ -54,7 +54,6 @@
   "quarto-nvim": { "branch": "main", "commit": "93b1f5a1abc1b1da653f353947f62b294574759c" },
   "render-markdown.nvim": { "branch": "main", "commit": "1cd546e96cb8520a148610ca86596ed238eeb936" },
   "schemastore.nvim": { "branch": "main", "commit": "acf16353b88d9ebf8ab69e7fd42522bbb277e0ba" },
-  "snacks.nvim": { "branch": "main", "commit": "bc0630e43be5699bb94dadc302c0d21615421d93" },
   "telescope-dap.nvim": { "branch": "master", "commit": "783366bd6c1e7fa0a5c59c07db37f49c805a28df" },
   "telescope-media-files.nvim": { "branch": "master", "commit": "0826c7a730bc4d36068f7c85cf4c5b3fd9fb570a" },
   "telescope.nvim": { "branch": "master", "commit": "814f102cd1da3dc78c7d2f20f2ef3ed3cdf0e6e4" },
