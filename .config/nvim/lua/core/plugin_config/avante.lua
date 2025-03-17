@@ -1,6 +1,10 @@
 require("avante_lib").load()
 require("avante").setup({
   provider = "claude",
+  cursor_applying_provider = "groq",
+  behaviour = {
+    enable_cursor_planning_mode = true,
+  },
   openai = {
     endpoint = "https://api.openai.com/v1",
     api_key_name = "cmd:pass openai/token",
@@ -8,7 +12,6 @@ require("avante").setup({
     timeout = 30000,
     temperature = 0,
     max_tokens = 8000,
-    disable_tools = true,
   },
   claude = {
     endpoint = "https://api.anthropic.com",
@@ -34,6 +37,13 @@ require("avante").setup({
       api_key_name = "cmd:pass deepseek/token",
       endpoint = "https://api.deepseek.com",
       model = "deepseek-reasoner",
+    },
+    groq = {
+      __inherited_from = "openai",
+      api_key_name = "cmd:pass groq/token",
+      endpoint = "https://api.groq.com/openai/v1/",
+      model = "llama-3.3-70b-versatile",
+      max_tokens = 32768,
     },
   },
   hints = {
