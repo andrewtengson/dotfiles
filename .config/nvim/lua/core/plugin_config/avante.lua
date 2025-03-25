@@ -11,7 +11,7 @@ require("avante").setup({
     model = "o3-mini",
     timeout = 30000,
     temperature = 0,
-    max_tokens = 8000,
+    max_completion_tokens = 20480,
   },
   claude = {
     endpoint = "https://api.anthropic.com",
@@ -19,7 +19,7 @@ require("avante").setup({
     model = "claude-3-7-sonnet-latest",
     timeout = 30000,
     temperature = 0,
-    max_tokens = 8000,
+    max_tokens = 20480,
   },
   azure = {
     endpoint = "https://isse-sre-east-us-2.openai.azure.com",
@@ -29,7 +29,7 @@ require("avante").setup({
     api_version = "2024-12-01-preview",
     timeout = 30000,
     temperature = 0,
-    max_tokens = 8000,
+    max_completion_tokens = 20480,
   },
   vendors = {
     deepseek = {
