@@ -50,3 +50,8 @@ require("avante").setup({
     enabled = false,
   },
 })
+
+-- Patch for borked borders https://github.com/yetone/avante.nvim/commit/86b63b2a33b4fa45431a35a541e7f02d4d3d523b#commitcomment-154265945
+vim.api.nvim_set_hl(0, "AvanteSidebarWinSeparator", { link = "WinSeparator" })
+local normal_bg = string.format("#%06x", vim.api.nvim_get_hl(0, { name = "Normal" }).bg)
+vim.api.nvim_set_hl(0, "AvanteSidebarWinHorizontalSeparator", { fg = normal_bg })
