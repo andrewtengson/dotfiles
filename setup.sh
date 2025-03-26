@@ -31,7 +31,12 @@ dotfiles=(
   ".config/nvim"
   ".config/zsh"
   ".config/kitty"
+  ".config/ghostty"
 )
+
+if [[ "$(uname -s)" == "Linux" ]]; then
+  dotfiles+=( ".config/ghostty-linux" )
+fi
 
 if [[ "$(uname -s)" == "Darwin" ]] || [[ $USER == "deck" ]]; then
   if ! "$(which brew)"; then

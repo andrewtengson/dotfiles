@@ -1,0 +1,17 @@
+config-file = ?../ghostty-linux/config
+
+theme = GruvboxDarkHard
+
+font-family  = "ProggyCleanSZ Nerd Font Mono"
+font-size    = 16
+
+cursor-style       = block
+cursor-style-blink = false
+
+title = " "
+
+shell-integration-features = "no-cursor"
+
+scrollback-limit = 10000
+
+macos-titlebar-proxy-icon = "hidden"
