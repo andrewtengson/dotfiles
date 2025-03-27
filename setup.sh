@@ -35,7 +35,7 @@ dotfiles=(
 )
 
 if [[ "$(uname -s)" == "Linux" ]]; then
-  dotfiles+=( ".config/ghostty-linux" )
+  ln -sfn "$PWD/.config/ghostty-linux" "$HOME/.config/ghostty/ghostty-linux"
 fi
 
 if [[ "$(uname -s)" == "Darwin" ]] || [[ $USER == "deck" ]]; then

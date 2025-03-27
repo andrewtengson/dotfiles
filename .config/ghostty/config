@@ -1,4 +1,4 @@
-config-file = ?../ghostty-linux/config
+config-file = ?./ghostty-linux/config
 
 theme = GruvboxDarkHard
 
