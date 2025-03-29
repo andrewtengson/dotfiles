@@ -1,3 +1,4 @@
 .config/nvim/plugin/packer_compiled.lua
 .config/zsh/plugins
 .config/zsh/.zcompdump
+.config/ghostty/ghostty-linux
