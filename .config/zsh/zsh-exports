@@ -1,7 +1,7 @@
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export EDITOR=nvim
-export PATH=$PATH:/usr/local/opt/openjdk/bin
+export PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH
 export PATH=$PATH:~/go/bin
 export PATH=$PATH:~/.krew/bin
 export PATH=$PATH:~/.local/bin/
