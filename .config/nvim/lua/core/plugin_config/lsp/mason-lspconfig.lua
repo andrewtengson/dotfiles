@@ -16,7 +16,6 @@ local servers = {
   "html",
   "cssls",
   "taplo",
-  "ltex",
   "ruff",
   "yamlls",
   "biome",
