@@ -1,6 +1,9 @@
 local palette = require("gruvbox").palette
 require("bufferline").setup({
   options = {
+    modified_icon = "󰧟",
+    left_trunc_marker = "",
+    right_trunc_marker = "",
     offsets = { { filetype = "NvimTree", text = "", padding = 1 } },
     show_buffer_icons = true,
     show_buffer_close_icons = false,
