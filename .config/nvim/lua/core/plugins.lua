@@ -105,6 +105,9 @@ local plugins = {
       contrast = "hard",
       invert_selection = true,
       invert_intend_guides = true,
+      overrides = {
+        BufferLineFill = { bg = "#1d2021" },
+      },
     },
   },
 
