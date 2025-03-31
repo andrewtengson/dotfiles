@@ -106,7 +106,9 @@ local plugins = {
       invert_selection = true,
       invert_intend_guides = true,
       overrides = {
-        BufferLineFill = { bg = "#1d2021" },
+        SignColumn = { bg = "#1d2021" },
+        ColorColumn = { bg = "#1d2021" },
+        WinBarNC = { bg = "#1d2021" },
       },
     },
   },
