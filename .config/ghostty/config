@@ -2,8 +2,8 @@ config-file = ?./ghostty-linux/config
 
 theme = GruvboxDarkHard
 
-font-family  = "0xProto Nerd Font Mono"
-font-size    = 11
+font-family  = "ProggyCleanSZ Nerd Font Mono"
+font-size    = 16
 
 font-style-bold = false
 
