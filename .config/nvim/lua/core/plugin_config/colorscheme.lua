@@ -2,7 +2,7 @@ local colorscheme = "gruvbox"
 
 vim.opt.background = "dark"
 
-local status_ok, _ = pcall(vim.api.nvim_exec, "colorscheme " .. colorscheme, false)
+local status_ok, _ = pcall(vim.api.nvim_exec2, "colorscheme " .. colorscheme, { output = false })
 if not status_ok then
   vim.notify("colorscheme " .. colorscheme .. " not found!")
   return

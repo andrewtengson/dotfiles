@@ -99,9 +99,8 @@ local plugins = {
   -- Colorschemes
   {
     "ellisonleao/gruvbox.nvim",
-    config = function(_, opts)
-      require("gruvbox").setup(opts)
-    end,
+    priority = 1000,
+    config = true,
     opts = {
       contrast = "hard",
       invert_selection = true,
@@ -304,21 +303,6 @@ local plugins = {
   },
   {
     "tpope/vim-fugitive",
-  },
-
-  -- ChatGPT
-  {
-    "jackMort/ChatGPT.nvim",
-    cmd = {
-      "ChatGPT",
-      "ChatGPTActAs",
-      "ChatGPTCompleteCode",
-      "ChatGPTEditWithInstructions",
-      "ChatGPTRun",
-    },
-    config = function()
-      require("core.plugin_config.chatgpt")
-    end,
   },
 
   -- Obsidian
