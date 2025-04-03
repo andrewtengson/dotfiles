@@ -1,16 +1,42 @@
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 export EDITOR=nvim
-export PATH=/opt/homebrew/opt/openjdk@21/bin:$PATH
+
+add_brew_packages_to_path() {
+  if type brew &>/dev/null; then
+    local brew_prefix=$(brew --prefix)
+
+    local brew_packages=(
+      "openjdk@21"
+      "curl"
+      "ruby"
+      # "coreutils/libexec/gnubin"
+      # "gnu-sed/libexec/gnubin"
+      # "grep/libexec/gnubin"
+    )
+
+    for package in "${brew_packages[@]}"; do
+      if [[ "$package" == *"/libexec/gnubin" ]]; then
+        # Handle GNU tools with gnubin directory
+        local base_package="${package%/libexec/gnubin}"
+        if [[ -d "$brew_prefix/opt/$package" ]]; then
+          export PATH="$brew_prefix/opt/$package:$PATH"
+        fi
+      elif [[ -d "$brew_prefix/opt/$package/bin" ]]; then
+        export PATH="$brew_prefix/opt/$package/bin:$PATH"
+      fi
+    done
+
+    export FPATH="$brew_prefix/share/zsh-completions:$FPATH"
+    export FPATH="$brew_prefix/share/zsh/site-functions:$FPATH"
+  fi
+}
+
 export PATH=$PATH:~/go/bin
 export PATH=$PATH:~/.krew/bin
-export PATH=$PATH:~/.local/bin/
+export PATH=$PATH:~/.local/bin
 
-if type brew &>/dev/null; then
-  export FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
-  export FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
-  export PATH=$(brew --prefix)/opt/ruby/bin:$PATH
-fi
+add_brew_packages_to_path
 
 if type nvim >/dev/null 2>&1; then
   export MANPAGER="nvim +Man!"

@@ -1,6 +1,6 @@
 require("avante_lib").load()
 require("avante").setup({
-  provider = "claude",
+  provider = "bedrock",
   cursor_applying_provider = "groq",
   behaviour = {
     enable_cursor_planning_mode = true,
@@ -30,6 +30,13 @@ require("avante").setup({
     timeout = 30000,
     temperature = 0,
     max_completion_tokens = 20480,
+  },
+  bedrock = {
+    model = "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    api_key_name = { "zsh", "-c", "source ~/.config/zsh/zsh-functions; get_bedrock_creds isse-se-prod us-west-2" },
+    timeout = 30000,
+    temperature = 0,
+    max_tokens = 20480,
   },
   vendors = {
     deepseek = {

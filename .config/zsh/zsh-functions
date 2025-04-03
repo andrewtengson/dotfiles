@@ -28,3 +28,39 @@ function zsh_add_completion() {
   completion_file="$(basename "${completion_file_path}")"
   if [ "$2" = true ] && compinit "${completion_file:1}"
 }
+
+function get_bedrock_creds() {
+  local profile=$1
+  local region=$2
+
+  if [ -z "$profile" ] || [ -z "$region" ]; then
+    echo "Usage: get_bedrock_creds <profile> <region>"
+    return 1
+  fi
+
+  local creds=$(aws configure export-credentials --profile "$profile")
+
+  local access_key=$(echo "$creds" | jq -r '.AccessKeyId')
+  local secret_key=$(echo "$creds" | jq -r '.SecretAccessKey')
+  local session_token=$(echo "$creds" | jq -r '.SessionToken')
+  local expiration=$(echo "$creds" | jq -r '.Expiration')
+
+  if command -v gdate &>/dev/null; then
+    DATE_CMD="gdate"
+  else
+    DATE_CMD="date"
+  fi
+
+  if [ "$($DATE_CMD -d "$expiration" '+%s')" -lt "$($DATE_CMD '+%s')" ]; then
+    aws sso login --profile "$profile" > /dev/null
+
+    creds=$(aws configure export-credentials --profile "$profile")
+
+    access_key=$(echo "$creds" | jq -r '.AccessKeyId')
+    secret_key=$(echo "$creds" | jq -r '.SecretAccessKey')
+    session_token=$(echo "$creds" | jq -r '.SessionToken')
+    expiration=$(echo "$creds" | jq -r '.Expiration')
+  fi
+
+  echo "${access_key},${secret_key},${region},${session_token}"
+}
