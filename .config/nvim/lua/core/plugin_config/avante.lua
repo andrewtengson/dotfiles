@@ -1,6 +1,6 @@
 require("avante_lib").load()
 require("avante").setup({
-  provider = "bedrock",
+  provider = "azure",
   cursor_applying_provider = "groq",
   behaviour = {
     enable_cursor_planning_mode = true,
@@ -24,9 +24,9 @@ require("avante").setup({
   azure = {
     endpoint = "https://isse-sre-east-us-2.openai.azure.com",
     api_key_name = "cmd:pass azure-ai/isse-sre-east-us-2/token",
-    model = "o3-mini",
-    deployment = "o3-mini",
-    api_version = "2024-12-01-preview",
+    model = "o4-mini",
+    deployment = "o4-mini",
+    api_version = "2025-01-01-preview",
     timeout = 30000,
     temperature = 0,
     max_completion_tokens = 20480,
