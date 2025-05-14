@@ -152,10 +152,10 @@ local plugins = {
     "neovim/nvim-lspconfig",
   }, -- enable LSP
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
   },
   {
-    "williamboman/mason-lspconfig.nvim",
+    "mason-org/mason-lspconfig.nvim",
   },
   {
     "jayp0521/mason-null-ls.nvim",
