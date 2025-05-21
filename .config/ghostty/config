@@ -21,3 +21,5 @@ macos-titlebar-proxy-icon = "hidden"
 window-save-state = always
 
 window-colorspace = display-p3
+
+macos-option-as-alt = true

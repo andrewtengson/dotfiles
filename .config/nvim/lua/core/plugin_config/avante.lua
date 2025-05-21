@@ -56,6 +56,12 @@ require("avante").setup({
   hints = {
     enabled = false,
   },
+  mappings = {
+    diff = {
+      theirs = "cu",
+      ours = "cr",
+    },
+  },
 })
 
 -- Patch for borked borders https://github.com/yetone/avante.nvim/commit/86b63b2a33b4fa45431a35a541e7f02d4d3d523b#commitcomment-154265945
