@@ -8,7 +8,7 @@ require("avante").setup({
   openai = {
     endpoint = "https://api.openai.com/v1",
     api_key_name = "cmd:pass openai/token",
-    model = "o3-mini",
+    model = "o4-mini",
     timeout = 30000,
     temperature = 0,
     max_completion_tokens = 20480,
