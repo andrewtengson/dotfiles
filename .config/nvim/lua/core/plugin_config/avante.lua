@@ -32,7 +32,7 @@ require("avante").setup({
     max_completion_tokens = 20480,
   },
   bedrock = {
-    model = "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    model = "us.anthropic.claude-sonnet-4-20250514-v1:0",
     api_key_name = { "zsh", "-c", "source ~/.config/zsh/zsh-functions; get_bedrock_creds isse-se-prod us-west-2" },
     timeout = 30000,
     temperature = 0,
