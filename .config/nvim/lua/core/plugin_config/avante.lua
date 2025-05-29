@@ -1,6 +1,6 @@
 require("avante_lib").load()
 require("avante").setup({
-  provider = "azure",
+  provider = "bedrock",
   cursor_applying_provider = "groq",
   behaviour = {
     enable_cursor_planning_mode = true,
@@ -32,8 +32,9 @@ require("avante").setup({
     max_completion_tokens = 20480,
   },
   bedrock = {
-    model = "us.anthropic.claude-sonnet-4-20250514-v1:0",
-    api_key_name = { "zsh", "-c", "source ~/.config/zsh/zsh-functions; get_bedrock_creds isse-se-prod us-west-2" },
+    model = "apac.anthropic.claude-sonnet-4-20250514-v1:0",
+    api_key_name = { "zsh", "-c", "source ~/.config/zsh/zsh-functions; get_bedrock_creds isse-se-prod ap-southeast-1" },
+    aws_region = "ap-southeast-1",
     timeout = 30000,
     temperature = 0,
     max_tokens = 20480,
