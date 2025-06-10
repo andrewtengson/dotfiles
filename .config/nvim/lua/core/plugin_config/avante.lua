@@ -5,41 +5,49 @@ require("avante").setup({
   behaviour = {
     enable_cursor_planning_mode = true,
   },
-  openai = {
-    endpoint = "https://api.openai.com/v1",
-    api_key_name = "cmd:pass openai/token",
-    model = "o4-mini",
-    timeout = 30000,
-    temperature = 0,
-    max_completion_tokens = 20480,
-  },
-  claude = {
-    endpoint = "https://api.anthropic.com",
-    api_key_name = "cmd:pass anthropic/token",
-    model = "claude-3-7-sonnet-latest",
-    timeout = 30000,
-    temperature = 0,
-    max_tokens = 20480,
-  },
-  azure = {
-    endpoint = "https://isse-sre-east-us-2.openai.azure.com",
-    api_key_name = "cmd:pass azure-ai/isse-sre-east-us-2/token",
-    model = "o4-mini",
-    deployment = "o4-mini",
-    api_version = "2025-01-01-preview",
-    timeout = 30000,
-    temperature = 0,
-    max_completion_tokens = 20480,
-  },
-  bedrock = {
-    model = "apac.anthropic.claude-sonnet-4-20250514-v1:0",
-    api_key_name = { "zsh", "-c", "source ~/.config/zsh/zsh-functions; get_bedrock_creds isse-se-prod ap-southeast-1" },
-    aws_region = "ap-southeast-1",
-    timeout = 30000,
-    temperature = 0,
-    max_tokens = 20480,
-  },
-  vendors = {
+  providers = {
+    openai = {
+      endpoint = "https://api.openai.com/v1",
+      api_key_name = "cmd:pass openai/token",
+      model = "o4-mini",
+      timeout = 30000,
+      extra_request_body = {
+        temperature = 0,
+        max_completion_tokens = 8000,
+      },
+    },
+    claude = {
+      endpoint = "https://api.anthropic.com",
+      api_key_name = "cmd:pass anthropic/token",
+      model = "claude-3-7-sonnet-latest",
+      timeout = 30000,
+      extra_request_body = {
+        temperature = 0,
+        max_tokens = 8000,
+      },
+    },
+    azure = {
+      endpoint = "https://isse-sre-east-us-2.openai.azure.com",
+      api_key_name = "cmd:pass azure-ai/isse-sre-east-us-2/token",
+      model = "o4-mini",
+      deployment = "o4-mini",
+      api_version = "2025-01-01-preview",
+      timeout = 30000,
+      extra_request_body = {
+        temperature = 0,
+        max_completion_tokens = 8000,
+      },
+    },
+    bedrock = {
+      model = "apac.anthropic.claude-sonnet-4-20250514-v1:0",
+      aws_profile = "isse-se-prod",
+      aws_region = "ap-southeast-1",
+      timeout = 30000,
+      extra_request_body = {
+        temperature = 0,
+        max_tokens = 8000,
+      },
+    },
     deepseek = {
       __inherited_from = "openai",
       api_key_name = "cmd:pass deepseek/token",
@@ -51,7 +59,9 @@ require("avante").setup({
       api_key_name = "cmd:pass groq/token",
       endpoint = "https://api.groq.com/openai/v1/",
       model = "llama-3.3-70b-versatile",
-      max_tokens = 32768,
+      extra_request_body = {
+        max_tokens = 32768,
+      },
     },
   },
   hints = {
@@ -63,6 +73,18 @@ require("avante").setup({
       ours = "cr",
     },
   },
+  web_search_engine = {
+    provider = "brave",
+    providers = {
+      brave = {
+        api_key_name = "cmd:pass brave-search/token",
+      },
+    },
+  },
+  input = {
+    provider = "dressing",
+  },
+  debug = true,
 })
 
 -- Patch for borked borders https://github.com/yetone/avante.nvim/commit/86b63b2a33b4fa45431a35a541e7f02d4d3d523b#commitcomment-154265945
