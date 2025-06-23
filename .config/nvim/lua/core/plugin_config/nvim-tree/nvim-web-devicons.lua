@@ -15,5 +15,10 @@ require("nvim-web-devicons").setup({
       color = "#b30b00",
       name = "Pdf",
     },
+    css = {
+      icon = "",
+      color = "#663399",
+      name = "Css",
+    },
   },
 })
