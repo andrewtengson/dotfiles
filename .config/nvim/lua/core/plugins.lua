@@ -1,13 +1,16 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
-    lazypath,
-  })
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out,                            "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -34,15 +37,16 @@ local plugins = {
   }, -- Autopairs, integrates with both cmp and treesitter
   {
     "numToStr/Comment.nvim",
+    event = { "BufReadPre", "BufNewFile" },
     config = function()
       require("core.plugin_config.comment")
     end,
   },
   {
-    "kyazdani42/nvim-web-devicons",
+    "nvim-tree/nvim-web-devicons",
   },
   {
-    "kyazdani42/nvim-tree.lua",
+    "nvim-tree/nvim-tree.lua",
     config = function()
       require("core.plugin_config.nvim-tree")
     end,
@@ -59,6 +63,7 @@ local plugins = {
   },
   {
     "nvim-lualine/lualine.nvim",
+    event = "VeryLazy",
     config = function()
       require("core.plugin_config.lualine")
     end,
@@ -68,12 +73,6 @@ local plugins = {
     branch = "main",
     config = function()
       require("core.plugin_config.toggleterm")
-    end,
-  },
-  {
-    "lewis6991/impatient.nvim",
-    config = function()
-      require("core.plugin_config.impatient")
     end,
   },
   {
@@ -246,35 +245,9 @@ local plugins = {
       "nvim-treesitter/nvim-treesitter",
     },
     ft = { "quarto", "markdown" },
-    config = function(_, opts)
-      require("quarto").setup(opts)
-      require("quarto").activate()
-      local runner = require("quarto.runner")
-      vim.keymap.set("n", "<leader>rc", runner.run_cell, { desc = "run cell", silent = true })
-      vim.keymap.set("n", "<leader>ra", runner.run_above, { desc = "run cell and above", silent = true })
-      vim.keymap.set("n", "<leader>rA", runner.run_all, { desc = "run all cells", silent = true })
-      vim.keymap.set("n", "<leader>rl", runner.run_line, { desc = "run line", silent = true })
-      vim.keymap.set("n", "<leader>RA", function()
-        runner.run_all(true)
-      end, { desc = "run all cells of all languages", silent = true })
+    config = function()
+      require("core.plugin_config.quarto")
     end,
-    opts = {
-      lspFeatures = {
-        languages = { "python" },
-        chunks = "all",
-        diagnostics = {
-          enabled = true,
-          triggers = { "BufWritePost" },
-        },
-        completion = {
-          enabled = true,
-        },
-      },
-      codeRunner = {
-        enabled = true,
-        default_method = "molten",
-      },
-    },
   },
 
   -- Telescope
@@ -302,6 +275,7 @@ local plugins = {
   -- Git
   {
     "lewis6991/gitsigns.nvim",
+    event = { "BufReadPre", "BufNewFile" },
     config = function()
       require("core.plugin_config.gitsigns")
     end,
@@ -314,17 +288,23 @@ local plugins = {
   {
     "epwalsh/obsidian.nvim",
     lazy = true,
-    event = { "BufReadPre " .. vim.fn.expand("~") .. "/Documents/obsidian-vault/**.md" },
-    opts = {
-      dir = "~/Documents/obsidian-vault",
-      daily_notes = {
-        folder = "Dailies",
-      },
-      ui = {
-        enable = false,
-      },
-      disable_frontmatter = true,
-    },
+    event = function()
+      local obsidian_dir = vim.env.OBSIDIAN_VAULT or vim.fn.expand("~/Documents/obsidian-vault")
+      return { "BufReadPre " .. obsidian_dir .. "/**.md" }
+    end,
+    opts = function()
+      local obsidian_dir = vim.env.OBSIDIAN_VAULT or "~/Documents/obsidian-vault"
+      return {
+        dir = obsidian_dir,
+        daily_notes = {
+          folder = "Dailies",
+        },
+        ui = {
+          enable = false,
+        },
+        disable_frontmatter = true,
+      }
+    end,
   },
 
   -- Codeium
@@ -348,9 +328,8 @@ local plugins = {
     "folke/which-key.nvim",
     keys = { "<leader>", "<c-r>", "<c-w>", '"', "'", "`", "c", "v", "g" },
     cmd = "WhichKey",
-    config = function(_, opts)
-      local wk = require("which-key")
-      wk.setup(opts)
+    config = function()
+      require("core.plugin_config.which-key")
     end,
   },
 
@@ -384,54 +363,6 @@ local plugins = {
   -- Dressing
   {
     "stevearc/dressing.nvim",
-  },
-
-  -- Avante
-  {
-    "yetone/avante.nvim",
-    version = false,
-    build = "make",
-    cmd = {
-      "AvanteAsk",
-      "AvanteChat",
-      "AvanteEdit",
-      "AvanteToggle",
-      "AvanteFocus",
-    },
-    dependencies = {
-      "stevearc/dressing.nvim",
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
-      "echasnovski/mini.pick",
-      "nvim-telescope/telescope.nvim",
-      "hrsh7th/nvim-cmp",
-      "ibhagwan/fzf-lua",
-      "nvim-tree/nvim-web-devicons",
-      {
-        "HakonHarnes/img-clip.nvim",
-        event = "VeryLazy",
-        opts = {
-          default = {
-            embed_image_as_base64 = false,
-            prompt_for_file_name = false,
-            drag_and_drop = {
-              insert_mode = true,
-            },
-            use_absolute_path = true,
-          },
-        },
-      },
-      {
-        "MeanderingProgrammer/render-markdown.nvim",
-        opts = {
-          file_types = { "Avante" },
-        },
-        ft = { "Avante" },
-      },
-    },
-    config = function()
-      require("core.plugin_config.avante")
-    end,
   },
 }
 

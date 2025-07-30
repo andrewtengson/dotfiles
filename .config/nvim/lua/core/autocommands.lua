@@ -1,4 +1,4 @@
--- autocmd! remove all autocommands, if entered under a group it will clear that group
+-- Remove all autocommands when entered under a group to clear that group
 vim.cmd([[
   augroup _general_settings
     autocmd!
@@ -30,21 +30,18 @@ vim.cmd([[
     autocmd User AlphaReady set showtabline=0 | autocmd BufUnload <buffer> set showtabline=2
   augroup end
 
-  let s:clip = '/mnt/c/Windows/System32/clip.exe'
-  if executable(s:clip)
-    augroup WSLYank
-    autocmd!
-    autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
-    augroup END
+  " WSL clipboard integration - only on WSL
+  if has('wsl')
+    let s:clip = '/mnt/c/Windows/System32/clip.exe'
+    if executable(s:clip)
+      augroup WSLYank
+      autocmd!
+      autocmd TextYankPost * if v:event.operator ==# 'y' | call system(s:clip, @0) | endif
+      augroup END
+    endif
   endif
 
-  augroup Hiunicode
-    autocmd!
-    autocmd BufEnter *
-      \ syntax match nonascii "[^\x00-\x7F]" |
-      \ highlight nonascii ctermfg=NONE ctermbg=red
-  augroup END
-
+  " Restore cursor position when opening files
   autocmd BufReadPost * if @% !~# '\.git[\/\\]COMMIT_EDITMSG$' && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
   autocmd InsertEnter * set nopaste
 ]])
