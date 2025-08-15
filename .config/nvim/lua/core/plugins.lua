@@ -5,7 +5,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   if vim.v.shell_error ~= 0 then
     vim.api.nvim_echo({
       { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
+      { out,                            "WarningMsg" },
       { "\nPress any key to exit..." },
     }, true, {})
     vim.fn.getchar()
@@ -220,34 +220,24 @@ local plugins = {
     "b0o/schemastore.nvim",
   },
   {
-    "benlubas/molten-nvim",
-    build = ":UpdateRemotePlugins",
-    init = function()
-      vim.g.molten_auto_open_output = false
-      vim.g.molten_wrap_output = false
-      vim.g.molten_virt_text_output = true
-      vim.g.molten_virt_lines_off_by_1 = true
-    end,
-  },
-  {
-    "GCBallesteros/jupytext.nvim",
-    config = true,
+    "MeanderingProgrammer/render-markdown.nvim",
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
     opts = {
-      style = "markdown",
-      output_extension = "md",
-      force_ft = "markdown",
+      heading = {
+        width = "block",
+        backgrounds = {
+          "RenderMarkdownH6Bg",
+          "RenderMarkdownH6Bg",
+          "RenderMarkdownH6Bg",
+          "RenderMarkdownH6Bg",
+          "RenderMarkdownH6Bg",
+          "RenderMarkdownH6Bg",
+        },
+      },
+      sign = {
+        enabled = false,
+      },
     },
-  },
-  {
-    "quarto-dev/quarto-nvim",
-    dependencies = {
-      "jmbuhr/otter.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    ft = { "quarto", "markdown" },
-    config = function()
-      require("core.plugin_config.quarto")
-    end,
   },
 
   -- Telescope

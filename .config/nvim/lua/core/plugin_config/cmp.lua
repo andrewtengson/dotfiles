@@ -109,6 +109,7 @@ cmp.setup({
     { name = "buffer" },
     { name = "path" },
     { name = "nvim_lua" },
+    { name = "render-markdown" },
   },
   confirm_opts = {
     behavior = cmp.ConfirmBehavior.Replace,
