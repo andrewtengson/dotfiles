@@ -19,3 +19,7 @@ case "$(uname -s)" in
     ls='ls -G'
   ;;
 esac
+
+if [[ -f "$HOME/.claude/local/claude" ]]; then
+  alias claude="~/.claude/local/claude"
+fi
