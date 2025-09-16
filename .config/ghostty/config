@@ -1,6 +1,6 @@
 config-file = ?./ghostty-linux/config
 
-theme = GruvboxDarkHard
+theme = Gruvbox Dark Hard
 
 font-family  = "ProggyCleanSZ Nerd Font Mono"
 font-size    = 16
@@ -23,3 +23,5 @@ window-save-state = always
 window-colorspace = display-p3
 
 macos-option-as-alt = true
+
+keybind = shift+enter=text:\x1b\r
