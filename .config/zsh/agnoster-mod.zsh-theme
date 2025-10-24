@@ -82,11 +82,11 @@ prompt_end() {
 
 # Context: user@hostname (who am I and where am I)
 prompt_context() {
-  local user=`whoami`
-
-  if [[ -n "$SSH_CONNECTION" ]]; then
-    prompt_segment $PRIMARY_FG foreground " %(!.%{%F{yellow}%}.)$user@%m "
-  fi
+  # local user=`whoami`
+  #
+  # if [[ -n "$SSH_CONNECTION" ]]; then
+  #   prompt_segment $PRIMARY_FG foreground " %(!.%{%F{yellow}%}.)$user@%m "
+  # fi
 }
 
 # Git: branch/detached head, dirty status
