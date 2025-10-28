@@ -1,7 +1,7 @@
 local sources = {
   "bash",
   "python",
-  "node2",
+  "js",
   "codelldb",
   "delve",
 }
