@@ -301,8 +301,19 @@ local plugins = {
 
   -- Codeium
   {
-    "Exafunction/codeium.vim",
+    "Exafunction/codeium.nvim",
     event = "BufEnter",
+    opts = {
+      enable_cmp_source = false,
+      virtual_text = {
+        enabled = true,
+        filetypes = {
+          markdown = false,
+          text = false,
+          env = false,
+        },
+      },
+    },
   },
 
   -- Silicon

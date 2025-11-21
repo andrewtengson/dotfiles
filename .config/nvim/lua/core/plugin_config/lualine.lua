@@ -21,7 +21,7 @@ require("lualine").setup({
     lualine_a = { "mode" },
     lualine_b = { "branch", "diff", "diagnostics" },
     lualine_c = { { "filename", path = 3 } },
-    lualine_x = { "%3{codeium#GetStatusString()}", "encoding", "fileformat", "filetype" },
+    lualine_x = { "%3{v:lua.require('codeium.virtual_text').status_string()}", "encoding", "fileformat", "filetype" },
     lualine_y = { "progress" },
     lualine_z = { "location" },
   },
