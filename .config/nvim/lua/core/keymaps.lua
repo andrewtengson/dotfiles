@@ -135,3 +135,6 @@ keymap("n", "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", opts)
 keymap("n", "<leader>xq", "<cmd>Trouble quickfix toggle<cr>", opts)
 keymap("n", "<leader>xl", "<cmd>Trouble loclist toggle<cr>", opts)
 keymap("n", "gR", "<cmd>Trouble lsp_references toggle<cr>", opts)
+
+-- Render Markdown
+keymap("n", "<leader>mt", "<cmd>RenderMarkdown toggle<cr>", opts)
