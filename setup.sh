@@ -94,6 +94,26 @@ if [[ "$(uname -s)" == "Linux" ]]; then
   ln -sfn "$PWD/.config/ghostty-linux" "$HOME/.config/ghostty/ghostty-linux"
 fi
 
+# ai steering (kiro, claude code, codex)
+mkdir -p "$HOME/.kiro/steering"
+ln -sfn "$PWD/ai/steering.md" "$HOME/.kiro/steering/main.md"
+mkdir -p "$HOME/.claude"
+ln -sfn "$PWD/ai/steering.md" "$HOME/.claude/CLAUDE.md"
+mkdir -p "$HOME/.codex"
+ln -sfn "$PWD/ai/steering.md" "$HOME/.codex/AGENTS.md"
+
+# k9s config (macOS uses ~/Library/Application Support/k9s/)
+k9s_dir="$HOME/Library/Application Support/k9s"
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  mkdir -p "$k9s_dir/skins"
+  ln -sfn "$PWD/k9s/config.yaml" "$k9s_dir/config.yaml"
+  ln -sfn "$PWD/k9s/skins/gruvbox.yaml" "$k9s_dir/skins/gruvbox.yaml"
+else
+  mkdir -p "$HOME/.config/k9s/skins"
+  ln -sfn "$PWD/k9s/config.yaml" "$HOME/.config/k9s/config.yaml"
+  ln -sfn "$PWD/k9s/skins/gruvbox.yaml" "$HOME/.config/k9s/skins/gruvbox.yaml"
+fi
+
 if [[ "$INSTALL_BREW" == true ]]; then
   install_brew_packages
 fi
