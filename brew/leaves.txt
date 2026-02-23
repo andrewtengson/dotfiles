@@ -1,4 +1,3 @@
-angular-cli
 ansible
 aws-iam-authenticator
 aws-sam-cli
@@ -6,13 +5,13 @@ aws/tap/eks-node-viewer
 awscli
 azure-cli
 bash
-charmbracelet/tap/freeze
 coreutils
 curl
 docker
 docker-compose
 fzf
 git
+glab
 grpcurl
 helm
 htop
@@ -28,6 +27,7 @@ neovim
 openshift-cli
 pass-otp
 pinentry-mac
+pnpm
 podman
 poetry
 popeye
@@ -38,6 +38,7 @@ ruby
 rustup
 silicon
 skopeo
+tccli
 telnet
 terraform-docs
 tfenv

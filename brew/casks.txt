@@ -3,13 +3,16 @@ anki
 anydesk
 balenaetcher
 calibre
+chatgpt-atlas
 claude
 coconutbattery
+codex
 discord
 ghostty
 httpie
 iterm2
 kiro
+kiro-cli
 mac-mouse-fix
 macpass
 macs-fan-control
