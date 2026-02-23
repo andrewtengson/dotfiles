@@ -29,14 +29,9 @@ create_symlink() {
   src="$PWD/$file"
   dst="$HOME/$file"
 
-  if ! [[ -f "$dst" ]]; then
-    if ! [[ -d "$(dirname "$dst")" ]]; then
-      mkdir -p "$(dirname "$dst")"
-    fi
-
-    echo "Creating $dst symlink..."
-    ln -sfn "$src" "$dst"
-  fi
+  mkdir -p "$(dirname "$dst")"
+  ln -sfn "$src" "$dst"
+  echo "Linked $dst"
 }
 
 realpath() {
