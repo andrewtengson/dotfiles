@@ -9,23 +9,16 @@ install_brew_packages() {
   fi
 
   echo "Installing brew taps..."
-  mapfile -t taps < <(grep -v '^$' "$script_dir/brew/taps.txt")
-  for tap in "${taps[@]}"; do
+  grep -v '^$' "$script_dir/brew/taps.txt" | while read -r tap; do
     echo "  Adding tap: $tap"
     brew tap "$tap" || true
   done
 
   echo "Installing brew leaves..."
-  mapfile -t formulas < <(grep -v '^$' "$script_dir/brew/leaves.txt")
-  if [[ ${#formulas[@]} -gt 0 ]]; then
-    brew install "${formulas[@]}" || true
-  fi
+  grep -v '^$' "$script_dir/brew/leaves.txt" | xargs brew install || true
 
   echo "Installing brew casks..."
-  mapfile -t casks < <(grep -v '^$' "$script_dir/brew/casks.txt")
-  if [[ ${#casks[@]} -gt 0 ]]; then
-    brew install --cask "${casks[@]}" || true
-  fi
+  grep -v '^$' "$script_dir/brew/casks.txt" | xargs brew install --cask || true
 
   echo "Brew packages installation complete."
 }
@@ -80,7 +73,7 @@ dotfiles=(
 )
 
 if [[ "$(uname -s)" == "Darwin" ]] || [[ $USER == "deck" ]]; then
-  if ! "$(which brew)"; then
+  if ! command -v brew &>/dev/null; then
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
   create_symlink ".zprofile"
