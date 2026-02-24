@@ -38,7 +38,7 @@ ruby
 rustup
 silicon
 skopeo
-tccli
+tccli-intl-en
 telnet
 terraform-docs
 tfenv
