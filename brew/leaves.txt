@@ -12,6 +12,7 @@ docker-compose
 fzf
 git
 glab
+go
 grpcurl
 helm
 htop
@@ -24,6 +25,7 @@ kubeseal
 kustomize
 mtr
 neovim
+npm
 openshift-cli
 pass-otp
 pinentry-mac
