@@ -30,6 +30,20 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
+# Language Input
+defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{
+    "Bundle ID" = "com.apple.inputmethod.Kotoeri.RomajiTyping";
+    "Input Mode" = "com.apple.inputmethod.Japanese";
+    "InputSourceKind" = "Input Mode";
+}'
+defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{
+    "Bundle ID" = "com.apple.inputmethod.Kotoeri.RomajiTyping";
+    "InputSourceKind" = "Keyboard Input Method";
+}'
+
+# Disable Ctrl+Space input switching (conflicts with tmux)
+/usr/libexec/PlistBuddy -c "Set :AppleSymbolicHotKeys:60:enabled false" ~/Library/Preferences/com.apple.symbolichotkeys.plist 2>/dev/null || true
+
 # Restart affected apps
 killall Finder Dock SystemUIServer 2>/dev/null || true
 echo "macOS settings applied."
