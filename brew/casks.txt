@@ -32,6 +32,5 @@ the-unarchiver
 transmission
 utm
 vlc
-windsurf
 zen-browser
 zoom
