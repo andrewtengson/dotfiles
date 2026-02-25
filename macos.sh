@@ -27,6 +27,8 @@ defaults write com.apple.dock show-recents -bool false
 # Trackpad
 defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
 # Restart affected apps
 killall Finder Dock SystemUIServer 2>/dev/null || true
