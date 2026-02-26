@@ -44,6 +44,9 @@ defaults write com.apple.HIToolbox AppleEnabledInputSources -array-add '{
 # Disable Ctrl+Space input switching (conflicts with tmux)
 /usr/libexec/PlistBuddy -c "Set :AppleSymbolicHotKeys:60:enabled false" ~/Library/Preferences/com.apple.symbolichotkeys.plist 2>/dev/null || true
 
+# Disable the "Save in Keychain" checkbox default in pinentry-mac
+defaults write org.gpgtools.common UseKeychain -bool NO
+
 # Restart affected apps
 killall Finder Dock SystemUIServer 2>/dev/null || true
 echo "macOS settings applied."
