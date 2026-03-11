@@ -77,3 +77,9 @@
 - Handle AWS-specific exceptions (ThrottlingException) with appropriate retry logic (Python-specific).
 - Implement efficient API usage patterns (avoid N×M combinations when possible).
 - Configure region via environment variables for flexibility.
+
+# Terraform Standards
+
+## Best Practices
+
+- Always consult the official Terraform provider documentation (registry.terraform.io) when working with resources, data sources, or provider configurations. Verify argument names, required vs optional attributes, and default values before writing or modifying resource blocks.
