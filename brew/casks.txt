@@ -1,4 +1,3 @@
-aldente
 anki
 anydesk
 balenaetcher
