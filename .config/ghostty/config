@@ -26,4 +26,4 @@ macos-option-as-alt = true
 
 keybind = shift+enter=text:\x1b\r
 
-bell-features = no-title
+bell-features = no-title,system
