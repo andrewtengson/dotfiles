@@ -22,6 +22,10 @@
 - When explaining is necessary, be concise. One clear sentence beats three vague ones.
 - No recap summaries unless explicitly requested.
 
+## Git Commits
+
+- Use conventional commits (e.g., `fix:`, `feat:`) in a single line unless a multiline message is absolutely necessary.
+
 ## Implementation Approach
 
 - Start with the simplest solution that works.
