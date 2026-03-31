@@ -53,3 +53,18 @@ vim.api.nvim_create_autocmd("WinLeave", {
     end
   end,
 })
+
+-- Filter out false positive "not expected here" diagnostics from terraform-ls in tfvars files
+local original_diagnostic_set = vim.diagnostic.set
+vim.diagnostic.set = function(ns, bufnr, diagnostics, opts)
+  diagnostics = vim.tbl_filter(function(d)
+    if d.message and d.message:match("is not expected here") then
+      local name = vim.api.nvim_buf_get_name(bufnr)
+      if name:match("%.tfvars$") then
+        return false
+      end
+    end
+    return true
+  end, diagnostics)
+  original_diagnostic_set(ns, bufnr, diagnostics, opts)
+end
