@@ -47,6 +47,7 @@ telnet
 terraform-docs
 tfenv
 tmux
+tree-sitter-cli
 uv
 watch
 wget
