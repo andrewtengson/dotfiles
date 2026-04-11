@@ -258,6 +258,7 @@ local plugins = {
   -- Treesitter
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
   },
   {
     "nvim-treesitter/nvim-treesitter-context",
