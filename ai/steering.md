@@ -87,3 +87,14 @@
 ## Best Practices
 
 - Always consult the official Terraform provider documentation (registry.terraform.io) when working with resources, data sources, or provider configurations. Verify argument names, required vs optional attributes, and default values before writing or modifying resource blocks.
+
+# Browser Access
+
+## agent-browser
+
+- Use [agent-browser](https://agent-browser.dev/) for browser automation tasks (navigation, form filling, screenshots, scraping).
+- Install: `npm install -g agent-browser` or `brew install agent-browser`.
+- Use `snapshot -i` to get a compact accessibility tree with refs, then interact via refs (`click @e1`, `type @e2 "text"`).
+- Prefer `snapshot` over `screenshot` for context efficiency (~200-400 tokens vs full DOM).
+- Use sessions for isolated browser instances when handling multiple sites or auth contexts.
+- Docs: https://agent-browser.dev/commands for full command reference.
