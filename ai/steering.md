@@ -1,3 +1,39 @@
+# AI-Assisted Design
+
+## Shared Design Before Code
+
+- When requirements are ambiguous or underspecified, ask clarifying questions before generating code. Interview the user until the design is clear — don't guess and generate.
+- If a task involves non-trivial design decisions (new features, architecture changes, data modeling), confirm the approach before implementing.
+- Prefer a short back-and-forth to establish shared understanding over a single large code dump that misses the intent.
+- Use the `grill-me` skill when the user wants to stress-test a plan, get grilled on their design, or explicitly says "grill me." Invoke it proactively when a request is large or underspecified enough that jumping to code would be premature.
+
+## Ubiquitous Language
+
+- Respect any project glossary or `UBIQUITOUS_LANGUAGE.md` file. Use the canonical terms defined there in all generated code, comments, and explanations.
+- When domain terms are ambiguous or conflicting, flag the inconsistency and propose a canonical term rather than silently picking one.
+- Match the user's domain vocabulary in variable names, function names, and module names. Don't rename domain concepts to generic programming terms.
+- Use the `ubiquitous-language` skill when starting a new domain, onboarding to an unfamiliar codebase, or when terminology drift is causing confusion. Suggest running it when multiple synonyms for the same concept appear in conversation.
+
+## Test-Driven Development
+
+- When implementing new functionality, write the test first, then the implementation. Don't generate both in a single pass without running the test.
+- Take small, deliberate steps. One test, one behavior. Avoid generating large blocks of untested code.
+- Use the test as a feedback loop: write test, run it (expect failure), implement, run it (expect pass), then move to the next behavior.
+- Use the `tdd` skill when the user wants to build features or fix bugs using TDD, mentions "red-green-refactor", wants integration tests, or asks for test-first development. Invoke it proactively when implementing non-trivial features to enforce vertical slicing over bulk code generation.
+
+## Deep Modules
+
+- Favor large, self-contained modules with simple interfaces over many small, fragmented files.
+- A module should hide complexity behind a clean API. Internal implementation details should not leak into the interface.
+- When organizing code, optimize for navigability and testability — not for maximum file count or maximum granularity.
+- Use the `improve-codebase-architecture` skill when the user wants to refactor, consolidate fragmented modules, or improve testability. Suggest it when a codebase has many small tightly-coupled files that would benefit from being wrapped behind clean interfaces.
+
+## Interface-First Design
+
+- For non-trivial modules, design the interface (function signatures, types, contracts) before writing the implementation.
+- Present the interface to the user for review before filling in the logic.
+- Treat complex modules as gray boxes: the interface is the contract, the implementation is delegated detail.
+
 # General
 
 ## Code Quality Standards
