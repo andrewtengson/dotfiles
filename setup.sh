@@ -82,13 +82,15 @@ if [[ "$(uname -s)" == "Linux" ]]; then
   ln -sfn "$PWD/.config/ghostty-linux" "$HOME/.config/ghostty/ghostty-linux"
 fi
 
-# ai steering (kiro, claude code, codex)
+# ai steering (kiro, claude code, codex, opencode)
 mkdir -p "$HOME/.kiro/steering"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.kiro/steering/main.md"
 mkdir -p "$HOME/.claude"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.claude/CLAUDE.md"
 mkdir -p "$HOME/.codex"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.codex/AGENTS.md"
+mkdir -p "$HOME/.config/opencode"
+ln -sfn "$PWD/ai/steering.md" "$HOME/.config/opencode/AGENTS.md"
 
 # k9s config (macOS uses ~/Library/Application Support/k9s/)
 k9s_dir="$HOME/Library/Application Support/k9s"
