@@ -18,9 +18,12 @@ grpcurl
 helm
 htop
 httpie
+jira-cli
 jstkdng/programs/ueberzugpp
+just
 k6
 k9s
+keeper-commander
 kubectl
 kubent
 kubeseal
@@ -28,6 +31,7 @@ kustomize
 mtr
 neovim
 npm
+opencode
 openshift-cli
 pass-otp
 pinentry-mac

@@ -1,3 +1,4 @@
+TheBoredTeam/boring-notch/boring-notch
 anki
 anydesk
 balenaetcher
@@ -29,6 +30,7 @@ teamviewer
 telegram
 the-unarchiver
 transmission
+typewhisper/tap/typewhisper
 utm
 vlc
 zen-browser
