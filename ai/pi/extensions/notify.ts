@@ -45,17 +45,31 @@ function emit(sequence: string): void {
 
 export default function (pi: ExtensionAPI) {
   let active = false;
+  let keepalive: ReturnType<typeof setInterval> | undefined;
+
+  function startProgress(): void {
+    emit(buildOSC("9;4;3"));
+    keepalive = setInterval(() => emit(buildOSC("9;4;3")), 1000);
+  }
+
+  function stopProgress(): void {
+    if (keepalive) {
+      clearInterval(keepalive);
+      keepalive = undefined;
+    }
+    emit(buildOSC("9;4;0"));
+  }
 
   pi.on("agent_start", async () => {
     if (active) return;
     active = true;
-    emit(buildOSC("9;4;3"));
+    startProgress();
   });
 
   pi.on("agent_end", async () => {
     if (!active) return;
     active = false;
-    emit(buildOSC("9;4;0"));
+    stopProgress();
     emit(buildOSC("133;D;0"));
     // Write BEL without tmux passthrough so tmux's bell-action can gate it.
     try { writeSync(1, BEL); } catch {}
@@ -64,6 +78,6 @@ export default function (pi: ExtensionAPI) {
   pi.on("session_shutdown", async () => {
     if (!active) return;
     active = false;
-    emit(buildOSC("9;4;0"));
+    stopProgress();
   });
 }
