@@ -136,7 +136,7 @@ export class CommandPalette implements Component {
     lines.push(this.line(w, this.panelBg, input, ""));
     lines.push(this.pad(w));
 
-    // Items
+    // Items — always render exactly MAX_VISIBLE rows
     const visible = items.slice(this.scrollOffset, this.scrollOffset + MAX_VISIBLE);
     if (visible.length === 0) {
       lines.push(this.line(w, this.panelBg, this.fg("muted", "No matches"), ""));
@@ -147,10 +147,10 @@ export class CommandPalette implements Component {
         lines.push(this.itemLine(w, bg, visible[i], idx === this.selectedIndex));
       }
     }
-
-    // Pad to fixed height
-    const target = 4 + MAX_VISIBLE + 2;
-    while (lines.length < target) lines.push(this.pad(w));
+    // Fill remaining item slots with empty rows
+    for (let i = visible.length; i < MAX_VISIBLE; i++) {
+      lines.push(this.pad(w));
+    }
 
     // Footer
     lines.push(this.line(w, this.panelBg, this.fg("dim", "\u2191\u2193 navigate \u00b7 enter run \u00b7 tab insert \u00b7 esc close"), ""));
