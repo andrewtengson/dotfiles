@@ -92,7 +92,12 @@ ln -sfn "$PWD/ai/steering.md" "$HOME/.codex/AGENTS.md"
 mkdir -p "$HOME/.config/opencode"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.config/opencode/AGENTS.md"
 mkdir -p "$HOME/.pi/agent"
-ln -sfn "$PWD/ai/pi/settings.json" "$HOME/.pi/agent/settings.json"
+if [[ "$(uname)" == "Linux" ]]; then
+  # Merge base + linux overlay into settings
+  jq -s '.[0] * .[1]' "$PWD/ai/pi/settings.json" "$PWD/ai/pi/settings.linux.json" > "$HOME/.pi/agent/settings.json"
+else
+  ln -sfn "$PWD/ai/pi/settings.json" "$HOME/.pi/agent/settings.json"
+fi
 ln -sfn "$PWD/ai/pi/keybindings.json" "$HOME/.pi/agent/keybindings.json"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.pi/agent/AGENTS.md"
 ln -sfn "$PWD/ai/pi/themes" "$HOME/.pi/agent/themes"

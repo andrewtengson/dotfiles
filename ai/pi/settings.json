@@ -6,7 +6,7 @@
   "defaultThinkingLevel": "high",
   "enableInstallTelemetry": false,
   "quietStartup": true,
-  "theme": "gruvbox",
+  "theme": "system",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-subagents",

@@ -1,6 +1,4 @@
 /**
- * OpenCode-style flat editor for Pi.
- *
  * Minimal design: no box borders, subtle separator line,
  * status below with model/thinking + git/context/cost.
  */
@@ -82,6 +80,7 @@ function compactPath(cwd: string): string {
 }
 
 function stripAnsi(str: string): string {
+  // eslint-disable-next-line no-control-regex
   return str.replace(/\x1b\[[0-9;]*m/g, "");
 }
 
@@ -181,7 +180,7 @@ class FlatEditor extends CustomEditor {
     const modelId = this.ctx.model?.id ?? "unknown";
     const provider = String(this.ctx.model?.provider ?? "");
 
-    const parts = [`${thinking}`, this.fg("dim", modelId)];
+    const parts = [`${thinking}`, this.fg("muted", modelId)];
     if (provider) parts.push(this.fg("muted", provider));
 
     return parts.join(this.fg("dim", " · "));

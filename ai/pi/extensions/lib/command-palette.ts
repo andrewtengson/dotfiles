@@ -216,7 +216,6 @@ export class CommandPalette implements Component {
   private itemLine(width: number, bg: string, item: CommandPaletteItem, selected: boolean): string {
     const inner = width - 2;
     const sf = selected ? this.selectedFg : "";
-    const se = selected ? RESET + bg : "";
 
     const srcTag = item.source ? `[${item.source}]` : "";
     const desc = item.description || "";
@@ -231,8 +230,6 @@ export class CommandPalette implements Component {
     const srcPadded = truncateToWidth(srcTag, srcCol, "\u2026", true);
     const descPadded = truncateToWidth(desc, descCol, "\u2026", true);
 
-    // Assemble plain text with fixed columns
-    const raw = ` ${namePadded} ${srcPadded} ${descPadded} `;
     const totalW = 1 + nameCol + 1 + srcCol + 1 + descCol + 1;
     const trailing = Math.max(0, width - totalW);
 
