@@ -1,0 +1,21 @@
+{
+  "lastChangelogVersion": "0.74.0",
+  "defaultProvider": "amazon-bedrock",
+  "awsProfile": "isse-se-prod",
+  "defaultModel": "global.anthropic.claude-opus-4-6-v1",
+  "defaultThinkingLevel": "high",
+  "enableInstallTelemetry": false,
+  "quietStartup": true,
+  "theme": "gruvbox",
+  "packages": [
+    "npm:pi-web-access",
+    "npm:pi-subagents",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:@juicesharp/rpiv-btw",
+    "npm:pi-until-done",
+    "npm:pi-mcp-adapter",
+    "npm:pi-intercom"
+  ],
+  "hideThinkingBlock": true
+}

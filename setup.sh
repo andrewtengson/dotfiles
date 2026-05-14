@@ -92,7 +92,11 @@ ln -sfn "$PWD/ai/steering.md" "$HOME/.codex/AGENTS.md"
 mkdir -p "$HOME/.config/opencode"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.config/opencode/AGENTS.md"
 mkdir -p "$HOME/.pi/agent"
+ln -sfn "$PWD/ai/pi/settings.json" "$HOME/.pi/agent/settings.json"
+ln -sfn "$PWD/ai/pi/keybindings.json" "$HOME/.pi/agent/keybindings.json"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.pi/agent/AGENTS.md"
+ln -sfn "$PWD/ai/pi/themes" "$HOME/.pi/agent/themes"
+ln -sfn "$PWD/ai/pi/extensions" "$HOME/.pi/agent/extensions"
 
 # k9s config (macOS uses ~/Library/Application Support/k9s/)
 k9s_dir="$HOME/Library/Application Support/k9s"

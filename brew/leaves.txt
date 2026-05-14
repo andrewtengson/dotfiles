@@ -33,7 +33,9 @@ neovim
 npm
 opencode
 openshift-cli
+oven-sh/bun/bun
 pass-otp
+pi-coding-agent
 pinentry-mac
 pnpm
 podman

@@ -6,6 +6,8 @@ font-family  = "ProggyCleanSZ Nerd Font Mono"
 font-size    = 16
 
 font-style-bold = false
+font-style-italic = false
+font-style-bold-italic = false
 
 cursor-style       = block
 cursor-style-blink = false
@@ -24,6 +26,6 @@ window-colorspace = display-p3
 
 macos-option-as-alt = true
 
-keybind = shift+enter=text:\x1b\r
+keybind = shift+enter=text:\x1b[13;2u
 
 bell-features = no-title,system
