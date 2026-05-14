@@ -1,5 +1,6 @@
 {
   "defaultProvider": "openai",
   "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "medium",
   "awsProfile": null
 }

@@ -64,6 +64,14 @@ function isSsoTokenExpired(cacheKey: string): boolean {
 }
 
 export default async function (pi: ExtensionAPI) {
+	const settingsPath = join(process.env.HOME ?? "", ".pi", "agent", "settings.json");
+	try {
+		const settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
+		if (settings.defaultProvider !== "amazon-bedrock") return;
+	} catch {
+		return;
+	}
+
 	const profile = getProfile();
 	if (!profile) return;
 

@@ -83,11 +83,11 @@ export function generateSystemTheme(background: HexColor, foreground: HexColor, 
   // Use ANSI palette colors as seeds when available (much better than deriving from bg)
   // ANSI: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta 6=cyan 7=white
   const p = palette || [];
-  const accentSeed = p[4] || shift(background, { h: 180, l: isDark ? 0.4 : -0.3, c: 3.0 });
-  const successSeed = p[2] || shift(background, { h: 145, l: isDark ? 0.35 : -0.2, c: 4.0 });
-  const errorSeed = p[1] || shift(background, { h: 25, l: isDark ? 0.35 : -0.2, c: 4.0 });
-  const warningSeed = p[3] || shift(background, { h: 85, l: isDark ? 0.35 : -0.2, c: 4.0 });
-  const infoSeed = p[6] || shift(background, { h: 230, l: isDark ? 0.35 : -0.2, c: 4.0 });
+  const accentSeed = p[12] || p[4] || shift(background, { h: 180, l: isDark ? 0.4 : -0.3, c: 3.0 });
+  const successSeed = p[10] || p[2] || shift(background, { h: 145, l: isDark ? 0.35 : -0.2, c: 4.0 });
+  const errorSeed = p[9] || p[1] || shift(background, { h: 25, l: isDark ? 0.35 : -0.2, c: 4.0 });
+  const warningSeed = p[11] || p[3] || shift(background, { h: 85, l: isDark ? 0.35 : -0.2, c: 4.0 });
+  const infoSeed = p[14] || p[6] || shift(background, { h: 230, l: isDark ? 0.35 : -0.2, c: 4.0 });
 
   const neutral = generateNeutralScale(background, isDark);
   const accent = generateScale(accentSeed, isDark);
@@ -97,14 +97,14 @@ export function generateSystemTheme(background: HexColor, foreground: HexColor, 
   const info = generateScale(infoSeed, isDark);
 
   const colors: PiThemeColors = {
-    // Core
-    accent: accent[isDark ? 9 : 8],
+    // Core — use palette colors directly for max contrast
+    accent: p[4] || accent[isDark ? 9 : 8],
     border: accent[isDark ? 8 : 6],
-    borderAccent: accent[isDark ? 9 : 8],
+    borderAccent: p[4] || accent[isDark ? 9 : 8],
     borderMuted: neutral[isDark ? 6 : 3],
-    success: success[isDark ? 9 : 8],
-    error: error[isDark ? 9 : 8],
-    warning: warning[isDark ? 9 : 8],
+    success: p[2] || success[isDark ? 9 : 8],
+    error: p[1] || error[isDark ? 9 : 8],
+    warning: p[3] || warning[isDark ? 9 : 8],
     muted: p[8] || neutral[isDark ? 9 : 4],
     dim: p[7] || neutral[isDark ? 8 : 3],
     text: foreground,
@@ -155,12 +155,12 @@ export function generateSystemTheme(background: HexColor, foreground: HexColor, 
     bashMode: warning[isDark ? 8 : 9],
 
     // Backgrounds
-    selectedBg: lighten(background, isDark ? 0.06 : -0.06),
-    userMessageBg: background,
-    customMessageBg: background,
+    selectedBg: lighten(background, isDark ? 0.08 : -0.08),
+    userMessageBg: lighten(background, isDark ? 0.03 : -0.03),
+    customMessageBg: lighten(background, isDark ? 0.03 : -0.03),
     toolPendingBg: lighten(background, isDark ? 0.03 : -0.03),
-    toolSuccessBg: background,
-    toolErrorBg: background,
+    toolSuccessBg: lighten(background, isDark ? 0.03 : -0.03),
+    toolErrorBg: lighten(background, isDark ? 0.03 : -0.03),
   };
 
   return {
@@ -182,8 +182,10 @@ export function toPiThemeJson(result: SystemThemeResult): string {
     colors: {
       ...colors,
     },
-    extra: {
+    export: {
       pageBg,
+      cardBg: colors.toolPendingBg,
+      infoBg: colors.selectedBg,
     },
   };
 
