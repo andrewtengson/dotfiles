@@ -37,7 +37,7 @@ export const TIER_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
   "openai-codex": {
     heavy: { modelId: "gpt-5.5", thinkingLevel: "high" },
     default: { modelId: "gpt-5.5", thinkingLevel: "medium" },
-    light: { modelId: "gpt-5.4-mini", thinkingLevel: "low" },
+    light: { modelId: "gpt-5.5", thinkingLevel: "low" },
   },
   kiro: {
     heavy: { modelId: "claude-opus-4-7", thinkingLevel: "high" },
