@@ -28,6 +28,7 @@ kubectl
 kubent
 kubeseal
 kustomize
+mise
 mtr
 neovim
 npm
