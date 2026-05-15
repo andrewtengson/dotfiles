@@ -84,17 +84,24 @@ function writeOverrides(provider: ProviderKey): void {
 
 function getProvider(ctx: ExtensionContext): ProviderKey | undefined {
   const p = ctx.model?.provider;
-  if (p === "amazon-bedrock" || p === "openai-codex") return p;
+  if (p && p in TIER_MAP) return p as ProviderKey;
   return undefined;
 }
 
 export default function (pi: ExtensionAPI): void {
-  let lastProvider: ProviderKey | undefined;
-
   function syncOverrides(ctx: ExtensionContext): void {
     const provider = getProvider(ctx);
-    if (!provider || provider === lastProvider) return;
-    lastProvider = provider;
+    if (!provider) return;
+
+    // Check if existing overrides already match the current tier config; skip if so
+    try {
+      const settings = JSON.parse(readFileSync(getSettingsPath(), "utf-8"));
+      const existing = settings.subagents?.agentOverrides ?? {};
+      const heavyTarget = TIER_MAP[provider].heavy;
+      const expectedHeavyModel = `${provider}/${heavyTarget.modelId}`;
+      if (existing["oracle"]?.model === expectedHeavyModel) return;
+    } catch {}
+
     writeOverrides(provider);
   }
 

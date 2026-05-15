@@ -1,7 +1,7 @@
 /**
  * Model Router — auto-routes to heavy/default/light tier based on task intent.
  *
- * Routes within the currently active provider (amazon-bedrock or openai-codex).
+ * Routes within the currently active provider (amazon-bedrock, openai-codex, or kiro).
  * If the target model isn't available, stays on the current model silently.
  *
  * Commands:
@@ -225,8 +225,7 @@ function exposeState(state: RouterState): void {
 
 function currentProvider(ctx: ExtensionContext): ProviderKey | undefined {
   const provider = ctx.model?.provider;
-  if (provider === "amazon-bedrock" || provider === "openai-codex")
-    return provider;
+  if (provider && provider in TIER_MAP) return provider as ProviderKey;
   return undefined;
 }
 

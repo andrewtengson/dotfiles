@@ -12,7 +12,7 @@ export type ThinkingLevel =
   | "high"
   | "xhigh";
 export type Tier = "heavy" | "default" | "light";
-export type ProviderKey = "amazon-bedrock" | "openai-codex";
+export type ProviderKey = "amazon-bedrock" | "openai-codex" | "kiro";
 
 export interface TierTarget {
   modelId: string;
@@ -38,5 +38,10 @@ export const TIER_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
     heavy: { modelId: "gpt-5.5", thinkingLevel: "high" },
     default: { modelId: "gpt-5.4-mini", thinkingLevel: "medium" },
     light: { modelId: "gpt-5.3-codex-spark", thinkingLevel: "low" },
+  },
+  kiro: {
+    heavy: { modelId: "claude-opus-4-7", thinkingLevel: "high" },
+    default: { modelId: "claude-sonnet-4-6", thinkingLevel: "medium" },
+    light: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
   },
 };
