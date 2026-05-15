@@ -194,7 +194,12 @@ class FlatEditor extends CustomEditor {
 
   private buildLeftStatus(): string {
     const routerState = (globalThis as any)[Symbol.for("model-router-state")];
+    const thinkingLevel = this.getThinkingLevel();
+    const thinkingColor = this.getThinkingColor();
+    const modelId = this.ctx.model?.id ?? "unknown";
     const provider = String(this.ctx.model?.provider ?? "");
+
+    const parts: string[] = [];
 
     if (routerState?.autoRoutingEnabled) {
       const label =
@@ -203,17 +208,11 @@ class FlatEditor extends CustomEditor {
           : "auto";
       const color: ThemeColor =
         routerState.lastTier === "heavy" ? "warning" : "accent";
-      const parts = [this.fg(color, label)];
-      if (provider) parts.push(this.fg("muted", provider));
-      return parts.join(this.fg("dim", " · "));
+      parts.push(this.fg(color, label));
     }
 
-    const thinkingLevel = this.getThinkingLevel();
-    const thinkingColor = this.getThinkingColor();
-    const thinking = this.fg(thinkingColor, thinkingLevel);
-    const modelId = this.ctx.model?.id ?? "unknown";
-
-    const parts = [`${thinking}`, this.fg("muted", modelId)];
+    parts.push(this.fg(thinkingColor, thinkingLevel));
+    parts.push(this.fg("muted", modelId));
     if (provider) parts.push(this.fg("muted", provider));
 
     return parts.join(this.fg("dim", " · "));
