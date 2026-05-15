@@ -286,6 +286,15 @@ export default function modelRouterExtension(pi: ExtensionAPI): void {
     const current = ctx.model;
     const currentThinking = pi.getThinkingLevel() as ThinkingLevel;
 
+    // Don't downgrade if context exceeds 80% of target model's window
+    const contextUsage = ctx.getContextUsage();
+    if (contextUsage?.tokens != null) {
+      const targetModel = ctx.modelRegistry.find(provider, target.modelId);
+      if (targetModel && contextUsage.tokens > targetModel.contextWindow * 0.8) {
+        return;
+      }
+    }
+
     // Already on the target model and thinking — nothing to do
     if (
       current?.id === target.modelId &&
