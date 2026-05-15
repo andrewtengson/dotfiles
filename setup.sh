@@ -107,11 +107,6 @@ ln -sfn "$PWD/ai/pi/themes" "$HOME/.pi/agent/themes"
 ln -sfn "$PWD/ai/pi/extensions" "$HOME/.pi/agent/extensions"
 ln -sfn "$PWD/ai/pi/web-search.json" "$HOME/.pi/web-search.json"
 
-# ai agents (subagent overrides)
-mkdir -p "$HOME/.agents"
-for agent in "$PWD/ai/agents/"*.md; do
-  [ -f "$agent" ] && cp "$agent" "$HOME/.agents/$(basename "$agent")"
-done
 
 # k9s config (macOS uses ~/Library/Application Support/k9s/)
 k9s_dir="$HOME/Library/Application Support/k9s"
