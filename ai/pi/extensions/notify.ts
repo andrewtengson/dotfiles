@@ -1,7 +1,7 @@
 /**
  * Terminal signals when Pi is working / done.
  *
- * - OSC 9;4;3 on agent_start → indeterminate progress (tab spinner)
+ * - OSC 9;4;1;100 on agent_start → static progress indicator (full bar)
  * - OSC 9;4;0 on agent_end → clear progress
  * - OSC 133;D;0 on agent_end → command finished (Ghostty tab notification)
  * - BEL on agent_end → terminal bell
@@ -39,17 +39,18 @@ function emit(sequence: string): void {
   } catch {
     try {
       writeSync(2, output);
-    } catch {}
+    } catch { }
   }
 }
 
-export default function (pi: ExtensionAPI) {
+export default function(pi: ExtensionAPI) {
   let active = false;
   let keepalive: ReturnType<typeof setInterval> | undefined;
 
   function startProgress(): void {
-    emit(buildOSC("9;4;3"));
-    keepalive = setInterval(() => emit(buildOSC("9;4;3")), 1000);
+    emit(buildOSC("9;4;1;100"));
+    // Ghostty auto-clears progress after ~15s; re-emit every 10s to keep it alive.
+    keepalive = setInterval(() => emit(buildOSC("9;4;1;100")), 10_000);
   }
 
   function stopProgress(): void {
@@ -72,7 +73,9 @@ export default function (pi: ExtensionAPI) {
     stopProgress();
     emit(buildOSC("133;D;0"));
     // Write BEL without tmux passthrough so tmux's bell-action can gate it.
-    try { writeSync(1, BEL); } catch {}
+    try {
+      writeSync(1, BEL);
+    } catch { }
   });
 
   pi.on("session_shutdown", async () => {
