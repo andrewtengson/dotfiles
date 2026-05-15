@@ -2,5 +2,10 @@
   "defaultProvider": "codex",
   "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "medium",
-  "awsProfile": null
+  "awsProfile": null,
+  "enabledModels": [
+    "openai-codex/gpt-5.5",
+    "openai-codex/gpt-5.4-mini",
+    "openai-codex/gpt-5.3-codex-spark"
+  ]
 }
