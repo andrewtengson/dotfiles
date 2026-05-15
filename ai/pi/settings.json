@@ -12,7 +12,6 @@
     "npm:pi-subagents",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:@juicesharp/rpiv-todo",
-    "npm:@juicesharp/rpiv-btw",
     "npm:pi-until-done",
     "npm:pi-mcp-adapter",
     "npm:pi-intercom"
