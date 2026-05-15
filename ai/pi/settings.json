@@ -18,5 +18,5 @@
     "npm:pi-intercom"
   ],
   "hideThinkingBlock": true,
-  "npmCommand": ["pnpm", "--silent"]
+  "npmCommand": ["bun"]
 }
