@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.74.0",
   "defaultProvider": "amazon-bedrock",
   "awsProfile": "isse-se-prod",
-  "defaultModel": "global.anthropic.claude-opus-4-6-v1",
+  "defaultModel": "global.anthropic.claude-opus-4-7",
   "defaultThinkingLevel": "high",
   "enableInstallTelemetry": false,
   "quietStartup": true,
@@ -18,9 +18,10 @@
   ],
   "hideThinkingBlock": true,
   "enabledModels": [
-    "amazon-bedrock/global.anthropic.claude-opus-4-6-v1:high",
-    "amazon-bedrock/global.anthropic.claude-sonnet-4-6:medium",
-    "amazon-bedrock/global.anthropic.claude-haiku-4-5-20251001-v1:0:low"
+    "amazon-bedrock/global.anthropic.claude-opus-4-7:high",
+    "amazon-bedrock/global.anthropic.claude-sonnet-4-6:medium"
   ],
-  "npmCommand": ["bun"]
+  "npmCommand": [
+    "bun"
+  ]
 }

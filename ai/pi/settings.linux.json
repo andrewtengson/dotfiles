@@ -4,8 +4,6 @@
   "defaultThinkingLevel": "medium",
   "awsProfile": null,
   "enabledModels": [
-    "openai-codex/gpt-5.5:high",
-    "openai-codex/gpt-5.5:medium",
-    "openai-codex/gpt-5.5:low"
+    "openai-codex/gpt-5.5"
   ]
 }

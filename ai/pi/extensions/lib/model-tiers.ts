@@ -22,7 +22,7 @@ export interface TierTarget {
 export const TIER_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
   "amazon-bedrock": {
     heavy: {
-      modelId: "global.anthropic.claude-opus-4-6-v1",
+      modelId: "global.anthropic.claude-opus-4-7",
       thinkingLevel: "high",
     },
     default: {
