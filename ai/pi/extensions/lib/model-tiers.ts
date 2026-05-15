@@ -30,18 +30,18 @@ export const TIER_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
       thinkingLevel: "medium",
     },
     light: {
-      modelId: "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+      modelId: "global.anthropic.claude-sonnet-4-6",
       thinkingLevel: "low",
     },
   },
   "openai-codex": {
     heavy: { modelId: "gpt-5.5", thinkingLevel: "high" },
-    default: { modelId: "gpt-5.4-mini", thinkingLevel: "medium" },
-    light: { modelId: "gpt-5.3-codex-spark", thinkingLevel: "low" },
+    default: { modelId: "gpt-5.5", thinkingLevel: "medium" },
+    light: { modelId: "gpt-5.4-mini", thinkingLevel: "low" },
   },
   kiro: {
     heavy: { modelId: "claude-opus-4-7", thinkingLevel: "high" },
     default: { modelId: "claude-sonnet-4-6", thinkingLevel: "medium" },
-    light: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
+    light: { modelId: "claude-sonnet-4-6", thinkingLevel: "low" },
   },
 };
