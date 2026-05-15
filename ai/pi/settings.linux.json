@@ -5,6 +5,7 @@
   "awsProfile": null,
   "enabledModels": [
     "openai-codex/gpt-5.5:high",
-    "openai-codex/gpt-5.4-mini:medium",
-    "openai-codex/gpt-5.3-codex-spark:low"
+    "openai-codex/gpt-5.5:medium",
+    "openai-codex/gpt-5.5:low"
   ]
+}
