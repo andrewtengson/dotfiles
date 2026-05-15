@@ -48,9 +48,9 @@ export default function (pi: ExtensionAPI) {
   let keepalive: ReturnType<typeof setInterval> | undefined;
 
   function startProgress(): void {
-    emit(buildOSC("9;4;4;100"));
+    emit(buildOSC("9;4;1;100"));
     // Ghostty auto-clears progress after ~15s; re-emit every 10s to keep it alive.
-    keepalive = setInterval(() => emit(buildOSC("9;4;4;100")), 10_000);
+    keepalive = setInterval(() => emit(buildOSC("9;4;1;100")), 10_000);
   }
 
   function stopProgress(): void {
