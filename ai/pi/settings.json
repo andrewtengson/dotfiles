@@ -17,5 +17,6 @@
     "npm:pi-mcp-adapter",
     "npm:pi-intercom"
   ],
-  "hideThinkingBlock": true
+  "hideThinkingBlock": true,
+  "npmCommand": ["pnpm"]
 }
