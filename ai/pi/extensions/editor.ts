@@ -202,13 +202,7 @@ class FlatEditor extends CustomEditor {
     const parts: string[] = [];
 
     if (routerState?.autoRoutingEnabled) {
-      const label =
-        routerState.routed && routerState.lastTier
-          ? (routerState.lastTier as string)
-          : "auto";
-      const color: ThemeColor =
-        routerState.lastTier === "heavy" ? "warning" : "accent";
-      parts.push(this.fg(color, label));
+      parts.push(this.fg("accent", "auto"));
     }
 
     parts.push(this.fg(thinkingColor, thinkingLevel));
