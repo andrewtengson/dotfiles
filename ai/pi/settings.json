@@ -18,5 +18,7 @@
     "npm:pi-intercom"
   ],
   "hideThinkingBlock": true,
-  "npmCommand": ["bun"]
+  "npmCommand": [
+    "bun"
+  ]
 }

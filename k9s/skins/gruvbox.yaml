@@ -1,14 +1,14 @@
 foreground: &foreground "#ebdbb2"
-background: &background "#1d2021"
-current_line: &current_line "#ebdbb2"
-selection: &selection "#3c3735"
-comment: &comment "#bdad93"
-cyan: &cyan "#689d69"
-green: &green "#989719"
-orange: &orange "#d79920"
-magenta: &magenta "#b16185"
-blue: &blue "#448488"
-red: &red "#cc231c"
+background: &background default
+current_line: &current_line "#3c3836"
+selection: &selection "#504945"
+comment: &comment "#928374"
+cyan: &cyan "#689d6a"
+green: &green "#98971a"
+orange: &orange "#d79921"
+magenta: &magenta "#b16286"
+blue: &blue "#458588"
+red: &red "#cc241d"
 
 k9s:
   body:

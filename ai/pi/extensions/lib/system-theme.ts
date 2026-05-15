@@ -96,63 +96,66 @@ export function generateSystemTheme(background: HexColor, foreground: HexColor, 
   const warning = generateScale(warningSeed, isDark);
   const info = generateScale(infoSeed, isDark);
 
+  // Derive orange from yellow seed (shift hue toward red)
+  const orange = p[3] ? shift(p[3], { h: -30, c: 1.1 }) : warning[isDark ? 9 : 8];
+
   const colors: PiThemeColors = {
-    // Core — use palette colors directly for max contrast
+    // Core — palette colors directly
     accent: p[4] || accent[isDark ? 9 : 8],
-    border: accent[isDark ? 8 : 6],
+    border: p[4] || accent[isDark ? 8 : 6],
     borderAccent: p[4] || accent[isDark ? 9 : 8],
     borderMuted: neutral[isDark ? 6 : 3],
     success: p[2] || success[isDark ? 9 : 8],
     error: p[1] || error[isDark ? 9 : 8],
-    warning: p[3] || warning[isDark ? 9 : 8],
-    muted: p[8] || neutral[isDark ? 9 : 4],
-    dim: p[7] || neutral[isDark ? 8 : 3],
+    warning: orange,
+    muted: p[7] || neutral[isDark ? 9 : 4],
+    dim: p[8] || neutral[isDark ? 8 : 3],
     text: foreground,
 
     // Message colors
-    thinkingText: neutral[isDark ? 9 : 6],
+    thinkingText: lighten(foreground, isDark ? -0.12 : 0.12),
     userMessageText: foreground,
     customMessageText: foreground,
-    customMessageLabel: success[isDark ? 8 : 9],
+    customMessageLabel: p[2] || success[isDark ? 9 : 8],
     toolTitle: foreground,
-    toolOutput: neutral[isDark ? 10 : 9],
+    toolOutput: foreground,
 
     // Markdown
-    mdHeading: warning[isDark ? 8 : 9],
-    mdLink: accent[isDark ? 8 : 9],
-    mdLinkUrl: p[8] || neutral[isDark ? 9 : 4],
-    mdCode: success[isDark ? 8 : 9],
-    mdCodeBlock: neutral[isDark ? 10 : 11],
-    mdCodeBlockBorder: neutral[isDark ? 3 : 4],
-    mdQuote: warning[isDark ? 8 : 9],
-    mdQuoteBorder: success[isDark ? 6 : 7],
+    mdHeading: p[3] || warning[isDark ? 9 : 8],
+    mdLink: p[4] || accent[isDark ? 9 : 8],
+    mdLinkUrl: p[7] || neutral[isDark ? 9 : 4],
+    mdCode: p[6] || info[isDark ? 9 : 8],
+    mdCodeBlock: foreground,
+    mdCodeBlockBorder: neutral[isDark ? 7 : 4],
+    mdQuote: lighten(foreground, isDark ? -0.12 : 0.12),
+    mdQuoteBorder: p[2] || success[isDark ? 9 : 8],
     mdHr: neutral[isDark ? 6 : 5],
-    mdListBullet: success[isDark ? 8 : 9],
+    mdListBullet: p[2] || success[isDark ? 9 : 8],
 
     // Diff
-    toolDiffAdded: success[isDark ? 8 : 9],
-    toolDiffRemoved: error[isDark ? 8 : 9],
-    toolDiffContext: p[8] || neutral[isDark ? 9 : 4],
+    toolDiffAdded: p[2] || success[isDark ? 9 : 8],
+    toolDiffRemoved: p[1] || error[isDark ? 9 : 8],
+    toolDiffContext: p[8] || neutral[isDark ? 8 : 4],
 
-    // Syntax
-    syntaxComment: p[8] || neutral[isDark ? 9 : 4],
-    syntaxKeyword: accent[isDark ? 9 : 10],
-    syntaxFunction: success[isDark ? 8 : 9],
-    syntaxVariable: neutral[isDark ? 10 : 11],
-    syntaxString: success[isDark ? 8 : 9],
-    syntaxNumber: warning[isDark ? 8 : 9],
-    syntaxType: info[isDark ? 8 : 9],
-    syntaxOperator: p[7] || neutral[isDark ? 9 : 5],
-    syntaxPunctuation: p[8] || neutral[isDark ? 9 : 4],
+    // Syntax — matches gruvbox slot mapping
+    syntaxComment: p[8] || neutral[isDark ? 8 : 4],
+    syntaxKeyword: p[1] || error[isDark ? 9 : 8],
+    syntaxFunction: p[2] || success[isDark ? 9 : 8],
+    syntaxVariable: p[4] || accent[isDark ? 9 : 8],
+    syntaxString: p[2] || success[isDark ? 9 : 8],
+    syntaxNumber: p[5] || accent[isDark ? 9 : 8],
+    syntaxType: p[3] || warning[isDark ? 9 : 8],
+    syntaxOperator: foreground,
+    syntaxPunctuation: p[7] || neutral[isDark ? 9 : 4],
 
-    // Thinking levels
+    // Thinking levels — gray → blue → yellow → red
     thinkingOff: neutral[isDark ? 7 : 3],
     thinkingMinimal: neutral[isDark ? 8 : 4],
     thinkingLow: info[isDark ? 6 : 7],
     thinkingMedium: accent[isDark ? 7 : 8],
     thinkingHigh: warning[isDark ? 8 : 9],
     thinkingXhigh: error[isDark ? 8 : 9],
-    bashMode: warning[isDark ? 8 : 9],
+    bashMode: p[3] || warning[isDark ? 9 : 8],
 
     // Backgrounds
     selectedBg: lighten(background, isDark ? 0.08 : -0.08),
