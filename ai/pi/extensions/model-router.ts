@@ -241,7 +241,7 @@ function currentModelText(ctx: ExtensionContext): string {
 // ---------------------------------------------------------------------------
 
 export default function modelRouterExtension(pi: ExtensionAPI): void {
-  const state: RouterState = { autoRoutingEnabled: true, routed: false };
+  const state: RouterState = { autoRoutingEnabled: false, routed: false };
   exposeState(state);
 
   async function trySwitchModel(
