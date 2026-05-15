@@ -96,13 +96,22 @@ if [[ "$(uname)" == "Linux" ]]; then
   # Merge base + linux overlay into settings
   jq -s '.[0] * .[1]' "$PWD/ai/pi/settings.json" "$PWD/ai/pi/settings.linux.json" > "$HOME/.pi/agent/settings.json"
 else
-  ln -sfn "$PWD/ai/pi/settings.json" "$HOME/.pi/agent/settings.json"
+  # Copy (not symlink) — pi and extensions write to settings.json at runtime
+  if [[ ! -f "$HOME/.pi/agent/settings.json" ]]; then
+    cp "$PWD/ai/pi/settings.json" "$HOME/.pi/agent/settings.json"
+  fi
 fi
 ln -sfn "$PWD/ai/pi/keybindings.json" "$HOME/.pi/agent/keybindings.json"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.pi/agent/AGENTS.md"
 ln -sfn "$PWD/ai/pi/themes" "$HOME/.pi/agent/themes"
 ln -sfn "$PWD/ai/pi/extensions" "$HOME/.pi/agent/extensions"
 ln -sfn "$PWD/ai/pi/web-search.json" "$HOME/.pi/web-search.json"
+
+# ai agents (subagent overrides)
+mkdir -p "$HOME/.agents"
+for agent in "$PWD/ai/agents/"*.md; do
+  [ -f "$agent" ] && cp "$agent" "$HOME/.agents/$(basename "$agent")"
+done
 
 # k9s config (macOS uses ~/Library/Application Support/k9s/)
 k9s_dir="$HOME/Library/Application Support/k9s"

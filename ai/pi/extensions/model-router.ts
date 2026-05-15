@@ -10,28 +10,8 @@
  */
 
 import type { ExtensionAPI, ExtensionContext, ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
+import { TIER_MAP, type ProviderKey, type Tier, type ThinkingLevel } from "./lib/model-tiers.js";
 
-type ThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
-type Tier = "heavy" | "default" | "light";
-type ProviderKey = "amazon-bedrock" | "openai-codex";
-
-interface TierTarget {
-	modelId: string;
-	thinkingLevel: ThinkingLevel;
-}
-
-const ROUTE_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
-	"amazon-bedrock": {
-		heavy: { modelId: "global.anthropic.claude-opus-4-6-v1", thinkingLevel: "high" },
-		default: { modelId: "global.anthropic.claude-sonnet-4-6", thinkingLevel: "medium" },
-		light: { modelId: "global.anthropic.claude-haiku-4-5-20251001-v1:0", thinkingLevel: "off" },
-	},
-	"openai-codex": {
-		heavy: { modelId: "gpt-5.5", thinkingLevel: "high" },
-		default: { modelId: "gpt-5.4-mini", thinkingLevel: "medium" },
-		light: { modelId: "gpt-5.3-codex-spark", thinkingLevel: "low" },
-	},
-};
 
 // ---------------------------------------------------------------------------
 // Intent detection — keyword matching to determine tier
@@ -193,11 +173,21 @@ function detectTier(prompt: string): Tier | undefined {
 // State
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Shared state — exposed via globalThis for cross-extension reads (editor)
+// ---------------------------------------------------------------------------
+
+const ROUTER_STATE_KEY = Symbol.for("model-router-state");
+
 interface RouterState {
 	autoRoutingEnabled: boolean;
 	lastTier?: Tier;
 	routed: boolean; // true if current turn was routed away from default
 	preRouteModel?: { provider: ProviderKey; modelId: string; thinkingLevel: ThinkingLevel };
+}
+
+function exposeState(state: RouterState): void {
+	(globalThis as any)[ROUTER_STATE_KEY] = state;
 }
 
 function currentProvider(ctx: ExtensionContext): ProviderKey | undefined {
@@ -218,6 +208,7 @@ function currentModelText(ctx: ExtensionContext): string {
 
 export default function modelRouterExtension(pi: ExtensionAPI): void {
 	const state: RouterState = { autoRoutingEnabled: true, routed: false };
+	exposeState(state);
 
 	async function trySwitchModel(
 		ctx: ExtensionContext,
@@ -254,24 +245,30 @@ export default function modelRouterExtension(pi: ExtensionAPI): void {
 		const tier = detectTier(event.prompt);
 		if (!tier) return;
 
-		const target = ROUTE_MAP[provider][tier];
+		const target = TIER_MAP[provider][tier];
 		const current = ctx.model;
+		const currentThinking = pi.getThinkingLevel() as ThinkingLevel;
 
-		// Already on the target model
-		if (current?.id === target.modelId) {
-			if (pi.getThinkingLevel() !== target.thinkingLevel) {
-				pi.setThinkingLevel(target.thinkingLevel);
-			}
+		// Already on the target model and thinking — nothing to do
+		if (current?.id === target.modelId && currentThinking === target.thinkingLevel) {
 			return;
 		}
 
-		// Capture current model before switching so we can restore after the turn
+		// Capture pre-route state for restore
 		state.preRouteModel = {
 			provider: provider,
 			modelId: current?.id ?? target.modelId,
-			thinkingLevel: pi.getThinkingLevel() as ThinkingLevel,
+			thinkingLevel: currentThinking,
 		};
 
+		// Same model, different thinking — only adjust thinking
+		if (current?.id === target.modelId) {
+			pi.setThinkingLevel(target.thinkingLevel);
+			state.routed = true;
+			return;
+		}
+
+		// Different model — full switch
 		const switched = await trySwitchModel(ctx, provider, target.modelId, target.thinkingLevel);
 		if (!switched) {
 			state.preRouteModel = undefined;
@@ -281,7 +278,7 @@ export default function modelRouterExtension(pi: ExtensionAPI): void {
 		state.lastTier = tier;
 		state.routed = true;
 		updateStatus(ctx);
-		ctx.ui.notify(`auto-routed → ${tier} (${target.modelId})`, "info");
+		ctx.ui.notify(`Model (auto): ${target.modelId}`, "info");
 	});
 
 	// Restore default model after each agent turn completes
@@ -297,20 +294,18 @@ export default function modelRouterExtension(pi: ExtensionAPI): void {
 			return;
 		}
 
+		// Always restore both model and thinking
 		const current = ctx.model;
-		if (current?.id === restore.modelId) {
-			state.routed = false;
-			state.preRouteModel = undefined;
-			return;
+		if (current?.id !== restore.modelId) {
+			await trySwitchModel(ctx, restore.provider, restore.modelId, restore.thinkingLevel);
+		} else if (pi.getThinkingLevel() !== restore.thinkingLevel) {
+			pi.setThinkingLevel(restore.thinkingLevel);
 		}
 
-		const restored = await trySwitchModel(ctx, restore.provider, restore.modelId, restore.thinkingLevel);
-		if (restored) {
-			state.routed = false;
-			state.preRouteModel = undefined;
-			state.lastTier = undefined;
-			updateStatus(ctx);
-		}
+		state.routed = false;
+		state.preRouteModel = undefined;
+		state.lastTier = undefined;
+		updateStatus(ctx);
 	});
 
 	// --- Commands ---
@@ -319,7 +314,7 @@ export default function modelRouterExtension(pi: ExtensionAPI): void {
 		description: "Show model router status and route map",
 		handler: async (_args: string, ctx: ExtensionCommandContext) => {
 			const provider = currentProvider(ctx) ?? "amazon-bedrock";
-			const routes = ROUTE_MAP[provider];
+			const routes = TIER_MAP[provider];
 			const lines = [
 				`auto-routing: ${state.autoRoutingEnabled ? "on" : "off"}`,
 				`current: ${currentModelText(ctx)}`,
