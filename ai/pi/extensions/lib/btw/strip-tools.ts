@@ -10,23 +10,28 @@
  *   - UserMessage is passed through unchanged.
  */
 
-import type { AssistantMessage, Message, ToolResultMessage, UserMessage } from "@earendil-works/pi-ai";
+import type {
+  AssistantMessage,
+  Message,
+  ToolResultMessage,
+  UserMessage,
+} from "@earendil-works/pi-ai";
 
 export function stripToolMessages(messages: Message[]): Message[] {
-	const result: Message[] = [];
+  const result: Message[] = [];
 
-	for (const msg of messages) {
-		if (msg.role === "toolResult") continue;
+  for (const msg of messages) {
+    if (msg.role === "toolResult") continue;
 
-		if (msg.role === "assistant") {
-			const filtered = msg.content.filter((c) => c.type !== "toolCall");
-			if (filtered.length === 0) continue;
-			result.push({ ...msg, content: filtered } as AssistantMessage);
-			continue;
-		}
+    if (msg.role === "assistant") {
+      const filtered = msg.content.filter((c) => c.type !== "toolCall");
+      if (filtered.length === 0) continue;
+      result.push({ ...msg, content: filtered } as AssistantMessage);
+      continue;
+    }
 
-		result.push(msg);
-	}
+    result.push(msg);
+  }
 
-	return result;
+  return result;
 }

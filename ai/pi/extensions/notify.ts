@@ -39,11 +39,11 @@ function emit(sequence: string): void {
   } catch {
     try {
       writeSync(2, output);
-    } catch { }
+    } catch {}
   }
 }
 
-export default function(pi: ExtensionAPI) {
+export default function (pi: ExtensionAPI) {
   let active = false;
   let keepalive: ReturnType<typeof setInterval> | undefined;
 
@@ -75,7 +75,7 @@ export default function(pi: ExtensionAPI) {
     // Write BEL without tmux passthrough so tmux's bell-action can gate it.
     try {
       writeSync(1, BEL);
-    } catch { }
+    } catch {}
   });
 
   pi.on("session_shutdown", async () => {

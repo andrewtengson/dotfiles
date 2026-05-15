@@ -5,7 +5,16 @@
  */
 
 import type { Theme, ThemeColor } from "@earendil-works/pi-coding-agent";
-import { type Component, fuzzyFilter, Key, type KeybindingsManager, matchesKey, type TUI, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import {
+  type Component,
+  fuzzyFilter,
+  Key,
+  type KeybindingsManager,
+  matchesKey,
+  type TUI,
+  truncateToWidth,
+  visibleWidth,
+} from "@earendil-works/pi-tui";
 
 const MAX_VISIBLE = 10;
 const RESET = "\x1b[0m";
@@ -77,7 +86,10 @@ export class CommandPalette implements Component {
   invalidate(): void {}
 
   handleInput(data: string): void {
-    if (this.keybindings.matches(data, "tui.select.cancel") || matchesKey(data, Key.escape)) {
+    if (
+      this.keybindings.matches(data, "tui.select.cancel") ||
+      matchesKey(data, Key.escape)
+    ) {
       this.done(null);
       return;
     }
@@ -92,7 +104,10 @@ export class CommandPalette implements Component {
       return;
     }
 
-    if (this.keybindings.matches(data, "tui.input.tab") || matchesKey(data, Key.tab)) {
+    if (
+      this.keybindings.matches(data, "tui.input.tab") ||
+      matchesKey(data, Key.tab)
+    ) {
       this.select("insert");
       return;
     }
@@ -102,13 +117,19 @@ export class CommandPalette implements Component {
       return;
     }
 
-    if (matchesKey(data, Key.backspace) || this.keybindings.matches(data, "tui.editor.deleteCharBackward")) {
+    if (
+      matchesKey(data, Key.backspace) ||
+      this.keybindings.matches(data, "tui.editor.deleteCharBackward")
+    ) {
       this.query = this.query.slice(0, -1);
       this.reset();
       return;
     }
 
-    if (data === "\x15" || this.keybindings.matches(data, "tui.editor.deleteToLineStart")) {
+    if (
+      data === "\x15" ||
+      this.keybindings.matches(data, "tui.editor.deleteToLineStart")
+    ) {
       this.query = "";
       this.reset();
       return;
@@ -128,23 +149,39 @@ export class CommandPalette implements Component {
     const lines: string[] = [];
 
     // Header
-    lines.push(this.line(w, this.panelBg, this.fg("text", "Commands"), this.fg("muted", "esc")));
+    lines.push(
+      this.line(
+        w,
+        this.panelBg,
+        this.fg("text", "Commands"),
+        this.fg("muted", "esc"),
+      ),
+    );
     lines.push(this.pad(w));
 
     // Search
-    const input = this.query ? `/${this.fg("text", this.query)}` : this.fg("dim", "/...");
+    const input = this.query
+      ? `/${this.fg("text", this.query)}`
+      : this.fg("dim", "/...");
     lines.push(this.line(w, this.panelBg, input, ""));
     lines.push(this.pad(w));
 
     // Items — always render exactly MAX_VISIBLE rows
-    const visible = items.slice(this.scrollOffset, this.scrollOffset + MAX_VISIBLE);
+    const visible = items.slice(
+      this.scrollOffset,
+      this.scrollOffset + MAX_VISIBLE,
+    );
     if (visible.length === 0) {
-      lines.push(this.line(w, this.panelBg, this.fg("muted", "No matches"), ""));
+      lines.push(
+        this.line(w, this.panelBg, this.fg("muted", "No matches"), ""),
+      );
     } else {
       for (let i = 0; i < visible.length; i++) {
         const idx = this.scrollOffset + i;
         const bg = idx === this.selectedIndex ? this.selectedBg : this.panelBg;
-        lines.push(this.itemLine(w, bg, visible[i], idx === this.selectedIndex));
+        lines.push(
+          this.itemLine(w, bg, visible[i], idx === this.selectedIndex),
+        );
       }
     }
     // Fill remaining item slots with empty rows
@@ -153,7 +190,17 @@ export class CommandPalette implements Component {
     }
 
     // Footer
-    lines.push(this.line(w, this.panelBg, this.fg("dim", "\u2191\u2193 navigate \u00b7 enter run \u00b7 tab insert \u00b7 esc close"), ""));
+    lines.push(
+      this.line(
+        w,
+        this.panelBg,
+        this.fg(
+          "dim",
+          "\u2191\u2193 navigate \u00b7 enter run \u00b7 tab insert \u00b7 esc close",
+        ),
+        "",
+      ),
+    );
 
     return lines;
   }
@@ -161,7 +208,10 @@ export class CommandPalette implements Component {
   private move(delta: number): void {
     const items = this.getFiltered();
     if (items.length === 0) return;
-    this.selectedIndex = Math.max(0, Math.min(items.length - 1, this.selectedIndex + delta));
+    this.selectedIndex = Math.max(
+      0,
+      Math.min(items.length - 1, this.selectedIndex + delta),
+    );
     this.ensureVisible();
     this.tui.requestRender();
   }
@@ -175,27 +225,36 @@ export class CommandPalette implements Component {
   private select(action: "insert" | "submit"): void {
     const items = this.getFiltered();
     const sel = items[this.selectedIndex];
-    if (!sel) { this.done(null); return; }
-    const finalAction = (sel.source === "skill" || sel.source === "prompt") ? "insert" : action;
+    if (!sel) {
+      this.done(null);
+      return;
+    }
+    const finalAction =
+      sel.source === "skill" || sel.source === "prompt" ? "insert" : action;
     this.done({ command: sel.name, action: finalAction });
   }
 
   private clamp(items: CommandPaletteItem[]): void {
-    if (items.length === 0) { this.selectedIndex = 0; return; }
+    if (items.length === 0) {
+      this.selectedIndex = 0;
+      return;
+    }
     this.selectedIndex = Math.min(this.selectedIndex, items.length - 1);
     this.ensureVisible();
   }
 
   private ensureVisible(): void {
-    if (this.selectedIndex < this.scrollOffset) this.scrollOffset = this.selectedIndex;
-    if (this.selectedIndex >= this.scrollOffset + MAX_VISIBLE) this.scrollOffset = this.selectedIndex - MAX_VISIBLE + 1;
+    if (this.selectedIndex < this.scrollOffset)
+      this.scrollOffset = this.selectedIndex;
+    if (this.selectedIndex >= this.scrollOffset + MAX_VISIBLE)
+      this.scrollOffset = this.selectedIndex - MAX_VISIBLE + 1;
   }
 
   private getFiltered(): CommandPaletteItem[] {
     const all = dedup(this.items);
     if (!this.query.trim()) return all;
     return fuzzyFilter(all, this.query, (item) =>
-      [item.name, item.description, item.source].filter(Boolean).join(" ")
+      [item.name, item.description, item.source].filter(Boolean).join(" "),
     );
   }
 
@@ -209,11 +268,17 @@ export class CommandPalette implements Component {
     // Ensure full width coverage
     const rawW = visibleWidth(raw);
     const extra = Math.max(0, width - rawW);
-    const patched = raw.replaceAll(RESET, RESET + bg); return `${bg}${patched}${" ".repeat(extra)}${RESET}`;
+    const patched = raw.replaceAll(RESET, RESET + bg);
+    return `${bg}${patched}${" ".repeat(extra)}${RESET}`;
   }
 
   /** Item line: name [source] description */
-  private itemLine(width: number, bg: string, item: CommandPaletteItem, selected: boolean): string {
+  private itemLine(
+    width: number,
+    bg: string,
+    item: CommandPaletteItem,
+    selected: boolean,
+  ): string {
     const inner = width - 2;
     const sf = selected ? this.selectedFg : "";
 
@@ -222,7 +287,7 @@ export class CommandPalette implements Component {
 
     // Three fixed columns with 1 space gap between each
     const nameCol = Math.max(4, Math.min(22, Math.floor(inner * 0.25)));
-    const srcCol = Math.max(10, Math.min(24, Math.floor(inner * 0.30)));
+    const srcCol = Math.max(10, Math.min(24, Math.floor(inner * 0.3)));
     const descCol = Math.max(0, inner - nameCol - srcCol - 3);
 
     // Truncate+pad each column to exact fixed width (pad=true)

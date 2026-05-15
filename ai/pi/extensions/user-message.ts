@@ -78,9 +78,9 @@ function styledUserLine(
   const clipped = truncateToWidth(line, contentWidth, "");
   const text = theme
     ? theme.fg(
-      "userMessageText",
-      theme.italic ? theme.italic(clipped) : clipped,
-    )
+        "userMessageText",
+        theme.italic ? theme.italic(clipped) : clipped,
+      )
     : clipped;
   const padding = " ".repeat(Math.max(0, contentWidth - visibleWidth(clipped)));
   return `${prefix}${text}${padding}`;
@@ -136,7 +136,7 @@ function patchUserMessageRender(
   prototype.__ampUserMessagePatched = true;
 }
 
-export default function(pi: ExtensionAPI) {
+export default function (pi: ExtensionAPI) {
   let activeTheme: ThemeLike | undefined;
   let activeThinkingLevel = "off";
 

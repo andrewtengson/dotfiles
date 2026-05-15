@@ -34,7 +34,13 @@ function readGhosttyColors(): TerminalPalette | null {
   // Find theme name from Ghostty config
   const configPaths = [
     join(homedir(), ".config", "ghostty", "config"),
-    join(homedir(), "Library", "Application Support", "com.mitchellh.ghostty", "config"),
+    join(
+      homedir(),
+      "Library",
+      "Application Support",
+      "com.mitchellh.ghostty",
+      "config",
+    ),
   ];
 
   let themeName: string | null = null;

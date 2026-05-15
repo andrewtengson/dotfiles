@@ -3,12 +3,22 @@
  * status below with model/thinking + git/context/cost.
  */
 
-import { CustomEditor, type ExtensionAPI, type ExtensionContext, type ThemeColor } from "@earendil-works/pi-coding-agent";
+import {
+  CustomEditor,
+  type ExtensionAPI,
+  type ExtensionContext,
+  type ThemeColor,
+} from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import { execFileSync } from "node:child_process";
 import { homedir } from "node:os";
 import { relative } from "node:path";
-import { BUILTIN_COMMANDS, CommandPalette, type CommandPaletteItem, type CommandPaletteResult } from "./lib/command-palette.js";
+import {
+  BUILTIN_COMMANDS,
+  CommandPalette,
+  type CommandPaletteItem,
+  type CommandPaletteResult,
+} from "./lib/command-palette.js";
 
 const MIN_BODY_LINES = 2;
 const GIT_CACHE_MS = 3000;
@@ -38,11 +48,14 @@ function runGit(cwd: string, args: string[]): string {
 
 function getGitInfo(cwd: string): GitInfo {
   const now = Date.now();
-  if (gitCache && gitCache.cwd === cwd && now - gitCache.at < GIT_CACHE_MS) return gitCache.info;
+  if (gitCache && gitCache.cwd === cwd && now - gitCache.at < GIT_CACHE_MS)
+    return gitCache.info;
 
   const branch = runGit(cwd, ["branch", "--show-current"]) || null;
   const porcelain = runGit(cwd, ["status", "--short"]);
-  const changedFiles = porcelain ? porcelain.split("\n").filter(Boolean).length : 0;
+  const changedFiles = porcelain
+    ? porcelain.split("\n").filter(Boolean).length
+    : 0;
   const numstat = runGit(cwd, ["diff", "--numstat"]);
   let added = 0;
   let removed = 0;
@@ -86,10 +99,16 @@ function stripAnsi(str: string): string {
 
 function isEditorRule(line: string): boolean {
   const plain = stripAnsi(line).trim();
-  return plain.includes("─") && [...plain].every((char) => "─↑↓ 0123456789more".includes(char));
+  return (
+    plain.includes("─") &&
+    [...plain].every((char) => "─↑↓ 0123456789more".includes(char))
+  );
 }
 
-function splitEditorRender(lines: string[]): { editorLines: string[]; popupLines: string[] } {
+function splitEditorRender(lines: string[]): {
+  editorLines: string[];
+  popupLines: string[];
+} {
   const withoutTop = lines.slice(1);
   const bottomRuleIndex = withoutTop.findIndex(isEditorRule);
 
@@ -106,7 +125,8 @@ function splitEditorRender(lines: string[]): { editorLines: string[]; popupLines
 function getSessionCost(ctx: ExtensionContext): number {
   let total = 0;
   for (const entry of ctx.sessionManager.getEntries()) {
-    if (entry.type !== "message" || entry.message.role !== "assistant") continue;
+    if (entry.type !== "message" || entry.message.role !== "assistant")
+      continue;
     const cost = entry.message.usage?.cost?.total;
     if (typeof cost === "number" && Number.isFinite(cost)) total += cost;
   }
@@ -177,10 +197,12 @@ class FlatEditor extends CustomEditor {
     const provider = String(this.ctx.model?.provider ?? "");
 
     if (routerState?.autoRoutingEnabled) {
-      const label = routerState.routed && routerState.lastTier
-        ? routerState.lastTier as string
-        : "auto";
-      const color: ThemeColor = routerState.lastTier === "heavy" ? "warning" : "accent";
+      const label =
+        routerState.routed && routerState.lastTier
+          ? (routerState.lastTier as string)
+          : "auto";
+      const color: ThemeColor =
+        routerState.lastTier === "heavy" ? "warning" : "accent";
       const parts = [this.fg(color, label)];
       if (provider) parts.push(this.fg("muted", provider));
       return parts.join(this.fg("dim", " · "));
@@ -205,15 +227,18 @@ class FlatEditor extends CustomEditor {
     const git = getGitInfo(this.ctx.cwd);
     if (git.branch) {
       let branchLabel = git.branch;
-      if (git.added > 0) branchLabel += ` ${this.fg("toolDiffAdded", `+${git.added}`)}`;
-      if (git.removed > 0) branchLabel += ` ${this.fg("toolDiffRemoved", `-${git.removed}`)}`;
+      if (git.added > 0)
+        branchLabel += ` ${this.fg("toolDiffAdded", `+${git.added}`)}`;
+      if (git.removed > 0)
+        branchLabel += ` ${this.fg("toolDiffRemoved", `-${git.removed}`)}`;
       parts.push(this.fg("muted", branchLabel));
     }
 
     const usage = this.ctx.getContextUsage();
     if (usage) {
       const tokens = formatCount(usage.tokens);
-      const pct = usage.percent != null ? `(${Math.floor(usage.percent)}%)` : "";
+      const pct =
+        usage.percent != null ? `(${Math.floor(usage.percent)}%)` : "";
       parts.push(this.fg("muted", `${tokens} ${pct}`));
     }
 
@@ -228,12 +253,18 @@ class FlatEditor extends CustomEditor {
 
   private getThinkingColor(): ThemeColor {
     switch (this.getThinkingLevel()) {
-      case "minimal": return "thinkingMinimal";
-      case "low": return "thinkingLow";
-      case "medium": return "thinkingMedium";
-      case "high": return "thinkingHigh";
-      case "xhigh": return "thinkingXhigh";
-      default: return "thinkingOff";
+      case "minimal":
+        return "thinkingMinimal";
+      case "low":
+        return "thinkingLow";
+      case "medium":
+        return "thinkingMedium";
+      case "high":
+        return "thinkingHigh";
+      case "xhigh":
+        return "thinkingXhigh";
+      default:
+        return "thinkingOff";
     }
   }
 
@@ -272,30 +303,33 @@ export default function (pi: ExtensionAPI) {
     if (paletteOpen || !ctx.hasUI) return;
     paletteOpen = true;
 
-    void ctx.ui.custom<CommandPaletteResult | null>(
-      (tui, theme, keybindings, done) =>
-        new CommandPalette(getCommandItems(), tui, theme, keybindings, done),
-      {
-        overlay: true,
-        overlayOptions: {
-          anchor: "center",
-          width: 90,
-          maxHeight: "70%",
+    void ctx.ui
+      .custom<CommandPaletteResult | null>(
+        (tui, theme, keybindings, done) =>
+          new CommandPalette(getCommandItems(), tui, theme, keybindings, done),
+        {
+          overlay: true,
+          overlayOptions: {
+            anchor: "center",
+            width: 90,
+            maxHeight: "70%",
+          },
         },
-      },
-    ).then((result) => {
-      paletteOpen = false;
-      if (!result) return;
-      if (result.action === "insert") {
-        ctx.ui.setEditorText(`/${result.command} `);
-      } else {
-        ctx.ui.setEditorText(`/${result.command}`);
-        // Trigger submit by simulating enter isn't available,
-        // so just insert the command for the user to press enter
-      }
-    }).catch(() => {
-      paletteOpen = false;
-    });
+      )
+      .then((result) => {
+        paletteOpen = false;
+        if (!result) return;
+        if (result.action === "insert") {
+          ctx.ui.setEditorText(`/${result.command} `);
+        } else {
+          ctx.ui.setEditorText(`/${result.command}`);
+          // Trigger submit by simulating enter isn't available,
+          // so just insert the command for the user to press enter
+        }
+      })
+      .catch(() => {
+        paletteOpen = false;
+      });
   }
 
   pi.registerShortcut("ctrl+p", {
@@ -312,7 +346,9 @@ export default function (pi: ExtensionAPI) {
 
     ctx.ui.setEditorComponent((tui, theme, keybindings) => {
       return new FlatEditor(
-        tui, theme, keybindings,
+        tui,
+        theme,
+        keybindings,
         () => activeCtx ?? ctx,
         () => activeThinkingLevel,
       );
@@ -320,7 +356,9 @@ export default function (pi: ExtensionAPI) {
 
     ctx.ui.setFooter(() => ({
       invalidate() {},
-      render() { return []; },
+      render() {
+        return [];
+      },
     }));
   });
 

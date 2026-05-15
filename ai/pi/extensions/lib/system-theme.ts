@@ -77,17 +77,36 @@ export interface SystemThemeResult {
 /**
  * Generate a complete Pi theme from detected terminal colors.
  */
-export function generateSystemTheme(background: HexColor, foreground: HexColor, palette?: HexColor[]): SystemThemeResult {
+export function generateSystemTheme(
+  background: HexColor,
+  foreground: HexColor,
+  palette?: HexColor[],
+): SystemThemeResult {
   const isDark = isDarkBackground(background);
 
   // Use ANSI palette colors as seeds when available (much better than deriving from bg)
   // ANSI: 0=black 1=red 2=green 3=yellow 4=blue 5=magenta 6=cyan 7=white
   const p = palette || [];
-  const accentSeed = p[12] || p[4] || shift(background, { h: 180, l: isDark ? 0.4 : -0.3, c: 3.0 });
-  const successSeed = p[10] || p[2] || shift(background, { h: 145, l: isDark ? 0.35 : -0.2, c: 4.0 });
-  const errorSeed = p[9] || p[1] || shift(background, { h: 25, l: isDark ? 0.35 : -0.2, c: 4.0 });
-  const warningSeed = p[11] || p[3] || shift(background, { h: 85, l: isDark ? 0.35 : -0.2, c: 4.0 });
-  const infoSeed = p[14] || p[6] || shift(background, { h: 230, l: isDark ? 0.35 : -0.2, c: 4.0 });
+  const accentSeed =
+    p[12] ||
+    p[4] ||
+    shift(background, { h: 180, l: isDark ? 0.4 : -0.3, c: 3.0 });
+  const successSeed =
+    p[10] ||
+    p[2] ||
+    shift(background, { h: 145, l: isDark ? 0.35 : -0.2, c: 4.0 });
+  const errorSeed =
+    p[9] ||
+    p[1] ||
+    shift(background, { h: 25, l: isDark ? 0.35 : -0.2, c: 4.0 });
+  const warningSeed =
+    p[11] ||
+    p[3] ||
+    shift(background, { h: 85, l: isDark ? 0.35 : -0.2, c: 4.0 });
+  const infoSeed =
+    p[14] ||
+    p[6] ||
+    shift(background, { h: 230, l: isDark ? 0.35 : -0.2, c: 4.0 });
 
   const neutral = generateNeutralScale(background, isDark);
   const accent = generateScale(accentSeed, isDark);
@@ -97,7 +116,9 @@ export function generateSystemTheme(background: HexColor, foreground: HexColor, 
   const info = generateScale(infoSeed, isDark);
 
   // Derive orange from yellow seed (shift hue toward red)
-  const orange = p[3] ? shift(p[3], { h: -30, c: 1.1 }) : warning[isDark ? 9 : 8];
+  const orange = p[3]
+    ? shift(p[3], { h: -30, c: 1.1 })
+    : warning[isDark ? 9 : 8];
 
   const colors: PiThemeColors = {
     // Core — palette colors directly
@@ -180,7 +201,8 @@ export function toPiThemeJson(result: SystemThemeResult): string {
   const { colors, pageBg } = result;
 
   const theme = {
-    $schema: "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
+    $schema:
+      "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
     name: "system",
     colors: {
       ...colors,
