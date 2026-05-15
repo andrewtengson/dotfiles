@@ -27,11 +27,13 @@ import {
 
 // Heavy tier: deep reasoning, multi-step planning, investigation
 // Triggers when problem is open-ended, requires strategy, or has high operational complexity
+// Sources: Continue.dev autodetect.ts, Aider models.py, ClaudeGuide regex patterns, Haimaker router
 const HEAVY_KEYWORDS = [
   // Architecture & design
   "architecture",
   "architect",
   "design a system",
+  "design system",
   "system design",
   "data model",
   "schema design",
@@ -45,7 +47,17 @@ const HEAVY_KEYWORDS = [
   "troubleshoot",
   "track down",
   "figure out why",
+  "explain why",
+  "why does",
+  "how does",
   "broken",
+  // Code review
+  "code review",
+  "pr review",
+  "pull request",
+  "diff",
+  "refactor",
+  "synthesize",
   // Concurrency & distributed
   "race condition",
   "deadlock",
@@ -79,6 +91,7 @@ const HEAVY_KEYWORDS = [
   "overhaul",
   "redesign",
   "rearchitect",
+  "implement from scratch",
   "support sso",
   // Complexity signals
   "complex",
@@ -93,6 +106,7 @@ const HEAVY_KEYWORDS = [
 
 // Light tier: bounded, specific, low operational complexity (1-3 steps)
 // Triggers for tasks where speed matters more than reasoning depth
+// Sources: OpenClaw messageRouting docs, ClaudeGuide SIMPLE_KEYWORDS
 const LIGHT_KEYWORDS = [
   // Summaries & explanations
   "summarize",
@@ -103,8 +117,16 @@ const LIGHT_KEYWORDS = [
   "what is",
   "what does",
   "what's",
+  "what is the",
   "define",
   "describe",
+  // Classification & extraction (bounded, single-pass)
+  "classify",
+  "categorize",
+  "extract",
+  "translate",
+  "yes or no",
+  "true or false",
   // Quick edits
   "quick fix",
   "rename",
@@ -142,18 +164,13 @@ const LIGHT_KEYWORDS = [
   "docstring",
   "jsdoc",
   "document this",
-  // Read & inspect
-  "list",
+  // Read & inspect (specific enough to be unambiguous)
   "show me",
-  "read",
-  "cat",
-  "print",
   "check if",
   "look at",
   // Conversational
   "thanks",
   "thank you",
-  "ok",
   "got it",
   "never mind",
   "nvm",
