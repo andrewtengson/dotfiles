@@ -14,15 +14,15 @@
  *   { "awsProfile": "isse-se-prod" }
  */
 
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import type {
   ExtensionAPI,
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
-import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { homedir } from "node:os";
 
 const LOGIN_TIMEOUT_MS = 180_000;
 
@@ -105,6 +105,7 @@ export default async function (pi: ExtensionAPI) {
     await pi.exec("aws", ["sso", "login", "--profile", profile], {
       timeout: LOGIN_TIMEOUT_MS,
     });
+    // biome-ignore lint/style/noNonNullAssertion: guaranteed non-null by early return above
     if (isSsoTokenExpired(cacheKey!)) {
       ctx?.ui.notify("AWS SSO login failed. Bedrock calls may fail.", "error");
     } else {

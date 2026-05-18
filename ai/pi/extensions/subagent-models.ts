@@ -10,14 +10,14 @@
  *   light  → scout, context-builder
  */
 
+import { readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import type {
   ExtensionAPI,
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
-import { TIER_MAP, type ProviderKey, type Tier } from "./lib/model-tiers.js";
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { homedir } from "node:os";
+import { type ProviderKey, TIER_MAP, type Tier } from "./lib/model-tiers.js";
 
 // Subagent role → tier mapping
 // Modeled after Amp's subagent modes:
@@ -45,6 +45,7 @@ function getSettingsPath(): string {
 
 function writeOverrides(provider: ProviderKey): void {
   const settingsPath = getSettingsPath();
+  // biome-ignore lint/suspicious/noExplicitAny: JSON settings file
   let settings: Record<string, any>;
   try {
     settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
@@ -52,6 +53,7 @@ function writeOverrides(provider: ProviderKey): void {
     settings = {};
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: dynamic override shape
   const overrides: Record<string, Record<string, any>> = {};
   for (const [agent, tier] of Object.entries(AGENT_TIERS)) {
     const target = TIER_MAP[provider][tier];
@@ -68,6 +70,7 @@ function writeOverrides(provider: ProviderKey): void {
   // Deep merge: preserve manual per-agent overrides (like output: false)
   const existing = (settings.subagents.agentOverrides ?? {}) as Record<
     string,
+    // biome-ignore lint/suspicious/noExplicitAny: dynamic override shape
     Record<string, any>
   >;
   for (const [agent, managed] of Object.entries(overrides)) {
@@ -77,7 +80,7 @@ function writeOverrides(provider: ProviderKey): void {
 
   writeFileSync(
     settingsPath,
-    JSON.stringify(settings, null, 2) + "\n",
+    `${JSON.stringify(settings, null, 2)}\n`,
     "utf-8",
   );
 }
@@ -99,7 +102,7 @@ export default function (pi: ExtensionAPI): void {
       const existing = settings.subagents?.agentOverrides ?? {};
       const heavyTarget = TIER_MAP[provider].heavy;
       const expectedHeavyModel = `${provider}/${heavyTarget.modelId}`;
-      if (existing["oracle"]?.model === expectedHeavyModel) return;
+      if (existing.oracle?.model === expectedHeavyModel) return;
     } catch {}
 
     writeOverrides(provider);

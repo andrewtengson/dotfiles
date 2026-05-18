@@ -35,11 +35,11 @@ export function rgbToHex(r: number, g: number, b: number): HexColor {
 }
 
 function linearToSrgb(c: number): number {
-  return c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+  return c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055;
 }
 
 function srgbToLinear(c: number): number {
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 }
 
 export interface OklchColor {
@@ -179,7 +179,7 @@ export function darken(color: HexColor, amount: number): HexColor {
 export function luminance(hex: HexColor): number {
   const { r, g, b } = hexToRgb(hex);
   const lift = (v: number) =>
-    v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
   return 0.2126 * lift(r) + 0.7152 * lift(g) + 0.0722 * lift(b);
 }
 

@@ -11,14 +11,14 @@
 
 import type {
   ExtensionAPI,
-  ExtensionContext,
   ExtensionCommandContext,
+  ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 import {
-  TIER_MAP,
   type ProviderKey,
-  type Tier,
   type ThinkingLevel,
+  TIER_MAP,
+  type Tier,
 } from "./lib/model-tiers.js";
 
 // ---------------------------------------------------------------------------
@@ -220,6 +220,7 @@ interface RouterState {
 }
 
 function exposeState(state: RouterState): void {
+  // biome-ignore lint/suspicious/noExplicitAny: globalThis symbol access
   (globalThis as any)[ROUTER_STATE_KEY] = state;
 }
 
@@ -289,7 +290,10 @@ export default function modelRouterExtension(pi: ExtensionAPI): void {
     const contextUsage = ctx.getContextUsage();
     if (contextUsage?.tokens != null) {
       const targetModel = ctx.modelRegistry.find(provider, target.modelId);
-      if (targetModel && contextUsage.tokens > targetModel.contextWindow * 0.8) {
+      if (
+        targetModel &&
+        contextUsage.tokens > targetModel.contextWindow * 0.8
+      ) {
         return;
       }
     }
@@ -339,6 +343,7 @@ export default function modelRouterExtension(pi: ExtensionAPI): void {
     if (!state.autoRoutingEnabled || !state.routed) return;
     if (event.message.role !== "assistant") return;
     // Don't restore mid-turn (toolUse means more tool calls coming)
+    // biome-ignore lint/suspicious/noExplicitAny: pi SDK message type lacks stopReason
     if ((event.message as any).stopReason === "toolUse") return;
 
     const restore = state.preRouteModel;

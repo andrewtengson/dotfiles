@@ -8,12 +8,12 @@
  * Supports: Ghostty (via theme files). Falls back to defaults.
  */
 
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { generateSystemTheme, toPiThemeJson } from "./lib/system-theme.js";
+import { join } from "node:path";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import type { HexColor } from "./lib/color.js";
+import { generateSystemTheme, toPiThemeJson } from "./lib/system-theme.js";
 
 const THEME_DIR = join(homedir(), ".pi", "agent", "themes");
 const THEME_PATH = join(THEME_DIR, "system.json");
@@ -44,7 +44,7 @@ function readGhosttyColors(): TerminalPalette | null {
   ];
 
   let themeName: string | null = null;
-  let inlineColors: Partial<TerminalPalette> = { palette: [] };
+  const inlineColors: Partial<TerminalPalette> = { palette: [] };
 
   for (const configPath of configPaths) {
     if (!existsSync(configPath)) continue;
@@ -65,7 +65,7 @@ function readGhosttyColors(): TerminalPalette | null {
         const [idx, color] = v.split("=");
         if (idx && color) {
           inlineColors.palette = inlineColors.palette || [];
-          inlineColors.palette[parseInt(idx)] = color as HexColor;
+          inlineColors.palette[parseInt(idx, 10)] = color as HexColor;
         }
       }
     }
@@ -115,7 +115,7 @@ function parseGhosttyTheme(content: string): TerminalPalette {
     if (key === "foreground") foreground = value;
     if (key === "palette") {
       const [idx, color] = value.split("=");
-      if (idx && color) palette[parseInt(idx)] = color as HexColor;
+      if (idx && color) palette[parseInt(idx, 10)] = color as HexColor;
     }
   }
 

@@ -3,6 +3,9 @@
  * status below with model/thinking + git/context/cost.
  */
 
+import { execFileSync } from "node:child_process";
+import { homedir } from "node:os";
+import { relative } from "node:path";
 import {
   CustomEditor,
   type ExtensionAPI,
@@ -10,9 +13,6 @@ import {
   type ThemeColor,
 } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
-import { execFileSync } from "node:child_process";
-import { homedir } from "node:os";
-import { relative } from "node:path";
 import {
   BUILTIN_COMMANDS,
   CommandPalette,
@@ -93,7 +93,7 @@ function compactPath(cwd: string): string {
 }
 
 function stripAnsi(str: string): string {
-  // eslint-disable-next-line no-control-regex
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional ANSI escape stripping
   return str.replace(/\x1b\[[0-9;]*m/g, "");
 }
 
@@ -137,8 +137,11 @@ class FlatEditor extends CustomEditor {
   private editorBg = "";
 
   constructor(
+    // biome-ignore lint/suspicious/noExplicitAny: pi TUI SDK types not exported
     tui: any,
+    // biome-ignore lint/suspicious/noExplicitAny: pi TUI SDK types not exported
     theme: any,
+    // biome-ignore lint/suspicious/noExplicitAny: pi TUI SDK types not exported
     keybindings: any,
     private readonly getCtx: () => ExtensionContext,
     private readonly getThinkingLevel: () => string,
@@ -193,6 +196,7 @@ class FlatEditor extends CustomEditor {
   }
 
   private buildLeftStatus(): string {
+    // biome-ignore lint/suspicious/noExplicitAny: globalThis symbol access
     const routerState = (globalThis as any)[Symbol.for("model-router-state")];
     const thinkingLevel = this.getThinkingLevel();
     const thinkingColor = this.getThinkingColor();

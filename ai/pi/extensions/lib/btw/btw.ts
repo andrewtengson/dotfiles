@@ -9,7 +9,7 @@
  */
 
 import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   type AssistantMessage,
@@ -21,7 +21,6 @@ import {
 import {
   convertToLlm,
   type ExtensionAPI,
-  type ExtensionCommandContext,
   type ExtensionContext,
   type SessionEntry,
 } from "@earendil-works/pi-coding-agent";
@@ -35,8 +34,8 @@ export const BTW_COMMAND_NAME = "btw";
 export const BTW_STATE_KEY = Symbol.for("rpiv-btw");
 export const CROSS_SESSION_HINT_LIMIT = 10;
 
-const MSG_REQUIRES_INTERACTIVE = "/btw requires interactive mode";
-const MSG_USAGE = "Usage: /btw <question>";
+const _MSG_REQUIRES_INTERACTIVE = "/btw requires interactive mode";
+const _MSG_USAGE = "Usage: /btw <question>";
 const MSG_NO_MODEL = "/btw requires an active model";
 const ERR_EMPTY_RESPONSE = "/btw returned no text content.";
 
@@ -106,7 +105,7 @@ function getSessionHistory(ctx: ExtensionContext): BtwTurn[] {
   return turns;
 }
 
-function pushSessionTurn(ctx: ExtensionContext, turn: BtwTurn): void {
+function _pushSessionTurn(ctx: ExtensionContext, turn: BtwTurn): void {
   getSessionHistory(ctx).push(turn);
 }
 

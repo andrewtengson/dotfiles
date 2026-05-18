@@ -13,12 +13,11 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import {
   BTW_COMMAND_NAME,
+  type BtwTurn,
   clearSessionHistory,
   executeBtw,
-  type BtwTurn,
   registerInvalidationHooks,
   registerMessageEndSnapshot,
-  userMessageText,
 } from "./lib/btw/btw.js";
 import { showBtwOverlay } from "./lib/btw/btw-ui.js";
 

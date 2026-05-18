@@ -10,12 +10,7 @@
  *   - UserMessage is passed through unchanged.
  */
 
-import type {
-  AssistantMessage,
-  Message,
-  ToolResultMessage,
-  UserMessage,
-} from "@earendil-works/pi-ai";
+import type { AssistantMessage, Message } from "@earendil-works/pi-ai";
 
 export function stripToolMessages(messages: Message[]): Message[] {
   const result: Message[] = [];

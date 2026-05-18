@@ -1,8 +1,8 @@
 import {
-  getMarkdownTheme,
-  UserMessageComponent,
   type ExtensionAPI,
+  getMarkdownTheme,
   type ThemeColor,
+  UserMessageComponent,
 } from "@earendil-works/pi-coding-agent";
 import {
   Markdown,
@@ -61,7 +61,6 @@ function getThinkingColor(level: string): ThemeColor {
       return "thinkingHigh";
     case "xhigh":
       return "thinkingXhigh";
-    case "off":
     default:
       return "thinkingOff";
   }

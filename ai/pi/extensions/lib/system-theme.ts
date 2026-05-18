@@ -4,12 +4,12 @@
  */
 
 import {
+  generateNeutralScale,
+  generateScale,
   type HexColor,
   isDarkBackground,
-  generateScale,
-  generateNeutralScale,
-  shift,
   lighten,
+  shift,
 } from "./color.js";
 
 interface PiThemeColors {

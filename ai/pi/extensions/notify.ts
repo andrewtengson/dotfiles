@@ -10,8 +10,8 @@
  * process.stdout.write. Wraps in tmux DCS passthrough when in tmux.
  */
 
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { writeSync } from "node:fs";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 const ESC = "\x1b";
 const BEL = "\x07";
