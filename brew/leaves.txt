@@ -20,6 +20,7 @@ htop
 httpie
 jira-cli
 jstkdng/programs/ueberzugpp
+pchuri/tap/confluence-cli
 just
 k6
 k9s
