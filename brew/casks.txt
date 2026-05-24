@@ -13,7 +13,7 @@ httpie
 iterm2
 kiro
 kiro-cli
-mac-mouse-fix
+linearmouse
 macpass
 macs-fan-control
 numi
