@@ -14,7 +14,8 @@
     "npm:@juicesharp/rpiv-todo",
     "npm:pi-until-done",
     "npm:pi-mcp-adapter",
-    "npm:pi-intercom"
+    "npm:pi-intercom",
+    "npm:gentle-engram"
   ],
   "hideThinkingBlock": true,
   "enabledModels": [
@@ -22,7 +23,5 @@
     "amazon-bedrock/global.anthropic.claude-opus-4-6-v1:high",
     "amazon-bedrock/global.anthropic.claude-sonnet-4-6:medium"
   ],
-  "npmCommand": [
-    "bun"
-  ]
+  "npmCommand": ["bun"]
 }

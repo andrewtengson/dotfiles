@@ -11,6 +11,7 @@ curl
 docker
 docker-compose
 fzf
+gentleman-programming/tap/engram
 git
 glab
 go
@@ -20,7 +21,6 @@ htop
 httpie
 jira-cli
 jstkdng/programs/ueberzugpp
-pchuri/tap/confluence-cli
 just
 k6
 k9s
@@ -37,6 +37,7 @@ opencode
 openshift-cli
 oven-sh/bun/bun
 pass-otp
+pchuri/tap/confluence-cli
 pi-coding-agent
 pinentry-mac
 pnpm
