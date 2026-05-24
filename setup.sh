@@ -82,6 +82,10 @@ if [[ "$(uname -s)" == "Linux" ]]; then
   ln -sfn "$PWD/.config/ghostty-linux" "$HOME/.config/ghostty/ghostty-linux"
 fi
 
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  ln -sfn "$PWD/.config/linearmouse/linearmouse.json" "$HOME/.config/linearmouse/linearmouse.json"
+fi
+
 # ai steering (kiro, claude code, codex, opencode, pi)
 mkdir -p "$HOME/.kiro/steering"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.kiro/steering/main.md"

@@ -1,0 +1,29 @@
+{
+  "$schema": "https:\/\/schema.linearmouse.app\/0.11.2",
+  "schemes": [
+    {
+      "buttons": {
+        "universalBackForward": true
+      },
+      "if": {
+        "device": {
+          "category": "mouse",
+          "productID": "0xd040",
+          "productName": "Keychron M4",
+          "vendorID": "0x3434"
+        }
+      },
+      "pointer": {
+        "acceleration": 1,
+        "disableAcceleration": true,
+        "redirectsToScroll": false,
+        "speed": "unset"
+      },
+      "scrolling": {
+        "reverse": {
+          "vertical": true
+        }
+      }
+    }
+  ]
+}
