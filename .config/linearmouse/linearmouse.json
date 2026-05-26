@@ -1,28 +1,34 @@
 {
-  "$schema": "https:\/\/schema.linearmouse.app\/0.11.2",
-  "schemes": [
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.11.2",
+  "schemes" : [
     {
-      "buttons": {
-        "universalBackForward": true
+      "buttons" : {
+        "universalBackForward" : true
       },
-      "if": {
-        "device": {
-          "category": "mouse",
-          "productID": "0xd040",
-          "productName": "Keychron M4",
-          "vendorID": "0x3434"
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0xd040",
+          "productName" : "Keychron M4",
+          "vendorID" : "0x3434"
         }
       },
-      "pointer": {
-        "acceleration": 1,
-        "disableAcceleration": true,
-        "redirectsToScroll": false,
-        "speed": "unset"
+      "pointer" : {
+        "acceleration" : 1,
+        "disableAcceleration" : true,
+        "redirectsToScroll" : false,
+        "speed" : "unset"
       },
-      "scrolling": {
-        "reverse": {
-          "vertical": true
-        }
+      "scrolling" : {
+        "acceleration" : 1,
+        "distance" : "auto",
+        "reverse" : {
+          "vertical" : true
+        },
+        "smoothed" : {
+          "enabled" : false
+        },
+        "speed" : 0
       }
     }
   ]
