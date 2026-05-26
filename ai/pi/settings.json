@@ -15,7 +15,7 @@
     "npm:pi-mcp-adapter",
     "npm:pi-intercom",
     "npm:gentle-engram",
-    "npm:@narumitw/pi-goal"
+    "npm:pi-goal"
   ],
   "hideThinkingBlock": true,
   "enabledModels": [
