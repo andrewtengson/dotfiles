@@ -10,9 +10,18 @@ import {
   CustomEditor,
   type ExtensionAPI,
   type ExtensionContext,
+  type Theme,
   type ThemeColor,
 } from "@earendil-works/pi-coding-agent";
-import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import {
+  type Component,
+  Key,
+  type KeybindingsManager,
+  matchesKey,
+  truncateToWidth,
+  type TUI,
+  visibleWidth,
+} from "@earendil-works/pi-tui";
 import {
   BUILTIN_COMMANDS,
   CommandPalette,
@@ -278,10 +287,90 @@ class FlatEditor extends CustomEditor {
   }
 }
 
+class StatusPanel implements Component {
+  private panelBg: string;
+
+  constructor(
+    private readonly items: { key: string; text: string }[],
+    private readonly tui: TUI,
+    private readonly theme: Theme,
+    private readonly keybindings: KeybindingsManager,
+    private readonly done: (result: null) => void,
+  ) {
+    this.panelBg = theme.getBgAnsi("selectedBg");
+  }
+
+  invalidate(): void {}
+
+  handleInput(data: string): void {
+    if (
+      this.keybindings.matches(data, "tui.select.cancel") ||
+      matchesKey(data, Key.escape) ||
+      this.keybindings.matches(data, "tui.select.confirm")
+    ) {
+      this.done(null);
+    }
+  }
+
+  render(width: number): string[] {
+    const w = Math.max(40, width);
+    const lines: string[] = [];
+
+    lines.push(this.line(w, this.fg("text", "Status"), ""));
+    lines.push(this.pad(w));
+
+    for (const item of this.items) {
+      lines.push(this.itemLine(w, item));
+    }
+
+    lines.push(this.pad(w));
+    lines.push(this.line(w, this.fg("dim", "esc close"), ""));
+
+    return lines;
+  }
+
+  private itemLine(width: number, item: { key: string; text: string }): string {
+    const inner = width - 2;
+    const keyCol = Math.max(8, Math.min(16, Math.floor(inner * 0.25)));
+    const textCol = Math.max(0, inner - keyCol - 2);
+
+    const keyPadded = truncateToWidth(item.key, keyCol, "\u2026", true);
+    const textPadded = truncateToWidth(item.text, textCol, "\u2026", true);
+
+    const assembled = ` ${this.fg("muted", keyPadded)} ${this.fg("text", textPadded)} `;
+    const totalW = visibleWidth(assembled);
+    const trailing = Math.max(0, width - totalW);
+    const patched = assembled.replaceAll(RESET, RESET + this.panelBg);
+    return `${this.panelBg}${patched}${" ".repeat(trailing)}${RESET}`;
+  }
+
+  private line(width: number, left: string, right: string): string {
+    const inner = width - 2;
+    const lw = visibleWidth(left);
+    const rw = visibleWidth(right);
+    const gap = Math.max(1, inner - lw - rw);
+    const raw = ` ${left}${" ".repeat(gap)}${right} `;
+    const rawW = visibleWidth(raw);
+    const extra = Math.max(0, width - rawW);
+    const patched = raw.replaceAll(RESET, RESET + this.panelBg);
+    return `${this.panelBg}${patched}${" ".repeat(extra)}${RESET}`;
+  }
+
+  private pad(width: number): string {
+    return `${this.panelBg}${" ".repeat(width)}${RESET}`;
+  }
+
+  private fg(color: ThemeColor, text: string): string {
+    return this.theme.fg(color, text);
+  }
+}
+
 export default function (pi: ExtensionAPI) {
   let activeCtx: ExtensionContext | undefined;
   let activeThinkingLevel = "off";
   let paletteOpen = false;
+  // biome-ignore lint/suspicious/noExplicitAny: footerData type not exported
+  let statusSource: any;
 
   function getCommandItems(): CommandPaletteItem[] {
     const extensionCommands = pi.getCommands().map((cmd) => {
@@ -329,6 +418,27 @@ export default function (pi: ExtensionAPI) {
       });
   }
 
+  pi.registerCommand("status", {
+    description: "Show extension statuses",
+    handler: async (_args, ctx) => {
+      if (!ctx.hasUI || !statusSource) return;
+      const statuses = statusSource.getExtensionStatuses();
+      const items: { key: string; text: string }[] = [];
+      for (const [key, text] of statuses) {
+        if (text) items.push({ key, text });
+      }
+      if (items.length === 0) {
+        ctx.ui.notify("No active extension statuses", "info");
+        return;
+      }
+      await ctx.ui.custom(
+        (tui, theme, kb, done) =>
+          new StatusPanel(items, tui, theme, kb, done),
+        { overlay: true, overlayOptions: { anchor: "center", width: 60, maxHeight: "50%" } },
+      );
+    },
+  });
+
   pi.registerShortcut("ctrl+p", {
     description: "Open command palette",
     handler: async (ctx) => {
@@ -351,12 +461,15 @@ export default function (pi: ExtensionAPI) {
       );
     });
 
-    ctx.ui.setFooter(() => ({
-      invalidate() {},
-      render() {
-        return [];
-      },
-    }));
+    ctx.ui.setFooter((_tui, _theme, footerData) => {
+      statusSource = footerData;
+      return {
+        invalidate() {},
+        render() {
+          return [];
+        },
+      };
+    });
   });
 
   pi.on("thinking_level_select", (event) => {

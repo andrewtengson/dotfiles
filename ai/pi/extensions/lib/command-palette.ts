@@ -154,7 +154,7 @@ export class CommandPalette implements Component {
         w,
         this.panelBg,
         this.fg("text", "Commands"),
-        this.fg("muted", "esc"),
+        "",
       ),
     );
     lines.push(this.pad(w));
