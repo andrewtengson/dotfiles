@@ -12,10 +12,10 @@
     "npm:pi-subagents",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:@juicesharp/rpiv-todo",
-    "npm:pi-until-done",
     "npm:pi-mcp-adapter",
     "npm:pi-intercom",
-    "npm:gentle-engram"
+    "npm:gentle-engram",
+    "npm:@narumitw/pi-goal"
   ],
   "hideThinkingBlock": true,
   "enabledModels": [
