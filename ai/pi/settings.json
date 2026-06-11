@@ -23,7 +23,6 @@
     "amazon-bedrock/global.anthropic.claude-opus-4-6-v1:high",
     "amazon-bedrock/global.anthropic.claude-sonnet-4-6:medium"
   ],
-  "npmCommand": [
-    "bun"
-  ]
+  "npmCommand": ["bun"],
+  "defaultProjectTrust": "never"
 }
