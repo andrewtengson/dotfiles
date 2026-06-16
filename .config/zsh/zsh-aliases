@@ -6,7 +6,8 @@ alias \
   sssh="~/Documents/projects/maya-gitlab/sssh/sssh.sh" \
   cp='cp -iv' \
   mv='mv -iv' \
-  rm='rm -iv'
+  rm='rm -iv' \
+  k9s='TERM=xterm-256color k9s'
 
 case "$(uname -s)" in
   "Linux") alias \
