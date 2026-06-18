@@ -22,7 +22,7 @@ export interface TierTarget {
 export const TIER_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
   "amazon-bedrock": {
     heavy: {
-      modelId: "global.anthropic.claude-opus-4-7",
+      modelId: "global.anthropic.claude-opus-4-8",
       thinkingLevel: "high",
     },
     default: {
@@ -45,7 +45,7 @@ export const TIER_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
     fast: { modelId: "gpt-5.4-mini", thinkingLevel: "off" },
   },
   kiro: {
-    heavy: { modelId: "claude-opus-4-7", thinkingLevel: "high" },
+    heavy: { modelId: "claude-opus-4-8", thinkingLevel: "high" },
     default: { modelId: "claude-sonnet-4-6", thinkingLevel: "medium" },
     light: { modelId: "claude-sonnet-4-6", thinkingLevel: "low" },
     fast: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
