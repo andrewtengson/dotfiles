@@ -3,7 +3,6 @@
 alias \
   vi='nvim' \
   vim='nvim' \
-  sssh="~/Documents/projects/maya-gitlab/sssh/sssh.sh" \
   cp='cp -iv' \
   mv='mv -iv' \
   rm='rm -iv' \

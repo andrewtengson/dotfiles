@@ -1,0 +1,7 @@
+{
+  "defaultSessionDir": "~/.pi/agent/sessions/subagent/",
+  "intercomBridge": {
+    "mode": "always",
+    "instructionFile": "./intercom-bridge.md"
+  }
+}
