@@ -106,6 +106,10 @@
 - Implement efficient API usage patterns (avoid N×M combinations when possible).
 - Configure region via environment variables for flexibility.
 
+## AWS CLI
+
+- When running AWS CLI `help` commands, set `MANPAGER=cat` for that invocation (e.g., `MANPAGER=cat aws s3 help`). The shell's default `MANPAGER` is `nvim`, which opens an interactive pager that blocks non-interactive execution.
+
 # Terraform Standards
 
 ## Best Practices
