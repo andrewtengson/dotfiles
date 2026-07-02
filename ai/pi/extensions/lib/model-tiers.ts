@@ -26,11 +26,11 @@ export const TIER_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
       thinkingLevel: "high",
     },
     default: {
-      modelId: "global.anthropic.claude-sonnet-4-6",
+      modelId: "global.anthropic.claude-sonnet-5",
       thinkingLevel: "medium",
     },
     light: {
-      modelId: "global.anthropic.claude-sonnet-4-6",
+      modelId: "global.anthropic.claude-sonnet-5",
       thinkingLevel: "low",
     },
     fast: {
@@ -46,8 +46,8 @@ export const TIER_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
   },
   kiro: {
     heavy: { modelId: "claude-opus-4-8", thinkingLevel: "high" },
-    default: { modelId: "claude-sonnet-4-6", thinkingLevel: "medium" },
-    light: { modelId: "claude-sonnet-4-6", thinkingLevel: "low" },
+    default: { modelId: "claude-sonnet-5", thinkingLevel: "medium" },
+    light: { modelId: "claude-sonnet-5", thinkingLevel: "low" },
     fast: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
   },
 };
