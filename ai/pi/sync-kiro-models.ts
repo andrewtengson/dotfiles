@@ -32,7 +32,7 @@
 // region already present; the runtime ListAvailableModels fetch corrects the
 // exact per-region set once credentials are used.
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -65,43 +65,59 @@ interface KiroCliResponse {
   default_model?: string;
 }
 
-const raw = execSync("kiro-cli chat --list-models --format json", {
-  encoding: "utf8",
-  timeout: 15000,
-});
+const raw = execFileSync(
+  "kiro-cli",
+  ["chat", "--list-models", "--format", "json"],
+  {
+    encoding: "utf8",
+    timeout: 15000,
+  },
+);
 const data = JSON.parse(raw) as KiroCliResponse;
 
-// Non-reasoning models: everything defaults to reasoning-capable so new Kiro
-// models pick up thinking-level suffixes (e.g. :medium) automatically without a
-// code change. List only models that genuinely do NOT support extended
-// thinking. Matches the provider's own runtime heuristic (opus/sonnet/coder/
-// deepseek reason; the rest here do not).
-const NON_REASONING_MODELS = new Set([
-  "claude-haiku-4.5",
-  "minimax-m2.5",
-  "minimax-m2.1",
-]);
-
-// Models that only accept text (no image support).
-const TEXT_ONLY = new Set(["minimax-m2.5", "glm-5"]);
+// Metadata heuristics for fields kiro-cli does NOT report (max output tokens,
+// reasoning, image input). These MUST match the heuristics in the primary path
+// (ai/pi/extensions/kiro-model-sync.ts heuristicMeta) so both paths produce
+// identical model definitions: Claude models get a large output budget and
+// image input; everything else is a smaller text-only model. Reasoning is on
+// for opus/sonnet/coder/deepseek. Applied to the pi id (dashed).
+interface ModelMeta {
+  maxTokens: number;
+  reasoning: boolean;
+  image: boolean;
+}
+const heuristicMeta = (piId: string): ModelMeta => {
+  const isClaude = piId.startsWith("claude");
+  return {
+    maxTokens: isClaude ? 65536 : 8192,
+    reasoning:
+      piId.includes("opus") ||
+      piId.includes("sonnet") ||
+      piId.includes("coder") ||
+      piId.includes("deepseek"),
+    image: isClaude,
+  };
+};
 
 // kiro id (dots) -> pi id (dashes in version numbers): claude-opus-4.8 -> claude-opus-4-8
 const toPiId = (modelId: string): string =>
   modelId.replace(/(\d)\.(\d)/g, "$1-$2");
 
 const modelObjectLiteral = (m: KiroCliModel): string => {
-  const input = TEXT_ONLY.has(m.model_id) ? '["text"]' : '["text", "image"]';
+  const piId = toPiId(m.model_id);
+  const meta = heuristicMeta(piId);
+  const input = meta.image ? '["text", "image"]' : '["text"]';
   return `  {
-    id: ${JSON.stringify(toPiId(m.model_id))},
+    id: ${JSON.stringify(piId)},
     name: ${JSON.stringify(m.model_name || m.model_id)},
     api: "kiro-api",
     provider: "kiro",
     baseUrl: BASE_URL,
-    reasoning: ${!NON_REASONING_MODELS.has(m.model_id)},
+    reasoning: ${meta.reasoning},
     input: ${input},
     cost: ZERO_COST,
     contextWindow: ${m.context_window_tokens},
-    maxTokens: 64000
+    maxTokens: ${meta.maxTokens}
   }`;
 };
 
