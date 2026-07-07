@@ -5,13 +5,14 @@
 - When requirements are ambiguous or underspecified, ask clarifying questions before generating code. Interview the user until the design is clear — don't guess and generate.
 - If a task involves non-trivial design decisions (new features, architecture changes, data modeling), confirm the approach before implementing.
 - Prefer a short back-and-forth to establish shared understanding over a single large code dump that misses the intent.
-- Use the `grill-me` skill when the user wants to stress-test a plan, get grilled on their design, or explicitly says "grill me." Invoke it proactively when a request is large or underspecified enough that jumping to code would be premature.
+- Use the `grilling` skill when the user wants to stress-test a plan, get grilled on their design, or explicitly says "grill me." Invoke it proactively when a request is large or underspecified enough that jumping to code would be premature.
 
 ## Test-Driven Development
 
 - When implementing new functionality, write the test first, then the implementation. Don't generate both in a single pass without running the test.
 - Take small, deliberate steps. One test, one behavior. Avoid generating large blocks of untested code.
 - Use the test as a feedback loop: write test, run it (expect failure), implement, run it (expect pass), then move to the next behavior.
+- For throwaway or exploratory work where the design is still unknown, use the `prototype` skill instead of TDD; return to test-first once the approach is settled.
 - Use the `tdd` skill when the user wants to build features or fix bugs using TDD, mentions "red-green-refactor", wants integration tests, or asks for test-first development. Invoke it proactively when implementing non-trivial features to enforce vertical slicing over bulk code generation.
 
 ## Deep Modules
@@ -46,10 +47,13 @@
 
 ## Response Style
 
+- Be extremely concise by default. Sacrifice grammar for concision — drop articles, pronouns, and filler words when meaning stays clear. Applies to chat prose only, not code, comments, commit messages, or user-facing docs.
+- Concision yields to clarity during design dialogue: when asking clarifying questions or working through a design, favor being understood over being terse.
 - Be direct. Skip pleasantries and filler phrases.
 - Show code, not explanations. Let implementations speak for themselves.
 - When explaining is necessary, be concise. One clear sentence beats three vague ones.
 - No recap summaries unless explicitly requested.
+- When rules conflict, prioritize: correctness > security > clarity > concision.
 
 ## Git Commits
 
@@ -81,7 +85,7 @@
 - Annotate all function parameters and return types.
 - Use `from typing import Any` when dealing with unstructured data.
 - Use `.get()` methods with defaults when accessing optional dictionary fields from APIs (Python-specific).
-- Add explicit type annotations to variables: `items: List[Dict[str, Any]] = []` (Python-specific).
+- Add explicit type annotations to variables: `items: list[dict[str, Any]] = []` (Python-specific).
 
 ## Logging
 
@@ -115,14 +119,3 @@
 ## Best Practices
 
 - Always consult the official Terraform provider documentation (registry.terraform.io) when working with resources, data sources, or provider configurations. Verify argument names, required vs optional attributes, and default values before writing or modifying resource blocks.
-
-# Browser Access
-
-## agent-browser
-
-- Use [agent-browser](https://agent-browser.dev/) for browser automation tasks (navigation, form filling, screenshots, scraping).
-- Install: `npm install -g agent-browser` or `brew install agent-browser`.
-- Use `snapshot -i` to get a compact accessibility tree with refs, then interact via refs (`click @e1`, `type @e2 "text"`).
-- Prefer `snapshot` over `screenshot` for context efficiency (~200-400 tokens vs full DOM).
-- Use sessions for isolated browser instances when handling multiple sites or auth contexts.
-- Docs: https://agent-browser.dev/commands for full command reference.
