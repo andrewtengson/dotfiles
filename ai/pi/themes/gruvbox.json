@@ -83,6 +83,7 @@
     "thinkingMedium": "gruvbox-neutral-blue",
     "thinkingHigh": "gruvbox-neutral-blue",
     "thinkingXhigh": "gruvbox-neutral-blue",
+    "thinkingMax": "gruvbox-neutral-blue",
     "bashMode": "gruvbox-bg4"
   },
   "export": {

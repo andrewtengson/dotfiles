@@ -58,6 +58,7 @@ interface PiThemeColors {
   thinkingMedium: string;
   thinkingHigh: string;
   thinkingXhigh: string;
+  thinkingMax: string;
   bashMode: string;
   // Background colors (ThemeBg keys)
   selectedBg: string;
@@ -171,11 +172,12 @@ export function generateSystemTheme(
 
     // Thinking levels — gray → blue → yellow → red
     thinkingOff: neutral[isDark ? 7 : 3],
-    thinkingMinimal: neutral[isDark ? 8 : 4],
-    thinkingLow: info[isDark ? 6 : 7],
-    thinkingMedium: accent[isDark ? 7 : 8],
+    thinkingMinimal: neutral[isDark ? 9 : 4],
+    thinkingLow: info[isDark ? 8 : 7],
+    thinkingMedium: accent[8],
     thinkingHigh: warning[isDark ? 8 : 9],
     thinkingXhigh: error[isDark ? 8 : 9],
+    thinkingMax: error[isDark ? 9 : 9],
     bashMode: p[3] || warning[isDark ? 9 : 8],
 
     // Backgrounds

@@ -269,6 +269,8 @@ class FlatEditor extends CustomEditor {
         return "thinkingHigh";
       case "xhigh":
         return "thinkingXhigh";
+      case "max":
+        return "thinkingMax";
       default:
         return "thinkingOff";
     }
