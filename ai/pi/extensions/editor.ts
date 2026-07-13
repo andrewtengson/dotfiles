@@ -110,6 +110,39 @@ function compactPath(cwd: string): string {
   return cwd;
 }
 
+function abbreviatePathSegment(segment: string): string {
+  if (segment.startsWith(".") && segment.length > 1) {
+    return `.${Array.from(segment.slice(1))[0]}`;
+  }
+  return Array.from(segment)[0] ?? segment;
+}
+
+export function getProgressivePathVariants(path: string): string[] {
+  const prefix = path.startsWith("~/") ? "~/" : path.startsWith("/") ? "/" : "";
+  const segments = path.slice(prefix.length).split("/").filter(Boolean);
+  const variants = [path];
+
+  for (let index = 0; index < segments.length - 1; index += 1) {
+    segments[index] = abbreviatePathSegment(segments[index]);
+    const candidate = `${prefix}${segments.join("/")}`;
+    if (candidate !== variants[variants.length - 1]) variants.push(candidate);
+  }
+
+  return variants;
+}
+
+export function selectProgressivePathVariant(
+  path: string,
+  maxWidth: number,
+): string {
+  const variants = getProgressivePathVariants(path);
+  return (
+    variants.find((candidate) => visibleWidth(candidate) <= maxWidth) ??
+    variants[variants.length - 1] ??
+    path
+  );
+}
+
 function stripAnsi(str: string): string {
   // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional ANSI escape stripping
   return str.replace(/\x1b\[[0-9;]*m/g, "");
@@ -203,11 +236,23 @@ class FlatEditor extends CustomEditor {
   }
 
   private buildStatusLine(width: number): string {
-    return fitStatusLine(
-      this.buildLeftStatus(),
-      this.buildRightStatus(),
-      width,
+    const left = this.buildLeftStatus();
+    const trailingRight = this.buildRightStatus();
+    const pathSeparatorWidth = trailingRight ? visibleWidth(" · ") : 0;
+    const maxPathWidth = Math.max(
+      0,
+      width -
+        visibleWidth(left) -
+        1 -
+        pathSeparatorWidth -
+        visibleWidth(trailingRight),
     );
+    const workingPath = selectProgressivePathVariant(
+      compactPath(this.ctx.cwd),
+      maxPathWidth,
+    );
+
+    return fitStatusLine(left, this.buildRightStatus(workingPath), width);
   }
 
   private buildLeftStatus(): string {
@@ -231,10 +276,10 @@ class FlatEditor extends CustomEditor {
     return parts.join(this.fg("dim", " · "));
   }
 
-  private buildRightStatus(): string {
+  private buildRightStatus(workingPath?: string): string {
     const parts: string[] = [];
 
-    parts.push(this.fg("muted", compactPath(this.ctx.cwd)));
+    if (workingPath) parts.push(this.fg("muted", workingPath));
 
     const git = getGitInfo(this.ctx.cwd);
     if (git.branch) {
