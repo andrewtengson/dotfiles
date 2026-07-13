@@ -26,7 +26,7 @@ export interface TierTarget {
 const OPENAI_TIERS = {
   heavy: { modelId: "gpt-5.6-sol", thinkingLevel: "high" },
   default: { modelId: "gpt-5.6-sol", thinkingLevel: "medium" },
-  light: { modelId: "gpt-5.6-luna", thinkingLevel: "medium" },
+  light: { modelId: "gpt-5.6-luna", thinkingLevel: "high" },
   fast: { modelId: "gpt-5.6-luna", thinkingLevel: "low" },
 } satisfies Record<Tier, TierTarget>;
 
