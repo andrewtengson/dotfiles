@@ -18,8 +18,8 @@ import {
   Key,
   type KeybindingsManager,
   matchesKey,
-  truncateToWidth,
   type TUI,
+  truncateToWidth,
   visibleWidth,
 } from "@earendil-works/pi-tui";
 import {
@@ -92,6 +92,15 @@ function formatCost(value: number): string {
   if (value === 0) return "$0.00";
   if (value >= 1) return `$${value.toFixed(2)}`;
   return `$${value.toFixed(2)}`;
+}
+
+export function fitStatusLine(
+  left: string,
+  right: string,
+  width: number,
+): string {
+  const gap = Math.max(1, width - visibleWidth(left) - visibleWidth(right));
+  return truncateToWidth(`${left}${" ".repeat(gap)}${right}`, width, "");
 }
 
 function compactPath(cwd: string): string {
@@ -194,14 +203,11 @@ class FlatEditor extends CustomEditor {
   }
 
   private buildStatusLine(width: number): string {
-    const left = this.buildLeftStatus();
-    const right = this.buildRightStatus();
-
-    const leftWidth = visibleWidth(left);
-    const rightWidth = visibleWidth(right);
-    const gap = Math.max(1, width - leftWidth - rightWidth);
-
-    return `${left}${" ".repeat(gap)}${right}`;
+    return fitStatusLine(
+      this.buildLeftStatus(),
+      this.buildRightStatus(),
+      width,
+    );
   }
 
   private buildLeftStatus(): string {
@@ -434,9 +440,11 @@ export default function (pi: ExtensionAPI) {
         return;
       }
       await ctx.ui.custom(
-        (tui, theme, kb, done) =>
-          new StatusPanel(items, tui, theme, kb, done),
-        { overlay: true, overlayOptions: { anchor: "center", width: 60, maxHeight: "50%" } },
+        (tui, theme, kb, done) => new StatusPanel(items, tui, theme, kb, done),
+        {
+          overlay: true,
+          overlayOptions: { anchor: "center", width: 60, maxHeight: "50%" },
+        },
       );
     },
   });
