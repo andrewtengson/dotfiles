@@ -30,10 +30,10 @@ const AGENT_TIERS: Record<string, Tier> = {
   oracle: "heavy",
   planner: "heavy",
   reviewer: "heavy",
-  worker: "heavy",
   // Default: research, implementation, general work
   researcher: "default",
   delegate: "default",
+  worker: "default",
   // Light: fast retrieval, scouting, context gathering
   scout: "light",
   "context-builder": "light",
@@ -91,7 +91,7 @@ function getProvider(ctx: ExtensionContext): ProviderKey | undefined {
   return undefined;
 }
 
-export default function (pi: ExtensionAPI): void {
+export default function(pi: ExtensionAPI): void {
   function syncOverrides(ctx: ExtensionContext): void {
     const provider = getProvider(ctx);
     if (!provider) return;
@@ -103,7 +103,7 @@ export default function (pi: ExtensionAPI): void {
       const heavyTarget = TIER_MAP[provider].heavy;
       const expectedHeavyModel = `${provider}/${heavyTarget.modelId}`;
       if (existing.oracle?.model === expectedHeavyModel) return;
-    } catch {}
+    } catch { }
 
     writeOverrides(provider);
   }
