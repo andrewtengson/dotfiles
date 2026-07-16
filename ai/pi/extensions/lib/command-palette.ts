@@ -149,14 +149,7 @@ export class CommandPalette implements Component {
     const lines: string[] = [];
 
     // Header
-    lines.push(
-      this.line(
-        w,
-        this.panelBg,
-        this.fg("text", "Commands"),
-        "",
-      ),
-    );
+    lines.push(this.line(w, this.panelBg, this.fg("text", "Commands"), ""));
     lines.push(this.pad(w));
 
     // Search

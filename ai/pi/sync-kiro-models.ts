@@ -200,7 +200,10 @@ const insertIntoSetBody = (
   const additions = missing
     .map((id) => `${indent}${JSON.stringify(id)}`)
     .join(",\n");
-  return { body: `${trimmed}${prefix}\n${additions}\n${indent.slice(0, -2)}`, added: missing };
+  return {
+    body: `${trimmed}${prefix}\n${additions}\n${indent.slice(0, -2)}`,
+    added: missing,
+  };
 };
 
 const spliceSpan = (source: string, span: Span, newBody: string): string =>
