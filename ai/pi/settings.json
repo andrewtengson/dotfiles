@@ -14,11 +14,17 @@
     "npm:@juicesharp/rpiv-todo",
     "npm:pi-mcp-adapter",
     "npm:pi-intercom",
+    "git:github.com/andrewtengson/pi-provider-kiro@main",
     "npm:gentle-engram",
     "npm:pi-goal",
     "npm:pi-prompt-template-model"
   ],
   "hideThinkingBlock": true,
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 32768,
+    "keepRecentTokens": 20000
+  },
   "enabledModels": [
     "amazon-bedrock/global.anthropic.claude-opus-4-8:high",
     "amazon-bedrock/global.anthropic.claude-sonnet-5:medium"

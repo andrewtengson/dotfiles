@@ -1,21 +1,15 @@
-# pi extension and script tooling
-
-# pi extension and script tooling
+# pi extension tooling
 
 dir := justfile_directory()
 
 # Format all TypeScript files
 fmt:
-    cd {{dir}} && bunx @biomejs/biome format --write extensions/ sync-kiro-models.ts
+    cd {{dir}} && bunx @biomejs/biome format --write extensions/
 
 # Lint all TypeScript files
 lint:
-    cd {{dir}} && bunx @biomejs/biome check extensions/ sync-kiro-models.ts
+    cd {{dir}} && bunx @biomejs/biome check extensions/
 
 # Format + lint (fix what's auto-fixable)
 check:
-    cd {{dir}} && bunx @biomejs/biome check --write extensions/ sync-kiro-models.ts
-
-# Sync Kiro model catalog into pi-provider-kiro
-sync-kiro:
-    cd {{dir}} && bun sync-kiro-models.ts
+    cd {{dir}} && bunx @biomejs/biome check --write extensions/
