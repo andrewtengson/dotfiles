@@ -2,5 +2,9 @@
   "defaultSessionDir": "~/.pi/agent/sessions/subagent/",
   "intercomBridge": {
     "mode": "always"
+  },
+  "control": {
+    "needsAttentionAfterMs": 180000,
+    "activeNoticeAfterMs": 300000
   }
 }
