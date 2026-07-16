@@ -17,7 +17,12 @@ import type {
   ExtensionAPI,
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
-import { type ProviderKey, TIER_MAP, type Tier } from "./lib/model-tiers.js";
+import {
+  type ProviderKey,
+  resolveTierMap,
+  TIER_MAP,
+  type Tier,
+} from "./lib/model-tiers.js";
 
 // Subagent role → tier mapping
 // Modeled after Amp's subagent modes:
@@ -43,7 +48,7 @@ function getSettingsPath(): string {
   return join(homedir(), ".pi", "agent", "settings.json");
 }
 
-function writeOverrides(provider: ProviderKey): void {
+function writeOverrides(provider: ProviderKey, activeModelId?: string): void {
   const settingsPath = getSettingsPath();
   // biome-ignore lint/suspicious/noExplicitAny: JSON settings file
   let settings: Record<string, any>;
@@ -53,10 +58,11 @@ function writeOverrides(provider: ProviderKey): void {
     settings = {};
   }
 
+  const tierMap = resolveTierMap(provider, activeModelId);
   // biome-ignore lint/suspicious/noExplicitAny: dynamic override shape
   const overrides: Record<string, Record<string, any>> = {};
   for (const [agent, tier] of Object.entries(AGENT_TIERS)) {
-    const target = TIER_MAP[provider][tier];
+    const target = tierMap[tier];
     overrides[agent] = {
       model: `${provider}/${target.modelId}`,
       thinking: target.thinkingLevel,
@@ -91,7 +97,7 @@ function getProvider(ctx: ExtensionContext): ProviderKey | undefined {
   return undefined;
 }
 
-export default function(pi: ExtensionAPI): void {
+export default function (pi: ExtensionAPI): void {
   function syncOverrides(ctx: ExtensionContext): void {
     const provider = getProvider(ctx);
     if (!provider) return;
@@ -100,12 +106,13 @@ export default function(pi: ExtensionAPI): void {
     try {
       const settings = JSON.parse(readFileSync(getSettingsPath(), "utf-8"));
       const existing = settings.subagents?.agentOverrides ?? {};
-      const heavyTarget = TIER_MAP[provider].heavy;
+      const tierMap = resolveTierMap(provider, ctx.model?.id);
+      const heavyTarget = tierMap.heavy;
       const expectedHeavyModel = `${provider}/${heavyTarget.modelId}`;
       if (existing.oracle?.model === expectedHeavyModel) return;
-    } catch { }
+    } catch {}
 
-    writeOverrides(provider);
+    writeOverrides(provider, ctx.model?.id);
   }
 
   pi.on("session_start", async (_event, ctx) => syncOverrides(ctx));

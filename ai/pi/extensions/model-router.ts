@@ -16,6 +16,7 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import {
   type ProviderKey,
+  resolveTierMap,
   type ThinkingLevel,
   TIER_MAP,
   type Tier,
@@ -282,7 +283,8 @@ export default function modelRouterExtension(pi: ExtensionAPI): void {
     const tier = detectTier(event.prompt);
     if (!tier) return;
 
-    const target = TIER_MAP[provider][tier];
+    const routes = resolveTierMap(provider, ctx.model?.id);
+    const target = routes[tier];
     const current = ctx.model;
     const currentThinking = pi.getThinkingLevel() as ThinkingLevel;
 
@@ -377,7 +379,7 @@ export default function modelRouterExtension(pi: ExtensionAPI): void {
     description: "Show model router status and route map",
     handler: async (_args: string, ctx: ExtensionCommandContext) => {
       const provider = currentProvider(ctx) ?? "amazon-bedrock";
-      const routes = TIER_MAP[provider];
+      const routes = resolveTierMap(provider, ctx.model?.id);
       const lines = [
         `auto-routing: ${state.autoRoutingEnabled ? "on" : "off"}`,
         `current: ${currentModelText(ctx)}`,

@@ -18,7 +18,7 @@ import type {
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
-import { type ProviderKey, TIER_MAP } from "./lib/model-tiers.js";
+import { type ProviderKey, resolveTierMap } from "./lib/model-tiers.js";
 
 const MAX_TOKENS = 300;
 const TOKEN_THRESHOLD = 50_000;
@@ -99,7 +99,7 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
     if (!currentModel) return undefined;
 
     const provider = currentModel.provider as string;
-    const tierMap = TIER_MAP[provider as ProviderKey];
+    const tierMap = resolveTierMap(provider as ProviderKey, currentModel.id);
     if (!tierMap) return undefined;
 
     const fast = tierMap.fast;

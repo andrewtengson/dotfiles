@@ -23,12 +23,21 @@ export interface TierTarget {
   thinkingLevel: ThinkingLevel;
 }
 
+export type TierMap = Record<Tier, TierTarget>;
+
 const OPENAI_TIERS = {
   heavy: { modelId: "gpt-5.6-sol", thinkingLevel: "high" },
   default: { modelId: "gpt-5.6-sol", thinkingLevel: "medium" },
   light: { modelId: "gpt-5.6-luna", thinkingLevel: "high" },
   fast: { modelId: "gpt-5.6-luna", thinkingLevel: "low" },
 } satisfies Record<Tier, TierTarget>;
+
+const KIRO_OPENAI_TIERS = {
+  heavy: { modelId: "gpt-5-6-sol", thinkingLevel: "high" },
+  default: { modelId: "gpt-5-6-sol", thinkingLevel: "medium" },
+  light: { modelId: "gpt-5-6-luna", thinkingLevel: "high" },
+  fast: { modelId: "gpt-5-6-luna", thinkingLevel: "low" },
+} satisfies TierMap;
 
 const ANTHROPIC_TIERS = {
   heavy: { modelId: "claude-opus-4-8", thinkingLevel: "high" },
@@ -37,21 +46,29 @@ const ANTHROPIC_TIERS = {
   fast: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
 } satisfies Record<Tier, TierTarget>;
 
-function withModelPrefix(
-  tiers: Record<Tier, TierTarget>,
-  prefix: string,
-): Record<Tier, TierTarget> {
+function withModelPrefix(tiers: TierMap, prefix: string): TierMap {
   return Object.fromEntries(
     Object.entries(tiers).map(([tier, target]) => [
       tier,
       { ...target, modelId: `${prefix}${target.modelId}` },
     ]),
-  ) as Record<Tier, TierTarget>;
+  ) as TierMap;
 }
 
-export const TIER_MAP: Record<ProviderKey, Record<Tier, TierTarget>> = {
+export const TIER_MAP: Record<ProviderKey, TierMap> = {
   "amazon-bedrock": withModelPrefix(ANTHROPIC_TIERS, "global.anthropic."),
   "openai-codex": OPENAI_TIERS,
   "azure-openai-responses": OPENAI_TIERS,
   kiro: ANTHROPIC_TIERS,
 };
+
+export function resolveTierMap(
+  provider: ProviderKey,
+  activeModelId?: string,
+): TierMap {
+  if (provider === "kiro" && activeModelId?.startsWith("gpt-")) {
+    return KIRO_OPENAI_TIERS;
+  }
+
+  return TIER_MAP[provider];
+}
