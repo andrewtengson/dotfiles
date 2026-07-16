@@ -62,36 +62,6 @@ const CLI_TIMEOUT_MS = 15_000;
 // The Q API region the provider resolves to for us-* and ap-* SSO logins.
 const API_REGION = "us-east-1";
 
-const PROVIDER_THINKING_ORIGINAL =
-  "const thinkingEnabled = !!options?.reasoning || model.reasoning;";
-const PROVIDER_THINKING_PATCHED =
-  'const thinkingEnabled = !model.id.startsWith("gpt-") && (!!options?.reasoning || model.reasoning);';
-
-export const patchProviderReasoningSource = (
-  source: string,
-): { source: string; changed: boolean } => {
-  if (source.includes(PROVIDER_THINKING_PATCHED)) {
-    return { source, changed: false };
-  }
-  if (!source.includes(PROVIDER_THINKING_ORIGINAL)) {
-    throw new Error("Unsupported pi-provider-kiro thinking implementation");
-  }
-  return {
-    source: source.replace(
-      PROVIDER_THINKING_ORIGINAL,
-      PROVIDER_THINKING_PATCHED,
-    ),
-    changed: true,
-  };
-};
-
-const patchInstalledProviderReasoning = (): void => {
-  if (!existsSync(PROVIDER_ENTRY)) return;
-  const source = readFileSync(PROVIDER_ENTRY, "utf8");
-  const patched = patchProviderReasoningSource(source);
-  if (patched.changed) writeFileSync(PROVIDER_ENTRY, patched.source, "utf8");
-};
-
 interface ModelMeta {
   maxTokens: number;
   reasoning: boolean;
@@ -298,17 +268,6 @@ const syncKiroModels = async (): Promise<void> => {
 // Async factory: pi awaits this before flushing pi-provider-kiro's provider
 // registration, so the fresh cache is in place before startup model validation.
 export default async function (_pi: ExtensionAPI): Promise<void> {
-  // pi-provider-kiro treats `reasoning: true` as permission to inject
-  // Claude-style visible-thinking tags. Kiro GPT-5.6 reasoning is hidden and
-  // has no configurable /effort schema, so keep reasoning metadata for Pi's
-  // UI while excluding GPT from the provider's Claude-specific prompt path.
-  // Reapplied after every package upgrade before the provider registers.
-  try {
-    patchInstalledProviderReasoning();
-  } catch {
-    // Fail open if a provider upgrade changes the implementation shape.
-  }
-
   try {
     if (!kiroIsActiveProvider()) return;
     await syncKiroModels();
