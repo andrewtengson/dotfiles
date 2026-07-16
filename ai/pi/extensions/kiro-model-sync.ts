@@ -129,19 +129,46 @@ const ZERO_COST = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } as const;
 const toPiId = (modelId: string): string =>
   modelId.replace(/(\d)\.(\d)/g, "$1-$2");
 
-// Heuristics for models the provider doesn't define yet (a newly released
-// model). Claude models get a large output budget and image input; everything
-// else is treated as a smaller text-only model.
+// Explicit, docs-verified metadata for models kiro-cli exposes but the
+// provider's kiroModels does NOT yet define. Consulted before the generic
+// heuristic so per-model differences the heuristic can't infer (e.g.
+// sonnet-5's 128K output vs opus-4-5's 64K) survive daily cache refreshes.
+// Sourced from the official model docs:
+//   - GPT-5.6 (sol/terra/luna): 128K output, reasoning, text+image
+//     https://developers.openai.com/api/docs/models/gpt-5.6-luna
+//   - Claude Sonnet 5: 128K output, adaptive thinking, text+image
+//     https://platform.claude.com/docs/en/about-claude/models/overview
+//   - Claude Opus 4.5: 64K output, text+image
+//     https://www.anthropic.com/news/claude-opus-4-5
+// Remove an entry once the provider ships its own definition (providerMeta
+// takes precedence, so a stale entry here is harmless but redundant).
+const KNOWN_META: Record<string, ModelMeta> = {
+  "gpt-5-6-sol": { maxTokens: 128000, reasoning: true, image: true },
+  "gpt-5-6-terra": { maxTokens: 128000, reasoning: true, image: true },
+  "gpt-5-6-luna": { maxTokens: 128000, reasoning: true, image: true },
+  "claude-sonnet-5": { maxTokens: 128000, reasoning: true, image: true },
+  "claude-opus-4-5": { maxTokens: 65536, reasoning: true, image: true },
+};
+
+// Heuristics for models neither the provider nor KNOWN_META define yet.
+// Claude gets a 64K output budget; GPT-5+ reasoning models get 128K; both
+// support image input. Everything else is a smaller text-only model.
 const heuristicMeta = (piId: string): ModelMeta => {
   const isClaude = piId.startsWith("claude");
+  // GPT-5 and newer reasoning models (kiro id "gpt-5.6-*" -> pi id "gpt-5-6-*").
+  const isGpt5Plus = /^gpt-([5-9]|\d{2,})/.test(piId);
+  let maxTokens = 8192;
+  if (isGpt5Plus) maxTokens = 128000;
+  else if (isClaude) maxTokens = 65536;
   return {
-    maxTokens: isClaude ? 65536 : 8192,
+    maxTokens,
     reasoning:
+      isGpt5Plus ||
       piId.includes("opus") ||
       piId.includes("sonnet") ||
       piId.includes("coder") ||
       piId.includes("deepseek"),
-    image: isClaude,
+    image: isClaude || isGpt5Plus,
   };
 };
 
@@ -151,7 +178,7 @@ const toProviderModel = (
   providerMeta: Record<string, ModelMeta>,
 ): KiroProviderModel => {
   const piId = toPiId(m.model_id);
-  const meta = providerMeta[piId] ?? heuristicMeta(piId);
+  const meta = providerMeta[piId] ?? KNOWN_META[piId] ?? heuristicMeta(piId);
   return {
     id: piId,
     name: m.model_name || m.model_id,
