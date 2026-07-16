@@ -19,6 +19,7 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
 import { type ProviderKey, resolveTierMap } from "./lib/model-tiers.js";
+import { shouldAutoSummarize } from "./lib/session-summary-policy.js";
 
 const MAX_TOKENS = 300;
 const TOKEN_THRESHOLD = 50_000;
@@ -208,6 +209,7 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
   });
 
   pi.on("agent_end", async (_event, ctx) => {
+    if (!shouldAutoSummarize(ctx)) return;
     if (!firstTurnDone) {
       firstTurnDone = true;
       generateSummary(ctx);
