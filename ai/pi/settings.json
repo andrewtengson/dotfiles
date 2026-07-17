@@ -30,5 +30,9 @@
     "amazon-bedrock/global.anthropic.claude-sonnet-5:medium"
   ],
   "npmCommand": ["bun"],
-  "defaultProjectTrust": "never"
+  "doubleEscapeAction": "tree",
+  "defaultProjectTrust": "never",
+  "transport": "auto",
+  "steeringMode": "all",
+  "followUpMode": "all"
 }
