@@ -45,6 +45,9 @@ const KIRO_API_REGIONS: Record<string, string> = {
   "eu-west-2": "eu-central-1",
   "eu-west-3": "eu-central-1",
   "eu-north-1": "eu-central-1",
+  "eu-south-1": "eu-central-1",
+  "eu-south-2": "eu-central-1",
+  "eu-central-2": "eu-central-1",
 };
 
 function readPiAuth(): Record<string, Record<string, unknown>> {
@@ -72,6 +75,63 @@ function formatReset(date: Date): string {
 // Kiro
 // ============================================================================
 
+// Kiro migrated off the legacy `q.<region>.amazonaws.com` surface to the
+// management control plane kiro-cli now uses. GetUsageLimits is a GET on
+// `management.<region>.kiro.dev/Get-Usage-Limits` with query parameters and
+// `origin=KIRO_CLI`. Some accounts require a profileArn; resolve it lazily
+// via ListAvailableProfiles only when a profile-less request is forbidden.
+async function resolveKiroProfileArn(
+  managementHost: string,
+  token: string,
+): Promise<string | undefined> {
+  const resp = await fetch(managementHost, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-amz-json-1.0",
+      "X-Amz-Target": "AmazonCodeWhispererService.ListAvailableProfiles",
+      Authorization: `Bearer ${token}`,
+    },
+    body: "{}",
+  });
+  if (!resp.ok) return undefined;
+  const data = (await resp.json()) as { profiles?: Array<{ arn?: string }> };
+  return data.profiles?.find((p) => p.arn)?.arn;
+}
+
+async function fetchKiroUsageLimits(
+  region: string,
+  token: string,
+): Promise<unknown> {
+  const managementHost = `https://management.${region}.kiro.dev/`;
+  const buildUrl = (profileArn?: string): string => {
+    const url = new URL("Get-Usage-Limits", managementHost);
+    if (profileArn) url.searchParams.set("profileArn", profileArn);
+    url.searchParams.set("origin", "KIRO_CLI");
+    url.searchParams.set("resourceType", "CREDIT");
+    url.searchParams.set("isEmailRequired", "false");
+    return url.toString();
+  };
+  const get = (profileArn?: string): Promise<Response> =>
+    fetch(buildUrl(profileArn), {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+        "User-Agent": "pi-usage-extension",
+      },
+    });
+
+  // A profile-less request is rejected with 400 ("Invalid profileArn.") or
+  // 403 on accounts that scope usage to a profile; resolve one and retry.
+  let resp = await get();
+  if (resp.status === 400 || resp.status === 403) {
+    const profileArn = await resolveKiroProfileArn(managementHost, token);
+    if (profileArn) resp = await get(profileArn);
+  }
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return resp.json();
+}
+
 async function fetchKiroUsage(): Promise<UsageSnapshot> {
   const auth = readPiAuth();
   const token = auth.kiro?.access as string | undefined;
@@ -81,24 +141,8 @@ async function fetchKiroUsage(): Promise<UsageSnapshot> {
   const region = KIRO_API_REGIONS[ssoRegion] ?? ssoRegion;
 
   try {
-    const resp = await fetch(`https://q.${region}.amazonaws.com/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-amz-json-1.0",
-        "X-Amz-Target": "AmazonCodeWhispererService.GetUsageLimits",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        origin: "CLI",
-        resourceType: "CREDIT",
-        isEmailRequired: false,
-      }),
-    });
-    if (!resp.ok)
-      return { provider: "Kiro", windows: [], error: `HTTP ${resp.status}` };
-
     // biome-ignore lint/suspicious/noExplicitAny: untyped API response
-    const data = (await resp.json()) as any;
+    const data = (await fetchKiroUsageLimits(region, token)) as any;
     const bucket = data.usageBreakdownList?.[0] ?? data.usageBreakdown;
     if (!bucket) return { provider: "Kiro", windows: [], error: "No data" };
 
