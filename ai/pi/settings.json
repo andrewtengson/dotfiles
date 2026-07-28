@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.74.0",
   "defaultProvider": "amazon-bedrock",
   "awsProfile": "isse-se-prod",
-  "defaultModel": "global.anthropic.claude-opus-4-8",
+  "defaultModel": "global.anthropic.claude-opus-5",
   "defaultThinkingLevel": "high",
   "enableInstallTelemetry": false,
   "quietStartup": true,
@@ -26,10 +26,12 @@
     "keepRecentTokens": 20000
   },
   "enabledModels": [
-    "amazon-bedrock/global.anthropic.claude-opus-4-8:high",
+    "amazon-bedrock/global.anthropic.claude-opus-5:high",
     "amazon-bedrock/global.anthropic.claude-sonnet-5:medium"
   ],
-  "npmCommand": ["bun"],
+  "npmCommand": [
+    "bun"
+  ],
   "doubleEscapeAction": "tree",
   "defaultProjectTrust": "never",
   "transport": "auto",

@@ -40,7 +40,7 @@ const KIRO_OPENAI_TIERS = {
 } satisfies TierMap;
 
 const ANTHROPIC_TIERS = {
-  heavy: { modelId: "claude-opus-4-8", thinkingLevel: "high" },
+  heavy: { modelId: "claude-opus-5", thinkingLevel: "high" },
   default: { modelId: "claude-sonnet-5", thinkingLevel: "medium" },
   light: { modelId: "claude-sonnet-5", thinkingLevel: "low" },
   fast: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
