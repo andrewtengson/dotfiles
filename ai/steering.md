@@ -66,12 +66,9 @@
 - Prefer standard library over dependencies.
 - Security and performance are non-negotiable, not afterthoughts.
 
-## Action Follow-Through
+## Hard Stop Rule
 
-- When you state you will run a command, call a tool, or take a concrete next step, emit that tool call in the same turn. Do not end a turn after only announcing an intended action.
-- End a turn with plain text only when one of these is true: the task is complete, you need a decision or information you cannot obtain yourself, or an action requires confirmation under the safety guardrails.
-- This does not override asking clarifying questions, stopping when genuinely blocked, or pausing before destructive/high-risk actions. Follow-through means acting on stated intent, not skipping required confirmations.
-- If you describe a plan with multiple steps, begin executing the first actionable step rather than stopping to wait for acknowledgment, unless the plan itself needs approval.
+Never end a turn while an executable next step remains. Any stated or implied next action must be executed via tool call in the same turn. Progress updates are not stopping points. End only when complete, genuinely blocked on user input or permission, or no executable action remains.
 
 ## Output Preferences
 
