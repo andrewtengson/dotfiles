@@ -12,12 +12,12 @@
 
 import { appendFileSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { complete } from "@earendil-works/pi-ai";
 import type {
   ExtensionAPI,
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
+import { completeWithProvider } from "./lib/model-complete.js";
 import { type ProviderKey, resolveTierMap } from "./lib/model-tiers.js";
 import { shouldAutoSummarize } from "./lib/session-summary-policy.js";
 
@@ -74,6 +74,20 @@ function buildConversation(entries: SessionEntry[]): string {
   return lines.join("\n");
 }
 
+function parseSessionLines(content: string): SessionEntry[] {
+  const entries: SessionEntry[] = [];
+  for (const line of content.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    try {
+      entries.push(JSON.parse(trimmed) as SessionEntry);
+    } catch {
+      // Tolerate malformed or concatenated lines from interrupted writes.
+    }
+  }
+  return entries;
+}
+
 export default function sessionSummaryExtension(pi: ExtensionAPI) {
   let lastSummary = "";
   let lastSummaryConvTokens = 0;
@@ -83,6 +97,7 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
   let totalTokens = { input: 0, output: 0 };
   let totalCost = 0;
   let resolvedModelName = "";
+  let lastError = "";
 
   function reset() {
     lastSummary = "";
@@ -93,6 +108,7 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
     totalTokens = { input: 0, output: 0 };
     totalCost = 0;
     resolvedModelName = "";
+    lastError = "";
   }
 
   function resolveModel(ctx: ExtensionContext) {
@@ -115,10 +131,16 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
     if (pendingCall) return;
 
     const model = resolveModel(ctx);
-    if (!model) return;
+    if (!model) {
+      lastError = "no summary model resolved for active provider";
+      return;
+    }
 
     const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-    if (!auth.ok || !auth.apiKey) return;
+    if (!auth.ok || !auth.apiKey) {
+      lastError = auth.ok ? "no API key resolved" : auth.error;
+      return;
+    }
 
     // biome-ignore lint/suspicious/noExplicitAny: getBranch not in public ReadonlySessionManager type
     const branch = (ctx.sessionManager as any).getBranch() as SessionEntry[];
@@ -153,7 +175,8 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
     pendingCall = true;
 
     try {
-      const response = await complete(
+      const response = await completeWithProvider(
+        ctx.modelRegistry,
         model,
         {
           systemPrompt:
@@ -166,7 +189,6 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
             },
           ],
         },
-        // @ts-expect-error ProviderStreamOptions accepts extra keys
         {
           apiKey: auth.apiKey,
           headers: auth.headers,
@@ -181,7 +203,13 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
       }
       llmCallCount++;
 
-      if (response.stopReason === "error") return;
+      if (
+        response.stopReason === "error" ||
+        response.stopReason === "aborted"
+      ) {
+        lastError = response.errorMessage ?? response.stopReason;
+        return;
+      }
 
       const text = response.content
         .filter((c): c is { type: "text"; text: string } => c.type === "text")
@@ -193,10 +221,11 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
       if (text) {
         lastSummary = text;
         lastSummaryConvTokens = convTokens;
+        lastError = "";
         pi.setSessionName(lastSummary);
       }
-    } catch {
-      // Silently ignore — will retry next turn
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
     } finally {
       pendingCall = false;
     }
@@ -232,6 +261,10 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
       }
       ctx.ui.notify("Generating summary...", "info");
       await generateSummary(ctx);
+      if (lastError) {
+        ctx.ui.notify(`Summary failed: ${lastError}`, "error");
+        return;
+      }
       if (lastSummary) ctx.ui.notify(`Summary: ${lastSummary}`, "info");
     },
   });
@@ -250,9 +283,10 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
     handler: async (_args, ctx) => {
       if (!resolvedModelName) resolveModel(ctx);
       const costStr = totalCost > 0 ? `$${totalCost.toFixed(4)}` : "$0";
+      const errStr = lastError ? ` | last error: ${lastError}` : "";
       ctx.ui.notify(
-        `${resolvedModelName || "(none)"} | ${llmCallCount} calls | ${totalTokens.input}→${totalTokens.output} tokens | ${costStr}`,
-        "info",
+        `${resolvedModelName || "(none)"} | ${llmCallCount} calls | ${totalTokens.input}→${totalTokens.output} tokens | ${costStr}${errStr}`,
+        lastError ? "error" : "info",
       );
     },
   });
@@ -270,6 +304,12 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
         ctx.ui.notify("No API key for summary model", "error");
         return;
       }
+      const streamOptions = {
+        apiKey: auth.apiKey,
+        headers: auth.headers,
+        maxTokens: 100,
+      };
+      const summaryModel = model;
 
       const sessionsDir = join(getAgentDir(), "sessions");
       const projectDirs = readdirSync(sessionsDir, { withFileTypes: true })
@@ -286,11 +326,11 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
       // Filter to sessions without a meaningful session_info
       const needsSummary: string[] = [];
       for (const file of files) {
-        const content = readFileSync(file, "utf-8");
-        const hasInfo = content.split("\n").some((line) => {
-          if (!line.includes('"type":"session_info"')) return false;
-          const entry = JSON.parse(line);
-          return entry.name && !entry.name.startsWith("subagent-");
+        const entries = parseSessionLines(readFileSync(file, "utf-8"));
+        const hasInfo = entries.some((entry) => {
+          if (entry.type !== "session_info") return false;
+          const { name } = entry as { name?: string };
+          return Boolean(name) && !name?.startsWith("subagent-");
         });
         if (!hasInfo) needsSummary.push(file);
       }
@@ -306,10 +346,7 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
 
       async function processFile(file: string) {
         const content = readFileSync(file, "utf-8");
-        const entries = content
-          .split("\n")
-          .filter(Boolean)
-          .map((l) => JSON.parse(l)) as SessionEntry[];
+        const entries = parseSessionLines(content);
 
         const conversation = buildConversation(entries);
         if (!conversation.trim() || estimateTokens(conversation) < 50) {
@@ -324,8 +361,9 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
             : conversation;
 
         try {
-          const response = await complete(
-            model,
+          const response = await completeWithProvider(
+            ctx.modelRegistry,
+            summaryModel,
             {
               systemPrompt:
                 "You are a concise summarizer. Output a single line summary of a coding session.",
@@ -342,8 +380,7 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
                 },
               ],
             },
-            // @ts-expect-error ProviderStreamOptions accepts extra keys
-            { apiKey: auth.apiKey, headers: auth.headers, maxTokens: 100 },
+            streamOptions,
           );
 
           const text = response.content
@@ -366,7 +403,8 @@ export default function sessionSummaryExtension(pi: ExtensionAPI) {
               timestamp: new Date().toISOString(),
               name: text,
             });
-            appendFileSync(file, `\n${infoEntry}`);
+            const prefix = content.endsWith("\n") ? "" : "\n";
+            appendFileSync(file, `${prefix}${infoEntry}\n`);
           }
           done++;
         } catch {
