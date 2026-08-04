@@ -12,6 +12,7 @@ docker
 docker-compose
 fzf
 gentleman-programming/tap/engram
+gh
 git
 glab
 go
