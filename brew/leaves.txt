@@ -6,6 +6,7 @@ aws/tap/eks-node-viewer
 awscli
 azure-cli
 bash
+btop
 coreutils
 curl
 docker
@@ -18,7 +19,6 @@ glab
 go
 grpcurl
 helm
-htop
 httpie
 jira-cli
 jstkdng/programs/ueberzugpp
