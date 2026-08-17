@@ -61,9 +61,21 @@ export function formatModelPattern(
     : `${provider}/${modelId}`;
 }
 
-/** Build the full `enabledModels` list for a provider. */
-export function resolveEnabledModels(provider: ProviderKey): string[] {
-  return PROVIDER_MODELS[provider].map((choice) =>
+/**
+ * Build the `enabledModels` list for a provider. `defaultModelId`, when it is
+ * one of the provider's models, is placed first: pi resolves the startup model
+ * from the first scoped entry before it falls back to `defaultModel`.
+ */
+export function resolveEnabledModels(
+  provider: ProviderKey,
+  defaultModelId?: string,
+): string[] {
+  const choices = PROVIDER_MODELS[provider];
+  const preferred = choices.filter(
+    (choice) => choice.modelId === defaultModelId,
+  );
+  const rest = choices.filter((choice) => choice.modelId !== defaultModelId);
+  return [...preferred, ...rest].map((choice) =>
     formatModelPattern(provider, choice),
   );
 }

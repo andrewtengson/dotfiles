@@ -1,9 +1,14 @@
 /**
  * Enabled Models — keeps `enabledModels` in settings.json aligned with the
- * regularly-used models of the active provider.
+ * regularly-used models of the configured `defaultProvider`.
  *
- * Writes on session_start and model_select. pi reads `enabledModels` at session
- * start, so a provider switch takes effect on the next session.
+ * Written on session_start only, and keyed off the `defaultProvider` setting
+ * rather than the live model: pi resolves the startup model from the first
+ * scoped entry before falling back to `defaultModel`, so syncing from the
+ * active model would pin whichever provider the scope happened to select.
+ *
+ * pi reads `enabledModels` at session start, so a provider change takes effect
+ * on the next session.
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -16,31 +21,28 @@ import type {
 import { PROVIDER_MODELS, resolveEnabledModels } from "./lib/enabled-models.js";
 import type { ProviderKey } from "./lib/model-tiers.js";
 
-function getSettingsPath(): string {
-  return join(homedir(), ".pi", "agent", "settings.json");
+const SETTINGS_PATH = join(homedir(), ".pi", "agent", "settings.json");
+
+interface Settings {
+  defaultProvider?: string;
+  defaultModel?: string;
+  enabledModels?: string[];
+  [key: string]: unknown;
 }
 
-function getProvider(ctx: ExtensionContext): ProviderKey | undefined {
-  const provider = ctx.model?.provider;
-  if (provider && provider in PROVIDER_MODELS) return provider as ProviderKey;
-  return undefined;
+function sameList(current: unknown, desired: string[]): boolean {
+  return (
+    Array.isArray(current) &&
+    current.length === desired.length &&
+    current.every((value, index) => value === desired[index])
+  );
 }
 
 export default function enabledModelsExtension(pi: ExtensionAPI): void {
   function sync(ctx: ExtensionContext): void {
-    const provider = getProvider(ctx);
-    if (!provider) return;
-
-    // Written unfiltered: the model catalogue may not have refreshed yet at
-    // session start, and pi ignores patterns that match nothing.
-    const desired = resolveEnabledModels(provider);
-    if (desired.length === 0) return;
-
-    const settingsPath = getSettingsPath();
-    // biome-ignore lint/suspicious/noExplicitAny: JSON settings file
-    let settings: Record<string, any>;
+    let settings: Settings;
     try {
-      settings = JSON.parse(readFileSync(settingsPath, "utf-8"));
+      settings = JSON.parse(readFileSync(SETTINGS_PATH, "utf-8")) as Settings;
     } catch (error) {
       ctx.ui.notify(
         `enabled-models: cannot read settings.json (${String(error)})`,
@@ -49,19 +51,21 @@ export default function enabledModelsExtension(pi: ExtensionAPI): void {
       return;
     }
 
-    const current = settings.enabledModels;
-    if (
-      Array.isArray(current) &&
-      current.length === desired.length &&
-      current.every((value, index) => value === desired[index])
-    ) {
-      return;
-    }
+    const provider = settings.defaultProvider;
+    if (!provider || !(provider in PROVIDER_MODELS)) return;
+
+    // Written unfiltered: the model catalogue may not have refreshed yet at
+    // session start, and pi ignores patterns that match nothing.
+    const desired = resolveEnabledModels(
+      provider as ProviderKey,
+      settings.defaultModel,
+    );
+    if (sameList(settings.enabledModels, desired)) return;
 
     settings.enabledModels = desired;
     try {
       writeFileSync(
-        settingsPath,
+        SETTINGS_PATH,
         `${JSON.stringify(settings, null, 2)}\n`,
         "utf-8",
       );
@@ -74,5 +78,4 @@ export default function enabledModelsExtension(pi: ExtensionAPI): void {
   }
 
   pi.on("session_start", async (_event, ctx) => sync(ctx));
-  pi.on("model_select", async (_event, ctx) => sync(ctx));
 }

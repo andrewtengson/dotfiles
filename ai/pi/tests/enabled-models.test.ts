@@ -30,6 +30,20 @@ describe("resolveEnabledModels", () => {
     ]);
   });
 
+  test("puts the default model first so it wins the startup model scope", () => {
+    expect(resolveEnabledModels("kiro", "gpt-5-6-luna")).toEqual([
+      "kiro/gpt-5-6-luna:high",
+      "kiro/claude-opus-5:medium",
+      "kiro/gpt-5-6-sol:medium",
+    ]);
+  });
+
+  test("ignores a default model the provider does not list", () => {
+    expect(resolveEnabledModels("kiro", "claude-sonnet-4-6")).toEqual(
+      resolveEnabledModels("kiro"),
+    );
+  });
+
   test("covers every provider key with at least one model", () => {
     for (const [provider, models] of Object.entries(PROVIDER_MODELS)) {
       expect(models.length, provider).toBeGreaterThan(0);
