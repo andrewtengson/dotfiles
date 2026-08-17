@@ -26,8 +26,7 @@
     "keepRecentTokens": 20000
   },
   "enabledModels": [
-    "amazon-bedrock/global.anthropic.claude-opus-5:high",
-    "amazon-bedrock/global.anthropic.claude-sonnet-5:medium"
+    "amazon-bedrock/global.anthropic.claude-opus-5:medium"
   ],
   "npmCommand": [
     "bun"
