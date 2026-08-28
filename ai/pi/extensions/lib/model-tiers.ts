@@ -16,7 +16,8 @@ export type ProviderKey =
   | "amazon-bedrock"
   | "openai-codex"
   | "kiro"
-  | "azure-openai-responses";
+  | "azure-openai-responses"
+  | "xai";
 
 export interface TierTarget {
   modelId: string;
@@ -39,6 +40,13 @@ const KIRO_OPENAI_TIERS = {
   fast: { modelId: "gpt-5-6-luna", thinkingLevel: "low" },
 } satisfies TierMap;
 
+const XAI_TIERS = {
+  heavy: { modelId: "grok-4.6", thinkingLevel: "high" },
+  default: { modelId: "grok-4.6", thinkingLevel: "medium" },
+  light: { modelId: "grok-4.6", thinkingLevel: "low" },
+  fast: { modelId: "grok-4.6", thinkingLevel: "low" },
+} satisfies Record<Tier, TierTarget>;
+
 const ANTHROPIC_TIERS = {
   heavy: { modelId: "claude-opus-5", thinkingLevel: "high" },
   default: { modelId: "claude-sonnet-5", thinkingLevel: "medium" },
@@ -60,6 +68,7 @@ export const TIER_MAP: Record<ProviderKey, TierMap> = {
   "openai-codex": OPENAI_TIERS,
   "azure-openai-responses": OPENAI_TIERS,
   kiro: ANTHROPIC_TIERS,
+  xai: XAI_TIERS,
 };
 
 export function resolveTierMap(

@@ -34,4 +34,13 @@ describe("resolveTierMap", () => {
       fast: { modelId: "gpt-5.6-luna", thinkingLevel: "low" },
     });
   });
+
+  test("uses grok-4.6 for every xAI tier", () => {
+    expect(resolveTierMap("xai")).toEqual({
+      heavy: { modelId: "grok-4.6", thinkingLevel: "high" },
+      default: { modelId: "grok-4.6", thinkingLevel: "medium" },
+      light: { modelId: "grok-4.6", thinkingLevel: "low" },
+      fast: { modelId: "grok-4.6", thinkingLevel: "low" },
+    });
+  });
 });

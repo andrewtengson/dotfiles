@@ -1,7 +1,7 @@
 /**
  * Model Router — auto-routes to heavy/default/light tier based on task intent.
  *
- * Routes within the currently active provider (amazon-bedrock, openai-codex, or kiro).
+ * Routes within the currently active provider (amazon-bedrock, openai-codex, kiro, or xai).
  * If the target model isn't available, stays on the current model silently.
  *
  * Commands:

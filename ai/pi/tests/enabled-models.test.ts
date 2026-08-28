@@ -44,6 +44,12 @@ describe("resolveEnabledModels", () => {
     );
   });
 
+  test("cycles a single grok-4.6 thinking pin for xAI", () => {
+    expect(resolveEnabledModels("xai")).toEqual([
+      "xai/grok-4.6:medium",
+    ]);
+  });
+
   test("covers every provider key with at least one model", () => {
     for (const [provider, models] of Object.entries(PROVIDER_MODELS)) {
       expect(models.length, provider).toBeGreaterThan(0);

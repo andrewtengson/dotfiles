@@ -17,6 +17,10 @@ const ANTHROPIC_MODELS: ModelChoice[] = [
   { modelId: "claude-opus-5", thinkingLevel: "medium" },
 ];
 
+const XAI_MODELS: ModelChoice[] = [
+  { modelId: "grok-4.6", thinkingLevel: "medium" },
+];
+
 const OPENAI_MODELS: ModelChoice[] = [
   { modelId: "gpt-5.6-sol", thinkingLevel: "medium" },
   { modelId: "gpt-5.6-luna", thinkingLevel: "high" },
@@ -46,6 +50,7 @@ export const PROVIDER_MODELS: Record<ProviderKey, ModelChoice[]> = {
   "openai-codex": OPENAI_MODELS,
   "azure-openai-responses": OPENAI_MODELS,
   kiro: [...ANTHROPIC_MODELS, ...withDashedVersions(OPENAI_MODELS)],
+  xai: XAI_MODELS,
 };
 
 /**

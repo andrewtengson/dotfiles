@@ -1,5 +1,5 @@
 /**
- * /usage - Show AI provider usage (Claude, Kiro, Copilot, Gemini, Codex)
+ * /usage - Show AI provider usage (Claude, Kiro, Gemini, Codex, xAI)
  */
 
 import { execSync } from "node:child_process";
@@ -381,6 +381,136 @@ async function fetchCodexUsage(): Promise<UsageSnapshot> {
 }
 
 // ============================================================================
+// xAI (Grok)
+// ============================================================================
+
+function xaiCents(value: unknown): number | undefined {
+  if (value == null) return undefined;
+  if (typeof value === "number") return value;
+  if (typeof value !== "object") return undefined;
+  const val = (value as { val?: unknown }).val;
+  if (val === undefined) return 0;
+  return typeof val === "number" ? val : undefined;
+}
+
+function xaiUsageHeaders(
+  token: string,
+  userId?: string,
+): Record<string, string> {
+  return {
+    Authorization: `Bearer ${token}`,
+    "X-XAI-Token-Auth": "xai-grok-cli",
+    "x-grok-client-version": "pi-usage",
+    "x-grok-client-mode": "interactive",
+    ...(userId ? { "x-userid": userId } : {}),
+  };
+}
+
+async function fetchXaiUsage(): Promise<UsageSnapshot> {
+  const auth = readPiAuth();
+  const token = (auth.xai?.access ?? auth["xai-auth"]?.access) as
+    | string
+    | undefined;
+  if (!token) return { provider: "xAI", windows: [], error: "Not logged in" };
+
+  try {
+    const userResp = await fetch("https://cli-chat-proxy.grok.com/v1/user", {
+      headers: xaiUsageHeaders(token),
+    });
+    if (!userResp.ok)
+      return { provider: "xAI", windows: [], error: `HTTP ${userResp.status}` };
+
+    const identity = (await userResp.json()) as { userId?: unknown };
+    const userId =
+      typeof identity.userId === "string" ? identity.userId : undefined;
+    if (!userId)
+      return { provider: "xAI", windows: [], error: "No account identity" };
+
+    const resp = await fetch(
+      "https://cli-chat-proxy.grok.com/v1/billing?format=credits",
+      { headers: xaiUsageHeaders(token, userId) },
+    );
+    if (!resp.ok)
+      return { provider: "xAI", windows: [], error: `HTTP ${resp.status}` };
+
+    // biome-ignore lint/suspicious/noExplicitAny: untyped API response
+    const data = (await resp.json()) as any;
+    const config = data.config ?? {};
+    const windows: RateWindow[] = [];
+
+    const used = xaiCents(config.used);
+    const limit = xaiCents(config.monthlyLimit);
+    const percent =
+      typeof config.creditUsagePercent === "number"
+        ? config.creditUsagePercent
+        : limit && limit > 0 && used != null
+          ? (used / limit) * 100
+          : undefined;
+    const periodEnd =
+      (config.currentPeriod?.end as string | undefined) ??
+      (config.billingPeriodEnd as string | undefined);
+    const reset = periodEnd ? formatReset(new Date(periodEnd)) : undefined;
+
+    if (percent !== undefined) {
+      const creditDetail =
+        used != null && limit != null
+          ? `$${(used / 100).toFixed(2)}/$${(limit / 100).toFixed(2)}`
+          : undefined;
+      windows.push({
+        label: "Credits",
+        usedPercent: Math.min(percent, 100),
+        detail:
+          [creditDetail, reset ? `resets ${reset}` : undefined]
+            .filter(Boolean)
+            .join(" ") || undefined,
+      });
+    }
+
+    const onDemandUsed = xaiCents(config.onDemandUsed);
+    const onDemandCap = xaiCents(config.onDemandCap);
+    if (onDemandUsed != null || onDemandCap != null) {
+      const onDemandPct =
+        onDemandCap && onDemandCap > 0 && onDemandUsed != null
+          ? (onDemandUsed / onDemandCap) * 100
+          : 0;
+      const onDemandDetail =
+        onDemandUsed != null && onDemandCap != null
+          ? `$${(onDemandUsed / 100).toFixed(2)}/$${(onDemandCap / 100).toFixed(2)}`
+          : undefined;
+      windows.push({
+        label: "On-demand",
+        usedPercent: Math.min(onDemandPct, 100),
+        detail: onDemandDetail,
+      });
+    }
+
+    const prepaid = xaiCents(config.prepaidBalance);
+    if (prepaid != null && prepaid > 0) {
+      windows.push({
+        label: "Prepaid",
+        usedPercent: 0,
+        detail: `$${(prepaid / 100).toFixed(2)} remaining`,
+      });
+    }
+
+    if (windows.length === 0)
+      return { provider: "xAI", windows: [], error: "No data" };
+
+    const plan =
+      typeof data.subscriptionTier === "string"
+        ? data.subscriptionTier
+        : undefined;
+    return { provider: "xAI", windows, plan };
+  } catch (e) {
+    return {
+      provider: "xAI",
+      windows: [],
+      error: e instanceof Error ? e.message : String(e),
+    };
+  }
+}
+
+// ============================================================================
 // UI
 // ============================================================================
 
@@ -422,6 +552,8 @@ class UsageComponent {
       "google-gemini-cli": fetchGeminiUsage,
       "openai-codex": fetchCodexUsage,
       openai: fetchCodexUsage,
+      xai: fetchXaiUsage,
+      "xai-auth": fetchXaiUsage,
     };
 
     const fetcher = fetchers[provider];
@@ -480,11 +612,17 @@ class UsageComponent {
         if (u.error) {
           lines.push(box(dim(`  ${u.error}`)));
         } else {
+          const labelWidth = Math.max(
+            8,
+            ...u.windows.map((w) => w.label.length),
+          );
           for (const w of u.windows) {
             const bar = renderBar(w.usedPercent, 12, t);
             const pctStr = `${Math.round(w.usedPercent)}%`.padStart(4);
             const detail = w.detail ? dim(` ${w.detail}`) : "";
-            lines.push(box(`  ${w.label.padEnd(8)} ${bar} ${pctStr}${detail}`));
+            lines.push(
+              box(`  ${w.label.padEnd(labelWidth)} ${bar} ${pctStr}${detail}`),
+            );
           }
         }
         lines.push(box(""));
