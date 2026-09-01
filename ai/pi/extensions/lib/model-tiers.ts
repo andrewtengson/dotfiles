@@ -28,14 +28,14 @@ export type TierMap = Record<Tier, TierTarget>;
 
 const OPENAI_TIERS = {
   heavy: { modelId: "gpt-5.6-sol", thinkingLevel: "high" },
-  default: { modelId: "gpt-5.6-sol", thinkingLevel: "medium" },
+  default: { modelId: "gpt-5.6-terra", thinkingLevel: "medium" },
   light: { modelId: "gpt-5.6-luna", thinkingLevel: "high" },
   fast: { modelId: "gpt-5.6-luna", thinkingLevel: "low" },
 } satisfies Record<Tier, TierTarget>;
 
 const KIRO_OPENAI_TIERS = {
   heavy: { modelId: "gpt-5-6-sol", thinkingLevel: "high" },
-  default: { modelId: "gpt-5-6-sol", thinkingLevel: "medium" },
+  default: { modelId: "gpt-5-6-terra", thinkingLevel: "medium" },
   light: { modelId: "gpt-5-6-luna", thinkingLevel: "high" },
   fast: { modelId: "gpt-5-6-luna", thinkingLevel: "low" },
 } satisfies TierMap;
