@@ -1,9 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import {
-  buildHandoffCompactionPrompt,
   longContextInputLimit,
   shouldCompactBeforeLongContext,
-} from "../extensions/lib/handoff-compaction";
+} from "../extensions/pricing-compaction";
 
 describe("longContextInputLimit", () => {
   test("returns the lowest inputTokensAbove tier", () => {
@@ -50,22 +49,5 @@ describe("shouldCompactBeforeLongContext", () => {
         reserveTokens: 32768,
       }),
     ).toBe(false);
-  });
-});
-
-describe("buildHandoffCompactionPrompt", () => {
-  test("includes skill instructions, conversation, and continuation task", () => {
-    const prompt = buildHandoffCompactionPrompt({
-      skillInstructions: "Write a handoff document.",
-      conversationText: "[User]: ship it",
-      previousSummary: "Old summary",
-      customInstructions: "Focus on tests",
-    });
-
-    expect(prompt).toContain("Write a handoff document.");
-    expect(prompt).toContain("[User]: ship it");
-    expect(prompt).toContain("Old summary");
-    expect(prompt).toContain("Focus on tests");
-    expect(prompt).toContain("Continue from this handoff");
   });
 });
