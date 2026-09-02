@@ -105,6 +105,12 @@ else
     cp "$PWD/ai/pi/settings.json" "$HOME/.pi/agent/settings.json"
   fi
 fi
+if [[ -f "$HOME/.pi/agent/models.json" ]]; then
+  jq -s '.[0] * .[1]' "$HOME/.pi/agent/models.json" "$PWD/ai/pi/models.json" > "$HOME/.pi/agent/models.json.tmp"
+  mv "$HOME/.pi/agent/models.json.tmp" "$HOME/.pi/agent/models.json"
+else
+  cp "$PWD/ai/pi/models.json" "$HOME/.pi/agent/models.json"
+fi
 ln -sfn "$PWD/ai/pi/keybindings.json" "$HOME/.pi/agent/keybindings.json"
 ln -sfn "$PWD/ai/steering.md" "$HOME/.pi/agent/AGENTS.md"
 ln -sfn "$PWD/ai/pi/themes" "$HOME/.pi/agent/themes"
