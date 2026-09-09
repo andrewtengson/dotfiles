@@ -4,3 +4,4 @@
 .config/ghostty/ghostty-linux
 ai/pi/themes/system.json
 context.md
+ai/pi/extensions/rtk.ts
