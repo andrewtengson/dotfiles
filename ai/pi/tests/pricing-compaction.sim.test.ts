@@ -14,19 +14,37 @@ function loadSettings(): { reserveTokens: number } {
   return { reserveTokens: settings.compaction?.reserveTokens ?? 32768 };
 }
 
-function loadGrokTiers(): { inputTokensAbove: number }[] | undefined {
-  const store = JSON.parse(
-    readFileSync(join(homedir(), ".pi/agent/models.json"), "utf8"),
-  ) as {
-    providers?: {
-      xai?: {
-        modelOverrides?: {
-          "grok-4.6"?: { cost?: { tiers?: { inputTokensAbove: number }[] } };
-        };
+type ModelStore = {
+  providers?: {
+    xai?: {
+      modelOverrides?: {
+        "grok-4.6"?: { cost?: { tiers?: { inputTokensAbove: number }[] } };
       };
     };
+    kiro?: {
+      modelOverrides?: Record<
+        string,
+        { cost?: { tiers?: { inputTokensAbove: number }[] } }
+      >;
+    };
   };
-  return store.providers?.xai?.modelOverrides?.["grok-4.6"]?.cost?.tiers;
+};
+
+function loadModelStore(): ModelStore {
+  return JSON.parse(
+    readFileSync(join(homedir(), ".pi/agent/models.json"), "utf8"),
+  ) as ModelStore;
+}
+
+function loadGrokTiers(): { inputTokensAbove: number }[] | undefined {
+  return loadModelStore().providers?.xai?.modelOverrides?.["grok-4.6"]?.cost
+    ?.tiers;
+}
+
+function loadKiroGpt56Tiers(
+  id: "gpt-5-6-sol" | "gpt-5-6-terra" | "gpt-5-6-luna",
+): { inputTokensAbove: number }[] | undefined {
+  return loadModelStore().providers?.kiro?.modelOverrides?.[id]?.cost?.tiers;
 }
 
 describe("pricing auto-compaction simulation", () => {
@@ -56,5 +74,38 @@ describe("pricing auto-compaction simulation", () => {
         reserveTokens,
       }),
     ).toBe(true);
+  });
+
+  test("live kiro gpt-5.6 config compacts before the 272k pricing tier", () => {
+    const { reserveTokens } = loadSettings();
+    const ids = ["gpt-5-6-sol", "gpt-5-6-terra", "gpt-5-6-luna"] as const;
+    const builtInCutoff = 1000000 - reserveTokens;
+
+    expect(reserveTokens).toBe(32768);
+    expect(builtInCutoff).toBe(967232);
+
+    for (const id of ids) {
+      const tiers = loadKiroGpt56Tiers(id);
+      const limit = longContextInputLimit({ tiers });
+      const cutoff = (limit ?? Number.NaN) - reserveTokens;
+
+      expect(tiers?.[0]?.inputTokensAbove).toBe(272000);
+      expect(cutoff).toBe(239232);
+      expect(cutoff).toBeLessThan(272000);
+      expect(
+        shouldCompactBeforeLongContext({
+          tokens: 239232,
+          longContextLimit: limit,
+          reserveTokens,
+        }),
+      ).toBe(false);
+      expect(
+        shouldCompactBeforeLongContext({
+          tokens: 239233,
+          longContextLimit: limit,
+          reserveTokens,
+        }),
+      ).toBe(true);
+    }
   });
 });

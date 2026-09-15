@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   longContextInputLimit,
+  pricingCompactionAction,
   shouldCompactBeforeLongContext,
 } from "../extensions/pricing-compaction";
 
@@ -49,5 +50,50 @@ describe("shouldCompactBeforeLongContext", () => {
         reserveTokens: 32768,
       }),
     ).toBe(false);
+  });
+
+  test("triggers after crossing the 272k kiro gpt-5.6 cliff minus reserve", () => {
+    expect(
+      shouldCompactBeforeLongContext({
+        tokens: 239232,
+        longContextLimit: 272000,
+        reserveTokens: 32768,
+      }),
+    ).toBe(false);
+    expect(
+      shouldCompactBeforeLongContext({
+        tokens: 239233,
+        longContextLimit: 272000,
+        reserveTokens: 32768,
+      }),
+    ).toBe(true);
+  });
+});
+
+describe("pricingCompactionAction", () => {
+  const base = {
+    compacting: false,
+    cost: { tiers: [{ inputTokensAbove: 272000 }] },
+    reserveTokens: 32768,
+  };
+
+  test("continues the in-flight turn after compacting past tool results", () => {
+    expect(
+      pricingCompactionAction({
+        ...base,
+        tokens: 239233,
+        hasToolResults: true,
+      }),
+    ).toBe("compact-and-continue");
+  });
+
+  test("compacts a finished turn without injecting continue", () => {
+    expect(
+      pricingCompactionAction({
+        ...base,
+        tokens: 239233,
+        hasToolResults: false,
+      }),
+    ).toBe("compact");
   });
 });

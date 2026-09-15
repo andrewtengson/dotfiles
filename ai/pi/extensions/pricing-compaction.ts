@@ -42,6 +42,33 @@ export function shouldCompactBeforeLongContext(input: {
   return input.tokens > input.longContextLimit - input.reserveTokens;
 }
 
+export type PricingCompactionAction =
+  | "skip"
+  | "compact"
+  | "compact-and-continue";
+
+export function pricingCompactionAction(input: {
+  compacting: boolean;
+  tokens: number | null | undefined;
+  cost: CostTiers | undefined;
+  reserveTokens: number;
+  hasToolResults: boolean;
+}): PricingCompactionAction {
+  if (input.compacting) return "skip";
+  if (
+    !shouldCompactBeforeLongContext({
+      tokens: input.tokens,
+      longContextLimit: longContextInputLimit(input.cost),
+      reserveTokens: input.reserveTokens,
+    })
+  ) {
+    return "skip";
+  }
+  return input.hasToolResults ? "compact-and-continue" : "compact";
+}
+
+const CONTINUE_MESSAGE = "Continue.";
+
 function readReserveTokens(): number {
   try {
     const settings = JSON.parse(
@@ -58,21 +85,17 @@ function readReserveTokens(): number {
 export default function (pi: ExtensionAPI) {
   let compacting = false;
 
-  pi.on("turn_end", (_event, ctx) => {
-    if (compacting) return;
-
+  pi.on("turn_end", (event, ctx) => {
     const tokens = ctx.getContextUsage()?.tokens;
     const longContextLimit = longContextInputLimit(ctx.model?.cost);
-    const reserveTokens = readReserveTokens();
-    if (
-      !shouldCompactBeforeLongContext({
-        tokens,
-        longContextLimit,
-        reserveTokens,
-      })
-    ) {
-      return;
-    }
+    const action = pricingCompactionAction({
+      compacting,
+      tokens,
+      cost: ctx.model?.cost,
+      reserveTokens: readReserveTokens(),
+      hasToolResults: event.toolResults.length > 0,
+    });
+    if (action === "skip") return;
 
     compacting = true;
     if (ctx.hasUI) {
@@ -86,6 +109,9 @@ export default function (pi: ExtensionAPI) {
       onComplete: () => {
         compacting = false;
         if (ctx.hasUI) ctx.ui.notify("Compaction complete", "info");
+        if (action === "compact-and-continue") {
+          void pi.sendUserMessage(CONTINUE_MESSAGE);
+        }
       },
       onError: (error) => {
         compacting = false;
