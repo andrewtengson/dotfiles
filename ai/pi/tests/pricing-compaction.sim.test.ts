@@ -32,7 +32,7 @@ type ModelStore = {
 
 function loadModelStore(): ModelStore {
   return JSON.parse(
-    readFileSync(join(homedir(), ".pi/agent/models.json"), "utf8"),
+    readFileSync(join(import.meta.dir, "../models.json"), "utf8"),
   ) as ModelStore;
 }
 
@@ -48,7 +48,7 @@ function loadKiroGpt56Tiers(
 }
 
 describe("pricing auto-compaction simulation", () => {
-  test("live grok-4.6 config compacts before the 200k pricing tier", () => {
+  test("tracked grok-4.6 config compacts before the 200k pricing tier", () => {
     const { reserveTokens } = loadSettings();
     const tiers = loadGrokTiers();
     const limit = longContextInputLimit({ tiers });
@@ -76,7 +76,7 @@ describe("pricing auto-compaction simulation", () => {
     ).toBe(true);
   });
 
-  test("live kiro gpt-5.6 config compacts before the 272k pricing tier", () => {
+  test("tracked kiro gpt-5.6 config compacts before the 272k pricing tier", () => {
     const { reserveTokens } = loadSettings();
     const ids = ["gpt-5-6-sol", "gpt-5-6-terra", "gpt-5-6-luna"] as const;
     const builtInCutoff = 1000000 - reserveTokens;
