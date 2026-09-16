@@ -6,7 +6,11 @@
           "cost": {
             "tiers": [
               {
-                "inputTokensAbove": 272000
+                "inputTokensAbove": 272000,
+                "input": 0,
+                "output": 0,
+                "cacheRead": 0,
+                "cacheWrite": 0
               }
             ]
           }
@@ -15,7 +19,11 @@
           "cost": {
             "tiers": [
               {
-                "inputTokensAbove": 272000
+                "inputTokensAbove": 272000,
+                "input": 0,
+                "output": 0,
+                "cacheRead": 0,
+                "cacheWrite": 0
               }
             ]
           }
@@ -24,7 +32,11 @@
           "cost": {
             "tiers": [
               {
-                "inputTokensAbove": 272000
+                "inputTokensAbove": 272000,
+                "input": 0,
+                "output": 0,
+                "cacheRead": 0,
+                "cacheWrite": 0
               }
             ]
           }

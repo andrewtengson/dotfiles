@@ -89,7 +89,13 @@ describe("pricing auto-compaction simulation", () => {
       const limit = longContextInputLimit({ tiers });
       const cutoff = (limit ?? Number.NaN) - reserveTokens;
 
-      expect(tiers?.[0]?.inputTokensAbove).toBe(272000);
+      expect(tiers?.[0]).toEqual({
+        inputTokensAbove: 272000,
+        input: 0,
+        output: 0,
+        cacheRead: 0,
+        cacheWrite: 0,
+      });
       expect(cutoff).toBe(239232);
       expect(cutoff).toBeLessThan(272000);
       expect(
