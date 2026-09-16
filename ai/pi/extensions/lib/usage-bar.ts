@@ -7,7 +7,10 @@ export function renderBar(
   width: number,
   theme: UsageBarTheme,
 ): string {
-  const filled = Math.min(width, Math.max(1, Math.round((pct / 100) * width)));
+  const filled =
+    pct <= 0
+      ? 0
+      : Math.min(width, Math.max(1, Math.round((pct / 100) * width)));
   const empty = width - filled;
   const color = pct >= 90 ? "error" : pct >= 70 ? "warning" : "success";
   return (
