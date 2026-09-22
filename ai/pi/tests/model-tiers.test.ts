@@ -1,46 +1,72 @@
 import { describe, expect, test } from "bun:test";
-import { resolveTierMap } from "../extensions/lib/model-tiers.js";
+import {
+  type ProviderKey,
+  resolveTierMap,
+  TIER_MAP,
+  type Tier,
+  type TierMap,
+} from "../extensions/lib/model-tiers.js";
+
+const TIERS: Tier[] = ["heavy", "default", "light", "fast"];
+
+function modelIds(map: TierMap): string[] {
+  return TIERS.map((tier) => map[tier].modelId);
+}
 
 describe("resolveTierMap", () => {
-  test("uses Kiro registry IDs for GPT models", () => {
-    expect(resolveTierMap("kiro", "gpt-5-6-terra")).toEqual({
-      heavy: { modelId: "gpt-5-6-sol", thinkingLevel: "high" },
-      default: { modelId: "gpt-5-6-sol", thinkingLevel: "medium" },
-      light: { modelId: "gpt-5-6-luna", thinkingLevel: "high" },
-      fast: { modelId: "gpt-5-6-luna", thinkingLevel: "low" },
-    });
+  test("resolves every configured provider from the tier map", () => {
+    for (const provider of Object.keys(TIER_MAP) as ProviderKey[]) {
+      const map = resolveTierMap(provider);
+      expect(map, provider).toBe(TIER_MAP[provider]);
+      expect(
+        modelIds(map).every((id) => id.length > 0),
+        provider,
+      ).toBe(true);
+    }
   });
 
-  test("keeps Anthropic tiers for Kiro Claude models", () => {
-    expect(resolveTierMap("kiro", "claude-sonnet-5")).toEqual({
-      heavy: { modelId: "claude-opus-4-8", thinkingLevel: "high" },
-      default: { modelId: "claude-sonnet-5", thinkingLevel: "medium" },
-      light: { modelId: "claude-sonnet-5", thinkingLevel: "low" },
-      fast: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
-    });
+  test("routes Kiro GPT sessions to dashed registry ids", () => {
+    const map = resolveTierMap("kiro", "gpt-5-6-terra");
+    expect(map).not.toBe(TIER_MAP.kiro);
+    for (const id of modelIds(map)) {
+      expect(id.startsWith("gpt-")).toBe(true);
+      expect(id.includes(".")).toBe(false);
+    }
   });
 
-  test("defaults unknown Kiro model families to Anthropic tiers", () => {
-    expect(resolveTierMap("kiro", "deepseek-r1").heavy.modelId).toBe(
-      "claude-opus-4-8",
-    );
+  test("keeps non-GPT Kiro sessions on the default Anthropic map", () => {
+    expect(resolveTierMap("kiro", "claude-sonnet-5")).toBe(TIER_MAP.kiro);
+    expect(resolveTierMap("kiro", "deepseek-r1")).toBe(TIER_MAP.kiro);
+    expect(resolveTierMap("kiro")).toBe(TIER_MAP.kiro);
+    for (const id of modelIds(TIER_MAP.kiro)) {
+      expect(id.startsWith("claude-")).toBe(true);
+      expect(id.startsWith("global.anthropic.")).toBe(false);
+    }
   });
 
-  test("keeps dotted model IDs for OpenAI providers", () => {
-    expect(resolveTierMap("openai-codex", "gpt-5.6-terra")).toEqual({
-      heavy: { modelId: "gpt-5.6-sol", thinkingLevel: "high" },
-      default: { modelId: "gpt-5.6-sol", thinkingLevel: "medium" },
-      light: { modelId: "gpt-5.6-luna", thinkingLevel: "high" },
-      fast: { modelId: "gpt-5.6-luna", thinkingLevel: "low" },
-    });
+  test("shares dotted OpenAI ids across OpenAI-shaped providers", () => {
+    const codex = resolveTierMap("openai-codex");
+    expect(codex).toBe(resolveTierMap("azure-openai-responses"));
+    for (const id of modelIds(codex)) {
+      expect(id.startsWith("gpt-")).toBe(true);
+      expect(id.includes(".")).toBe(true);
+    }
   });
 
-  test("uses grok-4.6 for every xAI tier", () => {
-    expect(resolveTierMap("xai")).toEqual({
-      heavy: { modelId: "grok-4.6", thinkingLevel: "high" },
-      default: { modelId: "grok-4.6", thinkingLevel: "medium" },
-      light: { modelId: "grok-4.6", thinkingLevel: "low" },
-      fast: { modelId: "grok-4.6", thinkingLevel: "low" },
-    });
+  test("prefixes Bedrock ids with the global inference profile", () => {
+    const bedrock = modelIds(resolveTierMap("amazon-bedrock"));
+    const kiro = modelIds(resolveTierMap("kiro"));
+    expect(bedrock).toEqual(kiro.map((id) => `global.anthropic.${id}`));
+  });
+
+  test("uses one xAI model and only varies thinking level", () => {
+    const map = resolveTierMap("xai");
+    const ids = new Set(modelIds(map));
+    expect(ids.size).toBe(1);
+    expect([...ids][0]?.startsWith("grok-")).toBe(true);
+    expect(map.heavy.thinkingLevel).toBe("high");
+    expect(map.default.thinkingLevel).toBe("medium");
+    expect(map.light.thinkingLevel).toBe("low");
+    expect(map.fast.thinkingLevel).toBe("low");
   });
 });

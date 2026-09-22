@@ -41,10 +41,10 @@ const KIRO_OPENAI_TIERS = {
 } satisfies TierMap;
 
 const XAI_TIERS = {
-  heavy: { modelId: "grok-4.6", thinkingLevel: "high" },
-  default: { modelId: "grok-4.6", thinkingLevel: "medium" },
-  light: { modelId: "grok-4.6", thinkingLevel: "low" },
-  fast: { modelId: "grok-4.6", thinkingLevel: "low" },
+  heavy: { modelId: "grok-4.7", thinkingLevel: "high" },
+  default: { modelId: "grok-4.7", thinkingLevel: "medium" },
+  light: { modelId: "grok-4.7", thinkingLevel: "low" },
+  fast: { modelId: "grok-4.7", thinkingLevel: "low" },
 } satisfies Record<Tier, TierTarget>;
 
 const ANTHROPIC_TIERS = {

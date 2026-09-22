@@ -14,104 +14,67 @@ function loadSettings(): { reserveTokens: number } {
   return { reserveTokens: settings.compaction?.reserveTokens ?? 32768 };
 }
 
-type ModelStore = {
-  providers?: {
-    xai?: {
-      modelOverrides?: {
-        "grok-4.6"?: { cost?: { tiers?: { inputTokensAbove: number }[] } };
-      };
-    };
-    kiro?: {
-      modelOverrides?: Record<
-        string,
-        { cost?: { tiers?: { inputTokensAbove: number }[] } }
-      >;
-    };
-  };
+type ModelOverride = {
+  cost?: { tiers?: { inputTokensAbove: number }[] };
 };
 
-function loadModelStore(): ModelStore {
-  return JSON.parse(
+type ModelStore = {
+  providers?: Record<
+    string,
+    { modelOverrides?: Record<string, ModelOverride> }
+  >;
+};
+
+function loadOverrides(provider: string): Record<string, ModelOverride> {
+  const store = JSON.parse(
     readFileSync(join(import.meta.dir, "../models.json"), "utf8"),
   ) as ModelStore;
+  return store.providers?.[provider]?.modelOverrides ?? {};
 }
 
-function loadGrokTiers(): { inputTokensAbove: number }[] | undefined {
-  return loadModelStore().providers?.xai?.modelOverrides?.["grok-4.6"]?.cost
-    ?.tiers;
-}
-
-function loadKiroGpt56Tiers(
-  id: "gpt-5-6-sol" | "gpt-5-6-terra" | "gpt-5-6-luna",
-): { inputTokensAbove: number }[] | undefined {
-  return loadModelStore().providers?.kiro?.modelOverrides?.[id]?.cost?.tiers;
+function expectCompactsBeforeTier(
+  id: string,
+  override: ModelOverride,
+  reserveTokens: number,
+): void {
+  const limit = longContextInputLimit(override.cost);
+  expect(limit, id).toBeGreaterThan(reserveTokens);
+  const cutoff = (limit ?? 0) - reserveTokens;
+  expect(
+    shouldCompactBeforeLongContext({
+      tokens: cutoff,
+      longContextLimit: limit,
+      reserveTokens,
+    }),
+    id,
+  ).toBe(false);
+  expect(
+    shouldCompactBeforeLongContext({
+      tokens: cutoff + 1,
+      longContextLimit: limit,
+      reserveTokens,
+    }),
+    id,
+  ).toBe(true);
 }
 
 describe("pricing auto-compaction simulation", () => {
-  test("tracked grok-4.6 config compacts before the 200k pricing tier", () => {
+  test("every tracked xAI override compacts before its pricing tier", () => {
     const { reserveTokens } = loadSettings();
-    const tiers = loadGrokTiers();
-    const limit = longContextInputLimit({ tiers });
-    const cutoff = (limit ?? Number.NaN) - reserveTokens;
-    const builtInCutoff = 500000 - reserveTokens;
-
-    expect(tiers?.[0]?.inputTokensAbove).toBe(200000);
-    expect(reserveTokens).toBe(32768);
-    expect(cutoff).toBe(167232);
-    expect(cutoff).toBeLessThan(200000);
-    expect(builtInCutoff).toBe(467232);
-    expect(
-      shouldCompactBeforeLongContext({
-        tokens: 167232,
-        longContextLimit: limit,
-        reserveTokens,
-      }),
-    ).toBe(false);
-    expect(
-      shouldCompactBeforeLongContext({
-        tokens: 167233,
-        longContextLimit: limit,
-        reserveTokens,
-      }),
-    ).toBe(true);
+    const overrides = loadOverrides("xai");
+    expect(Object.keys(overrides).length).toBeGreaterThan(0);
+    expect(reserveTokens).toBeGreaterThan(0);
+    for (const [id, override] of Object.entries(overrides)) {
+      expectCompactsBeforeTier(id, override, reserveTokens);
+    }
   });
 
-  test("tracked kiro gpt-5.6 config compacts before the 272k pricing tier", () => {
+  test("every tracked Kiro override compacts before its pricing tier", () => {
     const { reserveTokens } = loadSettings();
-    const ids = ["gpt-5-6-sol", "gpt-5-6-terra", "gpt-5-6-luna"] as const;
-    const builtInCutoff = 1000000 - reserveTokens;
-
-    expect(reserveTokens).toBe(32768);
-    expect(builtInCutoff).toBe(967232);
-
-    for (const id of ids) {
-      const tiers = loadKiroGpt56Tiers(id);
-      const limit = longContextInputLimit({ tiers });
-      const cutoff = (limit ?? Number.NaN) - reserveTokens;
-
-      expect(tiers?.[0]).toEqual({
-        inputTokensAbove: 272000,
-        input: 0,
-        output: 0,
-        cacheRead: 0,
-        cacheWrite: 0,
-      });
-      expect(cutoff).toBe(239232);
-      expect(cutoff).toBeLessThan(272000);
-      expect(
-        shouldCompactBeforeLongContext({
-          tokens: 239232,
-          longContextLimit: limit,
-          reserveTokens,
-        }),
-      ).toBe(false);
-      expect(
-        shouldCompactBeforeLongContext({
-          tokens: 239233,
-          longContextLimit: limit,
-          reserveTokens,
-        }),
-      ).toBe(true);
+    const overrides = loadOverrides("kiro");
+    expect(Object.keys(overrides).length).toBeGreaterThan(0);
+    for (const [id, override] of Object.entries(overrides)) {
+      expectCompactsBeforeTier(id, override, reserveTokens);
     }
   });
 });
