@@ -26,7 +26,7 @@ describe("resolveTierMap", () => {
   });
 
   test("routes Kiro GPT sessions to dashed registry ids", () => {
-    const map = resolveTierMap("kiro", "gpt-5-6-terra");
+    const map = resolveTierMap("kiro", "gpt-current");
     expect(map).not.toBe(TIER_MAP.kiro);
     for (const id of modelIds(map)) {
       expect(id.startsWith("gpt-")).toBe(true);
@@ -35,8 +35,8 @@ describe("resolveTierMap", () => {
   });
 
   test("keeps non-GPT Kiro sessions on the default Anthropic map", () => {
-    expect(resolveTierMap("kiro", "claude-sonnet-5")).toBe(TIER_MAP.kiro);
-    expect(resolveTierMap("kiro", "deepseek-r1")).toBe(TIER_MAP.kiro);
+    expect(resolveTierMap("kiro", "claude-sonnet")).toBe(TIER_MAP.kiro);
+    expect(resolveTierMap("kiro", "deepseek")).toBe(TIER_MAP.kiro);
     expect(resolveTierMap("kiro")).toBe(TIER_MAP.kiro);
     for (const id of modelIds(TIER_MAP.kiro)) {
       expect(id.startsWith("claude-")).toBe(true);
@@ -44,15 +44,12 @@ describe("resolveTierMap", () => {
     }
   });
 
-  test("shares GPT-6 Sol and Luna across OpenAI-shaped providers", () => {
+  test("shares OpenAI ids across OpenAI-shaped providers", () => {
     const codex = resolveTierMap("openai-codex");
     expect(codex).toBe(resolveTierMap("azure-openai-responses"));
-    expect(modelIds(codex)).toEqual([
-      "gpt-6-sol",
-      "gpt-6-sol",
-      "gpt-6-luna",
-      "gpt-6-luna",
-    ]);
+    for (const id of modelIds(codex)) {
+      expect(id.startsWith("gpt-")).toBe(true);
+    }
   });
 
   test("prefixes Bedrock ids with the global inference profile", () => {

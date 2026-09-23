@@ -52,7 +52,7 @@ describe("shouldCompactBeforeLongContext", () => {
     ).toBe(false);
   });
 
-  test("triggers after crossing the 272k kiro gpt-5.6 cliff minus reserve", () => {
+  test("triggers after crossing the 272k cliff minus reserve", () => {
     expect(
       shouldCompactBeforeLongContext({
         tokens: 239232,
