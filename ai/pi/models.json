@@ -63,6 +63,36 @@
           }
         }
       }
+    },
+    "azure-openai-responses": {
+      "modelOverrides": {
+        "gpt-6-sol": {
+          "cost": {
+            "tiers": [
+              {
+                "inputTokensAbove": 272000,
+                "input": 4,
+                "output": 15,
+                "cacheRead": 0.4,
+                "cacheWrite": 5
+              }
+            ]
+          }
+        },
+        "gpt-6-luna": {
+          "cost": {
+            "tiers": [
+              {
+                "inputTokensAbove": 272000,
+                "input": 0.2,
+                "output": 0.75,
+                "cacheRead": 0.02,
+                "cacheWrite": 0.25
+              }
+            ]
+          }
+        }
+      }
     }
   }
 }

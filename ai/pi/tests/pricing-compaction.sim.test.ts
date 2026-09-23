@@ -69,6 +69,15 @@ describe("pricing auto-compaction simulation", () => {
     }
   });
 
+  test("every tracked Azure override compacts before its pricing tier", () => {
+    const { reserveTokens } = loadSettings();
+    const overrides = loadOverrides("azure-openai-responses");
+    expect(Object.keys(overrides).length).toBeGreaterThan(0);
+    for (const [id, override] of Object.entries(overrides)) {
+      expectCompactsBeforeTier(id, override, reserveTokens);
+    }
+  });
+
   test("every tracked Kiro override compacts before its pricing tier", () => {
     const { reserveTokens } = loadSettings();
     const overrides = loadOverrides("kiro");
