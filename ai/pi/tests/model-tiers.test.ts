@@ -44,13 +44,15 @@ describe("resolveTierMap", () => {
     }
   });
 
-  test("shares dotted OpenAI ids across OpenAI-shaped providers", () => {
+  test("shares GPT-6 Sol and Luna across OpenAI-shaped providers", () => {
     const codex = resolveTierMap("openai-codex");
     expect(codex).toBe(resolveTierMap("azure-openai-responses"));
-    for (const id of modelIds(codex)) {
-      expect(id.startsWith("gpt-")).toBe(true);
-      expect(id.includes(".")).toBe(true);
-    }
+    expect(modelIds(codex)).toEqual([
+      "gpt-6-sol",
+      "gpt-6-sol",
+      "gpt-6-luna",
+      "gpt-6-luna",
+    ]);
   });
 
   test("prefixes Bedrock ids with the global inference profile", () => {
