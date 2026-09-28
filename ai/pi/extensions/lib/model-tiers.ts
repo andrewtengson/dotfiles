@@ -49,7 +49,7 @@ const XAI_TIERS = {
 } satisfies Record<Tier, TierTarget>;
 
 const ANTHROPIC_TIERS = {
-  heavy: { modelId: "claude-opus-5", thinkingLevel: "high" },
+  heavy: { modelId: "claude-opus-5-5", thinkingLevel: "high" },
   default: { modelId: "claude-sonnet-5", thinkingLevel: "medium" },
   light: { modelId: "claude-sonnet-5", thinkingLevel: "low" },
   fast: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
