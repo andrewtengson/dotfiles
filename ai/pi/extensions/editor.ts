@@ -345,7 +345,7 @@ class StatusPanel implements Component {
 
   constructor(
     private readonly items: { key: string; text: string }[],
-    private readonly tui: TUI,
+    _tui: TUI,
     private readonly theme: Theme,
     private readonly keybindings: KeybindingsManager,
     private readonly done: (result: null) => void,
