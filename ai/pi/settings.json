@@ -14,7 +14,7 @@
     "npm:@juicesharp/rpiv-todo",
     "npm:pi-mcp-adapter",
     "npm:pi-intercom",
-    "git:github.com/andrewtengson/pi-provider-kiro@main",
+    "npm:pi-provider-kiro",
     "npm:gentle-engram",
     "npm:pi-goal",
     "npm:pi-prompt-template-model"
@@ -25,15 +25,18 @@
     "reserveTokens": 32768,
     "keepRecentTokens": 20000
   },
-  "enabledModels": [
-    "amazon-bedrock/global.anthropic.claude-opus-5:medium"
-  ],
-  "npmCommand": [
-    "bun"
-  ],
+  "enabledModels": ["amazon-bedrock/global.anthropic.claude-opus-5:medium"],
+  "npmCommand": ["bun"],
   "doubleEscapeAction": "tree",
   "defaultProjectTrust": "never",
   "transport": "auto",
   "steeringMode": "all",
-  "followUpMode": "all"
+  "followUpMode": "all",
+  "showHardwareCursor": false,
+  "markdown": {
+    "mermaid": "streaming"
+  },
+  "tuiMode": "fullscreen",
+  "fullscreenScrollbar": "auto",
+  "defaultTools": ["+codemode", "+tool_search"]
 }
