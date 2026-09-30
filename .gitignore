@@ -2,6 +2,6 @@
 .config/zsh/plugins
 .config/zsh/.zcompdump
 .config/ghostty/ghostty-linux
-ai/pi/themes/system.json
+ai/pi/themes/ghostty.json
 context.md
 ai/pi/extensions/rtk.ts

@@ -6,7 +6,7 @@
   "defaultThinkingLevel": "high",
   "enableInstallTelemetry": false,
   "quietStartup": true,
-  "theme": "system",
+  "theme": "ghostty",
   "packages": [
     "npm:pi-web-access",
     "npm:pi-subagents",

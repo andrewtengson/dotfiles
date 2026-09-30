@@ -190,7 +190,7 @@ export function generateSystemTheme(
   };
 
   return {
-    name: "system",
+    name: "ghostty",
     colors,
     pageBg: background,
   };
@@ -205,7 +205,7 @@ export function toPiThemeJson(result: SystemThemeResult): string {
   const theme = {
     $schema:
       "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
-    name: "system",
+    name: "ghostty",
     colors: {
       ...colors,
     },

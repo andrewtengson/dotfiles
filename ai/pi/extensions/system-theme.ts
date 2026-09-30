@@ -16,7 +16,7 @@ import type { HexColor } from "./lib/color.js";
 import { generateSystemTheme, toPiThemeJson } from "./lib/system-theme.js";
 
 const THEME_DIR = join(homedir(), ".pi", "agent", "themes");
-const THEME_PATH = join(THEME_DIR, "system.json");
+const THEME_PATH = join(THEME_DIR, "ghostty.json");
 
 interface TerminalPalette {
   background: HexColor;
@@ -138,6 +138,6 @@ export default function (_pi: ExtensionAPI) {
     return;
   }
 
-  // Theme is written. Set "theme": "system" in settings to use it.
+  // Theme is written. Set "theme": "ghostty" in settings to use it.
   // On subsequent startups, the theme regenerates from current terminal colors.
 }
