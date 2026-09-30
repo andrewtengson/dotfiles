@@ -5,9 +5,9 @@
  * pi-subagents reads settings fresh per launch, so overrides apply immediately.
  *
  * Tier mapping per subagent role:
- *   heavy  → oracle, planner, researcher
- *   default → worker, reviewer, delegate
- *   light  → scout, context-builder
+ *   heavy   → oracle, reviewer
+ *   default → researcher, worker, delegate
+ *   light   → scout
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -33,7 +33,6 @@ import {
 const AGENT_TIERS: Record<string, Tier> = {
   // Heavy: complex reasoning, planning, deep thinking
   oracle: "heavy",
-  planner: "heavy",
   reviewer: "heavy",
   // Default: research, implementation, general work
   researcher: "default",
@@ -41,8 +40,10 @@ const AGENT_TIERS: Record<string, Tier> = {
   worker: "default",
   // Light: fast retrieval, scouting, context gathering
   scout: "light",
-  "context-builder": "light",
 };
+
+// Agents removed from pi-subagents' bundled set; their overrides are pruned from settings.
+const REMOVED_AGENTS: readonly string[] = ["planner", "context-builder"];
 
 function getSettingsPath(): string {
   return join(homedir(), ".pi", "agent", "settings.json");
@@ -82,6 +83,9 @@ function writeOverrides(provider: ProviderKey, activeModelId?: string): void {
   for (const [agent, managed] of Object.entries(overrides)) {
     existing[agent] = { ...existing[agent], ...managed };
   }
+  for (const agent of REMOVED_AGENTS) {
+    delete existing[agent];
+  }
   settings.subagents.agentOverrides = existing;
 
   writeFileSync(
@@ -109,7 +113,12 @@ export default function (pi: ExtensionAPI): void {
       const tierMap = resolveTierMap(provider, ctx.model?.id);
       const heavyTarget = tierMap.heavy;
       const expectedHeavyModel = `${provider}/${heavyTarget.modelId}`;
-      if (existing.oracle?.model === expectedHeavyModel) return;
+      const hasRemovedAgents = REMOVED_AGENTS.some(
+        (agent) => agent in existing,
+      );
+      if (existing.oracle?.model === expectedHeavyModel && !hasRemovedAgents) {
+        return;
+      }
     } catch {}
 
     writeOverrides(provider, ctx.model?.id);

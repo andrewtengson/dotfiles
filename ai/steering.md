@@ -66,6 +66,28 @@
 - Prefer standard library over dependencies.
 - Security and performance are non-negotiable, not afterthoughts.
 
+## Subagent Delegation
+
+Delegation is pre-authorized for the cases below. Do not wait to be asked. Direct work remains the default for everything else.
+
+Delegate when:
+- Read-heavy fan-out: surveying 3+ files, directories, or repos; codebase exploration; log or trace triage. Use a read-only explorer (pi: `scout`).
+- External research: docs, API behavior, version-specific facts. Use a researcher (pi: `researcher`; add `evidence-auditor` when claims drive a decision).
+- Mechanical edits with a deterministic check: renames, migrations, bulk config updates where tests, lint, or build prove correctness. Use a worker (pi: `worker`, fed by a `scout` handoff when context is needed).
+- Independent review of a non-trivial change before presenting it. Use a reviewer (pi: `reviewer`).
+- A hard design or debugging tradeoff where a second opinion changes the decision. Use an advisor (pi: `oracle`, which forks the current conversation).
+
+Work directly when:
+- Designing, clarifying requirements, or debugging.
+- The edit is small or touches only a few lines.
+- The task depends on conversation history or decisions made earlier in the session, unless the agent forks context.
+- Work touches production, infrastructure state, credentials, or anything irreversible.
+
+Handoff and verification:
+- Give fresh-context subagents a self-contained brief: goal, relevant paths, constraints, prior decisions, and the expected output format.
+- Treat subagent summaries as claims, not facts. After a worker edits, read the diff and rerun the check yourself before reporting success.
+- Parallelize only independent read-heavy work. Never run parallel writers on the same files.
+
 ## Hard Stop Rule
 
 Never end a turn while an executable next step remains. Any stated or implied next action must be executed via tool call in the same turn. Progress updates are not stopping points. End only when complete, genuinely blocked on user input or permission, or no executable action remains.
