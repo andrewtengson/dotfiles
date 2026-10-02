@@ -257,19 +257,24 @@ class FlatEditor extends CustomEditor {
 
   private buildLeftStatus(): string {
     // biome-ignore lint/suspicious/noExplicitAny: globalThis symbol access
-    const routerState = (globalThis as any)[Symbol.for("model-router-state")];
+    const routeInfo = (globalThis as any)[Symbol.for("tier-router-route")] as
+      | { tier: string; modelId: string }
+      | undefined;
     const thinkingLevel = this.getThinkingLevel();
     const thinkingColor = this.getThinkingColor();
-    const modelId = this.ctx.model?.id ?? "unknown";
+    const selectedId = this.ctx.model?.id ?? "unknown";
+    const isRouter = selectedId === "router";
+    const modelId =
+      isRouter && routeInfo ? `router → ${routeInfo.modelId}` : selectedId;
     const provider = String(this.ctx.model?.provider ?? "");
 
     const parts: string[] = [];
 
-    if (routerState?.autoRoutingEnabled) {
-      parts.push(this.fg("accent", "auto"));
+    if (isRouter && routeInfo) {
+      parts.push(this.fg("accent", routeInfo.tier));
+    } else {
+      parts.push(this.fg(thinkingColor, thinkingLevel));
     }
-
-    parts.push(this.fg(thinkingColor, thinkingLevel));
     parts.push(this.fg("muted", modelId));
     if (provider) parts.push(this.fg("muted", provider));
 

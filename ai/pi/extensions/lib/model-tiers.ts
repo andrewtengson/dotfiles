@@ -1,5 +1,5 @@
 /**
- * Shared model tier configuration for model-router and subagent-models.
+ * Shared model tier configuration for tier-router and subagent-models.
  *
  * Single source of truth for provider → tier → model mapping.
  */
