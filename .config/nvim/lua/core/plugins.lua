@@ -301,24 +301,6 @@ local plugins = {
     end,
   },
 
-  -- Codeium
-  {
-    "Exafunction/codeium.nvim",
-    event = "BufEnter",
-    opts = {
-      enable_cmp_source = false,
-      virtual_text = {
-        enabled = true,
-        accept_fallback = "<Tab>",
-        filetypes = {
-          markdown = false,
-          text = false,
-          env = false,
-        },
-      },
-    },
-  },
-
   -- Silicon
   {
     "michaelrommel/nvim-silicon",
