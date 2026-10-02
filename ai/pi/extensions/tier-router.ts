@@ -38,12 +38,13 @@ import {
 const ROUTER_ID = "router";
 const CLASSIFY_TIMEOUT_MS = 1_500;
 
-/** Providers that get a router. xAI is excluded: every tier is the same model. */
+/** Providers that get a router. */
 const ROUTED_PROVIDERS: readonly ProviderKey[] = [
   "kiro",
   "openai-codex",
   "azure-openai-responses",
   "amazon-bedrock",
+  "xai",
 ];
 
 interface RouterState {
