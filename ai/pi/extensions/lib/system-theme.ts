@@ -170,14 +170,14 @@ export function generateSystemTheme(
     syntaxOperator: foreground,
     syntaxPunctuation: p[7] || neutral[isDark ? 9 : 4],
 
-    // Thinking levels — gray → blue → yellow → red
-    thinkingOff: neutral[isDark ? 7 : 3],
-    thinkingMinimal: neutral[isDark ? 9 : 4],
-    thinkingLow: info[isDark ? 8 : 7],
-    thinkingMedium: accent[8],
-    thinkingHigh: warning[isDark ? 8 : 9],
-    thinkingXhigh: error[isDark ? 8 : 9],
-    thinkingMax: error[isDark ? 9 : 9],
+    // Thinking levels — existing palette slots, gray → blue → aqua → bright green
+    thinkingOff: p[8] || "#928374",
+    thinkingMinimal: p[7] || "#a89984",
+    thinkingLow: p[4] || "#458588",
+    thinkingMedium: p[12] || "#83a598",
+    thinkingHigh: p[6] || "#689d6a",
+    thinkingXhigh: p[14] || "#8ec07c",
+    thinkingMax: p[10] || "#b8bb26",
     bashMode: p[3] || warning[isDark ? 9 : 8],
 
     // Backgrounds
