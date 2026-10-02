@@ -15,11 +15,12 @@
  */
 
 import type { Api, Model } from "@earendil-works/pi-ai";
-import type {
-  ExtensionAPI,
-  ExtensionContext,
-  ModelRoute,
-  ModelRouteRequest,
+import {
+  type ExtensionAPI,
+  type ExtensionContext,
+  type ModelRoute,
+  type ModelRouteRequest,
+  VIRTUAL_MODEL_STATE_ENTRY,
 } from "@earendil-works/pi-coding-agent";
 import {
   type ProviderKey,
@@ -29,6 +30,7 @@ import {
 import {
   buildClassifierState,
   decideTier,
+  initialTierFromBranch,
   type RoutedTier,
   readTierAnswer,
   TIER_QUESTION,
@@ -59,10 +61,25 @@ const ROUTE_INFO_KEY = Symbol.for("tier-router-route");
 interface RouteInfo {
   tier: RoutedTier;
   modelId: string;
+  thinkingLevel: string;
 }
 
 function publishRoute(info: RouteInfo): void {
   (globalThis as Record<symbol, unknown>)[ROUTE_INFO_KEY] = info;
+}
+
+function publishTier(
+  ctx: ExtensionContext,
+  provider: ProviderKey,
+  tiers: TierMap,
+  tier: RoutedTier,
+): void {
+  const model = findModel(ctx, provider, tiers, tier);
+  publishRoute({
+    tier,
+    modelId: model?.id ?? tiers[tier].modelId,
+    thinkingLevel: tiers[tier].thinkingLevel,
+  });
 }
 
 function findModel(
@@ -89,7 +106,11 @@ function route(
       `Tier router: no ${tier} or default model for ${provider} in the catalog`,
     );
   }
-  publishRoute({ tier, modelId: model.id });
+  publishRoute({
+    tier,
+    modelId: model.id,
+    thinkingLevel: tiers[tier].thinkingLevel,
+  });
   return { model, thinkingLevel: tiers[tier].thinkingLevel, state };
 }
 
@@ -164,11 +185,14 @@ function registerRouter(pi: ExtensionAPI, provider: ProviderKey): void {
       if (request.reason !== "user" && current) {
         const sticky = request.failed ?? request.previous;
         if (sticky) {
-          publishRoute({ tier: current, modelId: sticky.model.id });
-          return {
-            model: sticky.model,
-            thinkingLevel: sticky.thinkingLevel ?? tiers[current].thinkingLevel,
-          };
+          const thinkingLevel =
+            sticky.thinkingLevel ?? tiers[current].thinkingLevel;
+          publishRoute({
+            tier: current,
+            modelId: sticky.model.id,
+            thinkingLevel,
+          });
+          return { model: sticky.model, thinkingLevel };
         }
       }
 
@@ -186,4 +210,24 @@ function registerRouter(pi: ExtensionAPI, provider: ProviderKey): void {
 
 export default function tierRouterExtension(pi: ExtensionAPI): void {
   for (const provider of ROUTED_PROVIDERS) registerRouter(pi, provider);
+
+  /** Publish the tier as soon as a router is selected, before the first request routes. */
+  function syncSelectedRouter(ctx: ExtensionContext): void {
+    const model = ctx.model;
+    if (model?.id !== ROUTER_ID) return;
+    const provider = ROUTED_PROVIDERS.find((p) => p === model.provider);
+    if (!provider) return;
+    const tiers = resolveTierMap(provider);
+    const tier = initialTierFromBranch(
+      ctx.sessionManager.getBranch(),
+      provider,
+      ROUTER_ID,
+      VIRTUAL_MODEL_STATE_ENTRY,
+      tiers,
+    );
+    publishTier(ctx, provider, tiers, tier);
+  }
+
+  pi.on("session_start", async (_event, ctx) => syncSelectedRouter(ctx));
+  pi.on("model_select", async (_event, ctx) => syncSelectedRouter(ctx));
 }

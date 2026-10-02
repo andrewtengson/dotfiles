@@ -140,3 +140,69 @@ export function tierForModel(
   if (candidates.includes("default")) return "default";
   return candidates[0];
 }
+
+interface BranchEntryLike {
+  type: string;
+  customType?: string;
+  data?: unknown;
+  message?: unknown;
+}
+
+/**
+ * Tier to show when the router is selected, before any request: the latest router state for this
+ * provider, else the tier of the last successful reply from this provider, else default.
+ */
+export function initialTierFromBranch(
+  branch: readonly BranchEntryLike[],
+  provider: string,
+  routerId: string,
+  stateEntryType: string,
+  tiers: TierMap,
+): RoutedTier {
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry?.type !== "custom" || entry.customType !== stateEntryType) {
+      continue;
+    }
+    const data = entry.data as
+      | { provider?: string; modelId?: string; state?: { tier?: string } }
+      | undefined;
+    const tier = data?.state?.tier as RoutedTier | undefined;
+    if (
+      data?.provider === provider &&
+      data.modelId === routerId &&
+      tier &&
+      ROUTED_TIERS.includes(tier)
+    ) {
+      return tier;
+    }
+  }
+
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry?.type !== "message") continue;
+    const message = entry.message as
+      | {
+          role?: string;
+          provider?: string;
+          model?: string;
+          thinkingLevel?: string;
+          stopReason?: string;
+        }
+      | undefined;
+    if (
+      message?.role !== "assistant" ||
+      message.provider !== provider ||
+      message.stopReason === "error" ||
+      message.stopReason === "aborted" ||
+      !message.model
+    ) {
+      continue;
+    }
+    return (
+      tierForModel(tiers, message.model, message.thinkingLevel) ?? "default"
+    );
+  }
+
+  return "default";
+}

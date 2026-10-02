@@ -3,6 +3,7 @@ import type { Message } from "@earendil-works/pi-ai";
 import {
   buildClassifierState,
   decideTier,
+  initialTierFromBranch,
   readTierAnswer,
   tierForModel,
 } from "../extensions/lib/tier-router.js";
@@ -131,5 +132,62 @@ describe("tierForModel", () => {
     expect(tierForModel(tiers, "claude-sonnet-5", "medium")).toBe("default");
     expect(tierForModel(tiers, "claude-sonnet-5", undefined)).toBe("default");
     expect(tierForModel(tiers, "something-else", "high")).toBeUndefined();
+  });
+});
+
+describe("initialTierFromBranch", () => {
+  const tiers = TIER_MAP.kiro;
+  const STATE = "pi.virtual-model-state";
+  const stateEntry = (provider: string, tier: string) => ({
+    type: "custom",
+    customType: STATE,
+    data: { provider, modelId: "router", state: { tier } },
+  });
+  const reply = (
+    provider: string,
+    model: string,
+    thinkingLevel: string,
+    stopReason = "stop",
+  ) => ({
+    type: "message",
+    message: { role: "assistant", provider, model, thinkingLevel, stopReason },
+  });
+
+  test("prefers the latest stored router state for this provider", () => {
+    const branch = [
+      stateEntry("kiro", "light"),
+      stateEntry("kiro", "heavy"),
+      stateEntry("xai", "light"),
+      reply("kiro", "claude-sonnet-5", "low"),
+    ];
+    expect(initialTierFromBranch(branch, "kiro", "router", STATE, tiers)).toBe(
+      "heavy",
+    );
+  });
+
+  test("falls back to the last successful reply from this provider", () => {
+    const branch = [
+      reply("kiro", "claude-opus-5-5", "high"),
+      reply("kiro", "claude-sonnet-5", "low", "error"),
+      reply("xai", "grok-4.7", "low"),
+    ];
+    expect(initialTierFromBranch(branch, "kiro", "router", STATE, tiers)).toBe(
+      "heavy",
+    );
+  });
+
+  test("defaults when nothing on the branch identifies a tier", () => {
+    expect(initialTierFromBranch([], "kiro", "router", STATE, tiers)).toBe(
+      "default",
+    );
+    expect(
+      initialTierFromBranch(
+        [reply("kiro", "claude-haiku-4-5", "off")],
+        "kiro",
+        "router",
+        STATE,
+        tiers,
+      ),
+    ).toBe("default");
   });
 });

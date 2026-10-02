@@ -258,23 +258,21 @@ class FlatEditor extends CustomEditor {
   private buildLeftStatus(): string {
     // biome-ignore lint/suspicious/noExplicitAny: globalThis symbol access
     const routeInfo = (globalThis as any)[Symbol.for("tier-router-route")] as
-      | { tier: string; modelId: string }
+      | { tier: string; modelId: string; thinkingLevel: string }
       | undefined;
-    const thinkingLevel = this.getThinkingLevel();
-    const thinkingColor = this.getThinkingColor();
     const selectedId = this.ctx.model?.id ?? "unknown";
-    const isRouter = selectedId === "router";
-    const modelId =
-      isRouter && routeInfo ? `router → ${routeInfo.modelId}` : selectedId;
+    const isRouted = selectedId === "router" && routeInfo !== undefined;
+    // The router exposes one fixed thinking level; show the routed tier's level instead.
+    const thinkingLevel = isRouted
+      ? routeInfo.thinkingLevel
+      : this.getThinkingLevel();
+    const thinkingColor = this.getThinkingColor(thinkingLevel);
+    const modelId = isRouted ? `router → ${routeInfo.modelId}` : selectedId;
     const provider = String(this.ctx.model?.provider ?? "");
 
     const parts: string[] = [];
 
-    if (isRouter && routeInfo) {
-      parts.push(this.fg("accent", routeInfo.tier));
-    } else {
-      parts.push(this.fg(thinkingColor, thinkingLevel));
-    }
+    parts.push(this.fg(thinkingColor, thinkingLevel));
     parts.push(this.fg("muted", modelId));
     if (provider) parts.push(this.fg("muted", provider));
 
@@ -313,8 +311,8 @@ class FlatEditor extends CustomEditor {
     return result ? `${result}` : "";
   }
 
-  private getThinkingColor(): ThemeColor {
-    switch (this.getThinkingLevel()) {
+  private getThinkingColor(level: string): ThemeColor {
+    switch (level) {
       case "minimal":
         return "thinkingMinimal";
       case "low":
