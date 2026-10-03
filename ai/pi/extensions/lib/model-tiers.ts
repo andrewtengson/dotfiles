@@ -28,14 +28,14 @@ export type TierMap = Record<Tier, TierTarget>;
 
 // GPT-6 has Sol and Luna, no Terra. Sol covers heavy and default.
 const OPENAI_TIERS = {
-  heavy: { modelId: "gpt-6.1-sol", thinkingLevel: "high" },
+  heavy: { modelId: "gpt-6.1-sol", thinkingLevel: "medium" },
   default: { modelId: "gpt-6-luna", thinkingLevel: "xhigh" },
   light: { modelId: "gpt-6-luna", thinkingLevel: "high" },
   fast: { modelId: "gpt-6-luna", thinkingLevel: "low" },
 } satisfies Record<Tier, TierTarget>;
 
 const KIRO_OPENAI_TIERS = {
-  heavy: { modelId: "gpt-5-6-sol", thinkingLevel: "high" },
+  heavy: { modelId: "gpt-5-6-sol", thinkingLevel: "medium" },
   default: { modelId: "gpt-5-6-terra", thinkingLevel: "medium" },
   light: { modelId: "gpt-5-6-luna", thinkingLevel: "high" },
   fast: { modelId: "gpt-5-6-luna", thinkingLevel: "low" },
@@ -49,9 +49,9 @@ const XAI_TIERS = {
 } satisfies Record<Tier, TierTarget>;
 
 const ANTHROPIC_TIERS = {
-  heavy: { modelId: "claude-opus-5-5", thinkingLevel: "high" },
-  default: { modelId: "claude-sonnet-5", thinkingLevel: "medium" },
-  light: { modelId: "claude-sonnet-5", thinkingLevel: "low" },
+  heavy: { modelId: "claude-opus-5-5", thinkingLevel: "medium" },
+  default: { modelId: "claude-sonnet-5-5", thinkingLevel: "medium" },
+  light: { modelId: "claude-sonnet-5-5", thinkingLevel: "low" },
   fast: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
 } satisfies Record<Tier, TierTarget>;
 
