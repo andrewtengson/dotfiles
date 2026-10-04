@@ -21,6 +21,8 @@ import type {
 const TOGGLE_KEY = "ctrl+\\";
 const FLOAT_RATIO = 0.9;
 const FLOAT_FALLBACK = "90%";
+const MIN_POPUP_WIDTH = 10;
+const MIN_POPUP_HEIGHT = 5;
 const DEFAULT_TERMINAL = "default";
 // Inner tmux binding is a literal backslash; tmux spells it "C-\\".
 const TMUX_DETACH_KEY = "C-\\";
@@ -50,6 +52,23 @@ interface OuterTmux {
   client: string;
   prefix: string;
   prefixKeys: string[];
+}
+
+// send-keys -K (replaying a key through the client's key tables) needs tmux 3.4.
+const FORWARD_MIN_VERSION = [3, 4] as const;
+
+function tmuxVersion(): [number, number] | undefined {
+  const raw = outerTmux(["-V"]);
+  const match = raw?.match(/(\d+)\.(\d+)/);
+  return match ? [Number(match[1]), Number(match[2])] : undefined;
+}
+
+function supportsForwarding(): boolean {
+  const version = tmuxVersion();
+  if (!version) return false;
+  const [major, minor] = version;
+  const [minMajor, minMinor] = FORWARD_MIN_VERSION;
+  return major > minMajor || (major === minMajor && minor >= minMinor);
 }
 
 function outerTmuxInfo(): OuterTmux | undefined {
@@ -89,13 +108,25 @@ function keyArg(key: string): string {
 function bindPrefixForwarding(
   socket: string,
   outer: OuterTmux,
+  previousPrefix: string | undefined,
 ): string | undefined {
-  const argv: string[] = [
+  // The inner server outlives each open. Rebuild the forward table from scratch so
+  // removed or reordered outer bindings can't replay a stale index, and release an
+  // old prefix so the shell receives it again. These run as their own invocation:
+  // a no-op unbind (table or key absent) silently drops any commands chained after it.
+  const unbind: string[] = ["unbind-key", "-aq", "-T", FORWARD_TABLE];
+  if (previousPrefix && previousPrefix !== outer.prefix) {
+    unbind.push(";", "unbind-key", "-nq", previousPrefix);
+  }
+  tmux(socket, unbind);
+
+  const argv: string[] = [];
+  argv.push(
     "bind-key",
     "-n",
     outer.prefix,
     `set-option -gu ${FORWARD_OPTION} ; switch-client -T ${FORWARD_TABLE}`,
-  ];
+  );
   outer.prefixKeys.forEach((key, index) => {
     argv.push(
       ";",
@@ -161,19 +192,74 @@ function sessionName(cmd: string | undefined): string {
   return `cmd-${createHash("sha1").update(cmd).digest("hex").slice(0, 10)}`;
 }
 
+function hasSession(socket: string, name: string): boolean {
+  return tmux(socket, ["has-session", "-t", name]).ok;
+}
+
+/** Exit status of a command terminal whose process has exited, else undefined. */
+function deadStatus(socket: string, name: string): number | undefined {
+  const result = spawnSync(
+    "tmux",
+    [
+      "-L",
+      socket,
+      "display-message",
+      "-p",
+      "-t",
+      name,
+      "#{pane_dead} #{pane_dead_status}",
+    ],
+    { encoding: "utf8", env: { ...process.env, TMUX: "" } },
+  );
+  const [dead, status] = (result.stdout ?? "").trim().split(" ");
+  return result.status === 0 && dead === "1" ? Number(status) : undefined;
+}
+
+/**
+ * A command terminal that has exited is kept (remain-on-exit) only so its status
+ * can be reported; drop it so the next /toggleterm CMD starts fresh.
+ */
+function reapDeadCommand(
+  ctx: ExtensionContext,
+  socket: string,
+  name: string,
+  cmd: string | undefined,
+): boolean {
+  if (!cmd) return false;
+  const status = deadStatus(socket, name);
+  if (status === undefined) return false;
+  tmux(socket, ["kill-session", "-t", name]);
+  if (status !== 0) {
+    ctx.ui.notify(`toggleterm: "${cmd}" exited with code ${status}`, "error");
+  }
+  return true;
+}
+
 function ensureSession(
   socket: string,
   name: string,
   cwd: string,
   cmd: string | undefined,
 ): string | undefined {
-  if (tmux(socket, ["has-session", "-t", name]).ok) return undefined;
+  if (hasSession(socket, name)) return undefined;
 
+  // Options go in the same invocation as new-session so they are in place before
+  // CMD can exit.
   const create = tmux(
     socket,
     [
       "-f",
       "/dev/null",
+      "start-server",
+      ";",
+      // Keep a dead command's pane so its exit status can be reported instead of
+      // the session (and server) vanishing mid-open. Global, so it is in place
+      // before CMD starts; the default shell opts out below.
+      "set-option",
+      "-g",
+      "remain-on-exit",
+      "on",
+      ";",
       "new-session",
       "-d",
       "-s",
@@ -181,24 +267,41 @@ function ensureSession(
       "-c",
       cwd,
       ...(cmd ? [cmd] : []),
+      ";",
+      "set-option",
+      "-g",
+      "status",
+      "off",
+      ";",
+      "set-option",
+      "-g",
+      "escape-time",
+      "0",
+      ";",
+      "set-option",
+      "-g",
+      "mouse",
+      "on",
+      ";",
+      "set-option",
+      "-g",
+      "history-limit",
+      "50000",
+      ";",
+      "bind-key",
+      "-n",
+      TMUX_DETACH_KEY,
+      "detach-client",
+      // Typing `exit` in the default shell should end it, not leave a dead pane.
+      ...(cmd
+        ? []
+        : [";", "set-option", "-w", "-t", name, "remain-on-exit", "off"]),
     ],
     cwd,
   );
-  if (!create.ok) return `tmux new-session failed: ${create.stderr.trim()}`;
-
-  // Server-wide options are idempotent; apply after the server exists.
-  const options: string[][] = [
-    ["set-option", "-g", "status", "off"],
-    ["set-option", "-g", "escape-time", "0"],
-    ["set-option", "-g", "mouse", "on"],
-    ["set-option", "-g", "history-limit", "50000"],
-    ["bind-key", "-n", TMUX_DETACH_KEY, "detach-client"],
-  ];
-  for (const option of options) {
-    const result = tmux(socket, option);
-    if (!result.ok) return `tmux ${option[0]} failed: ${result.stderr.trim()}`;
-  }
-  return undefined;
+  return create.ok
+    ? undefined
+    : `tmux new-session failed: ${create.stderr.trim()}`;
 }
 
 function attachArgs(socket: string, name: string): string[] {
@@ -240,12 +343,15 @@ function paneGeometry(): PopupGeometry | undefined {
   const [left, top, width, height, status, statusPosition] = raw.split(" ");
   const [l, t, w, h] = [left, top, width, height].map(Number);
   if ([l, t, w, h].some((n) => !Number.isInteger(n))) return undefined;
+  // A popup larger than the pane would be positioned out of bounds, which tmux
+  // silently refuses; let tmux size it against the client instead.
+  if (w < MIN_POPUP_WIDTH || h < MIN_POPUP_HEIGHT) return undefined;
 
   const statusLines =
     status === "on" ? 1 : status === "off" ? 0 : Number(status) || 0;
   const topOffset = statusPosition === "top" ? statusLines : 0;
-  const popupWidth = Math.max(10, Math.floor(w * FLOAT_RATIO));
-  const popupHeight = Math.max(5, Math.floor(h * FLOAT_RATIO));
+  const popupWidth = Math.max(MIN_POPUP_WIDTH, Math.floor(w * FLOAT_RATIO));
+  const popupHeight = Math.max(MIN_POPUP_HEIGHT, Math.floor(h * FLOAT_RATIO));
   const popupTop = t + topOffset + Math.floor((h - popupHeight) / 2);
   return {
     x: l + Math.floor((w - popupWidth) / 2),
@@ -272,11 +378,16 @@ function popupSizeArgs(): string[] {
   ];
 }
 
+interface AttachResult {
+  code: number | null;
+  stderr: string;
+}
+
 function openPopup(
   socket: string,
   name: string,
   cwd: string,
-): Promise<number | null> {
+): Promise<AttachResult> {
   return new Promise((resolve, reject) => {
     const child = spawn(
       "tmux",
@@ -291,10 +402,14 @@ function openPopup(
         "--",
         ...attachArgs(socket, name),
       ],
-      { stdio: "ignore" },
+      { stdio: ["ignore", "ignore", "pipe"] },
     );
+    let stderr = "";
+    child.stderr.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
     child.once("error", reject);
-    child.once("close", resolve);
+    child.once("close", (code) => resolve({ code, stderr }));
   });
 }
 
@@ -302,8 +417,8 @@ async function openFullscreen(
   ctx: ExtensionContext,
   socket: string,
   name: string,
-): Promise<number | null> {
-  return ctx.ui.custom<number | null>(async (tui, _theme, _kb, done) => {
+): Promise<AttachResult> {
+  return ctx.ui.custom<AttachResult>(async (tui, _theme, _kb, done) => {
     // The shortcut fires on key press. Drain the in-flight Kitty release event
     // (e.g. "\x1b[92;5:3u") so it doesn't leak into the attached shell, the same
     // way pi drains input before exiting.
@@ -314,14 +429,23 @@ async function openFullscreen(
     const result = spawnSync(bin, args, { stdio: "inherit", env: process.env });
     tui.start();
     tui.requestRender(true);
-    done(result.status);
+    done({ code: result.status, stderr: result.error?.message ?? "" });
     return { render: () => [], invalidate: () => {} };
   });
+}
+
+// Exit code 0 covers both hiding with Ctrl-\ (detach) and a clean shell exit.
+// Non-zero means tmux itself failed (bad popup args, failed attach).
+function reportAttach(ctx: ExtensionContext, result: AttachResult): void {
+  if (result.code === 0) return;
+  const detail = result.stderr.trim() || `exited with code ${result.code}`;
+  ctx.ui.notify(`toggleterm: ${detail}`, "error");
 }
 
 export default function (pi: ExtensionAPI) {
   const socket = `pi-toggleterm-${process.pid}`;
   let isOpen = false;
+  let boundPrefix: string | undefined;
 
   async function toggle(
     ctx: ExtensionContext,
@@ -341,24 +465,30 @@ export default function (pi: ExtensionAPI) {
       return;
     }
 
-    const outer = process.env.TMUX ? outerTmuxInfo() : undefined;
+    const outer =
+      process.env.TMUX && supportsForwarding() ? outerTmuxInfo() : undefined;
     if (outer) {
-      const forwardFailure = bindPrefixForwarding(socket, outer);
-      if (forwardFailure)
+      const forwardFailure = bindPrefixForwarding(socket, outer, boundPrefix);
+      if (forwardFailure) {
         ctx.ui.notify(`toggleterm: ${forwardFailure}`, "warning");
+      } else {
+        boundPrefix = outer.prefix;
+      }
     }
 
     isOpen = true;
     try {
       if (process.env.TMUX) {
-        await openPopup(socket, name, ctx.cwd);
+        const result = await openPopup(socket, name, ctx.cwd);
+        if (!reapDeadCommand(ctx, socket, name, cmd)) reportAttach(ctx, result);
         const key = outer ? takeForwardedKey(socket, outer) : undefined;
         const replayFailure =
           outer && key ? replayOnOuter(outer, key) : undefined;
         if (replayFailure)
           ctx.ui.notify(`toggleterm: ${replayFailure}`, "warning");
       } else {
-        await openFullscreen(ctx, socket, name);
+        const result = await openFullscreen(ctx, socket, name);
+        if (!reapDeadCommand(ctx, socket, name, cmd)) reportAttach(ctx, result);
       }
     } catch (error) {
       ctx.ui.notify(
