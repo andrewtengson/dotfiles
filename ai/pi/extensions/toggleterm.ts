@@ -303,7 +303,11 @@ async function openFullscreen(
   socket: string,
   name: string,
 ): Promise<number | null> {
-  return ctx.ui.custom<number | null>((tui, _theme, _kb, done) => {
+  return ctx.ui.custom<number | null>(async (tui, _theme, _kb, done) => {
+    // The shortcut fires on key press. Drain the in-flight Kitty release event
+    // (e.g. "\x1b[92;5:3u") so it doesn't leak into the attached shell, the same
+    // way pi drains input before exiting.
+    await tui.terminal.drainInput(500, 30);
     tui.stop();
     process.stdout.write("\x1b[2J\x1b[H");
     const [bin, ...args] = attachArgs(socket, name);
