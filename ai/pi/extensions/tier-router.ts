@@ -2,7 +2,8 @@
  * Tier router: registers `<provider>/router` virtual models that route each new user message to the
  * provider's heavy, default, or light tier (lib/model-tiers.ts) using the Jev classifier.
  *
- *   heavy   - complex reasoning, planning, deep thinking
+ *   heavy   - complex reasoning, planning, deep thinking, design and architecture tradeoffs,
+ *             debugging failures that persist
  *   default - research, implementation, general work
  *   light   - fast retrieval, scouting, context gathering
  *

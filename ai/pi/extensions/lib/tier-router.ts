@@ -30,7 +30,8 @@ export const TIER_QUESTION = {
   instructions:
     "Which kind of work does `prompt` request? Use `recent_user_messages` and `last_assistant_reply` only as context for short or follow-up prompts.",
   criteria: {
-    heavy: "Complex reasoning, planning, deep thinking",
+    heavy:
+      "Complex reasoning, planning, deep thinking, design and architecture tradeoffs, debugging failures that persist after attempts",
     default: "Research, implementation, general work",
     light: "Fast retrieval, scouting, context gathering",
   },
