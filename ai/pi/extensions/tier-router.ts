@@ -49,8 +49,17 @@ const ROUTED_PROVIDERS: readonly ProviderKey[] = [
   "xai",
 ];
 
+interface TierDecision {
+  /** "classifier": Jev answered; otherwise why the tier was kept. */
+  source: "classifier" | "no-classifier" | "no-answer" | "error";
+  probabilities?: Record<string, number>;
+  error?: string;
+}
+
 interface RouterState {
   tier: RoutedTier;
+  /** Decision behind this tier, stored for every user message so routing can be audited. */
+  decision?: TierDecision;
 }
 
 type RouterRequest = ModelRouteRequest<RouterState>;
@@ -125,17 +134,22 @@ function currentTier(
   return tierForModel(tiers, previous.model.id, previous.thinkingLevel);
 }
 
+interface ClassifyOutcome {
+  tier: RoutedTier | undefined;
+  decision: TierDecision;
+}
+
 async function classifyTier(
   request: RouterRequest,
   ctx: ExtensionContext,
   current: RoutedTier | undefined,
-): Promise<RoutedTier | undefined> {
+): Promise<ClassifyOutcome> {
   const jev = ctx.modelRegistry.findOfType(
     "classifier",
     "typesafe",
     "jev-latest",
   );
-  if (!jev) return undefined;
+  if (!jev) return { tier: undefined, decision: { source: "no-classifier" } };
 
   const timeout = AbortSignal.timeout(CLASSIFY_TIMEOUT_MS);
   const signal = request.signal
@@ -153,15 +167,20 @@ async function classifyTier(
     );
     const probabilities = readTierAnswer(result);
     if (!probabilities) {
-      console.warn(
-        `[tier-router] classifier returned no answer: ${result.errorMessage ?? result.stopReason}`,
-      );
-      return undefined;
+      const error = result.errorMessage ?? result.stopReason;
+      console.warn(`[tier-router] classifier returned no answer: ${error}`);
+      return { tier: undefined, decision: { source: "no-answer", error } };
     }
-    return decideTier(current, probabilities);
+    return {
+      tier: decideTier(current, probabilities),
+      decision: { source: "classifier", probabilities },
+    };
   } catch (error) {
     console.warn(`[tier-router] classifier failed: ${String(error)}`);
-    return undefined;
+    return {
+      tier: undefined,
+      decision: { source: "error", error: String(error) },
+    };
   }
 }
 
@@ -196,14 +215,18 @@ function registerRouter(pi: ExtensionAPI, provider: ProviderKey): void {
         }
       }
 
-      const next =
-        (request.reason === "user"
-          ? await classifyTier(request, ctx, current)
-          : undefined) ??
-        current ??
-        "default";
-      const state = next === request.state?.tier ? undefined : { tier: next };
-      return route(ctx, provider, tiers, next, state);
+      if (request.reason !== "user") {
+        // Retry or continuation without a usable previous model.
+        return route(ctx, provider, tiers, current ?? "default");
+      }
+
+      // A new user message: classify, and store the decision even when the tier is unchanged.
+      const outcome = await classifyTier(request, ctx, current);
+      const next = outcome.tier ?? current ?? "default";
+      return route(ctx, provider, tiers, next, {
+        tier: next,
+        decision: outcome.decision,
+      });
     },
   });
 }

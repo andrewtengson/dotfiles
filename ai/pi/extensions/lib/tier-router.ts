@@ -95,28 +95,37 @@ export function readTierAnswer(
 }
 
 /**
- * Sticky tier decision. Without a current tier, take the most likely tier. Otherwise move up only
- * when a stronger tier reaches UPGRADE_THRESHOLD, and down only when a weaker tier reaches
- * DOWNGRADE_THRESHOLD; stay put in every other case.
+ * Sticky tier decision. Without a current tier, take the most likely tier. Otherwise move up when
+ * the stronger tiers together reach UPGRADE_THRESHOLD (to the most likely of them), and down only
+ * when a single weaker tier reaches DOWNGRADE_THRESHOLD. Stay put otherwise. Upgrades pool
+ * probability because under-powering a task costs more than over-powering it.
  */
 export function decideTier(
   current: RoutedTier | undefined,
   probabilities: Record<string, number>,
 ): RoutedTier {
   const probability = (tier: RoutedTier): number => probabilities[tier] ?? 0;
+  const mostLikely = (tiers: readonly RoutedTier[]): RoutedTier | undefined =>
+    tiers.reduce<RoutedTier | undefined>(
+      (best, tier) =>
+        best === undefined || probability(tier) > probability(best)
+          ? tier
+          : best,
+      undefined,
+    );
+  const total = (tiers: readonly RoutedTier[]): number =>
+    tiers.reduce((sum, tier) => sum + probability(tier), 0);
 
   if (!current) {
-    const best = ROUTED_TIERS.reduce((a, b) =>
-      probability(b) > probability(a) ? b : a,
-    );
-    return probability(best) > 0 ? best : "default";
+    const best = mostLikely(ROUTED_TIERS);
+    return best && probability(best) > 0 ? best : "default";
   }
 
   const rank = ROUTED_TIERS.indexOf(current);
-  const stronger = ROUTED_TIERS.slice(rank + 1)
-    .filter((tier) => probability(tier) >= UPGRADE_THRESHOLD)
-    .at(-1);
-  if (stronger) return stronger;
+  const stronger = ROUTED_TIERS.slice(rank + 1);
+  if (stronger.length > 0 && total(stronger) >= UPGRADE_THRESHOLD) {
+    return mostLikely(stronger) ?? current;
+  }
 
   const weaker = ROUTED_TIERS.slice(0, rank).find(
     (tier) => probability(tier) >= DOWNGRADE_THRESHOLD,

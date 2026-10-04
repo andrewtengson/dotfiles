@@ -4,10 +4,11 @@ import {
   buildClassifierState,
   decideTier,
   initialTierFromBranch,
+  ROUTED_TIERS,
   readTierAnswer,
   tierForModel,
 } from "../extensions/lib/tier-router.js";
-import { TIER_MAP } from "../extensions/lib/model-tiers.js";
+import { type ProviderKey, TIER_MAP } from "../extensions/lib/model-tiers.js";
 
 function user(text: string): Message {
   return { role: "user", content: text, timestamp: 0 };
@@ -52,6 +53,25 @@ describe("decideTier", () => {
   test("stays when an upgrade is not confident enough", () => {
     expect(decideTier("default", { heavy: 0.6, default: 0.3, light: 0.1 })).toBe(
       "default",
+    );
+  });
+
+  test("upgrades on the combined probability of stronger tiers", () => {
+    // Neither stronger tier reaches the threshold alone, but together they do.
+    expect(decideTier("light", { heavy: 0.29, default: 0.63, light: 0.08 })).toBe(
+      "default",
+    );
+    expect(decideTier("light", { heavy: 0.5, default: 0.3, light: 0.2 })).toBe(
+      "heavy",
+    );
+  });
+
+  test("downgrades only when a single weaker tier is very confident", () => {
+    expect(decideTier("heavy", { heavy: 0.1, default: 0.45, light: 0.45 })).toBe(
+      "heavy",
+    );
+    expect(decideTier("heavy", { heavy: 0.05, default: 0.1, light: 0.85 })).toBe(
+      "light",
     );
   });
 
@@ -125,18 +145,29 @@ describe("buildClassifierState", () => {
 });
 
 describe("tierForModel", () => {
-  test("maps a physical model and thinking level back to its tier", () => {
+  test("maps each tier's model and thinking level back to that tier", () => {
+    for (const provider of Object.keys(TIER_MAP) as ProviderKey[]) {
+      const tiers = TIER_MAP[provider];
+      for (const tier of ROUTED_TIERS) {
+        const { modelId, thinkingLevel } = tiers[tier];
+        expect(tierForModel(tiers, modelId, thinkingLevel), `${provider} ${tier}`).toBe(
+          tier,
+        );
+      }
+      expect(tierForModel(tiers, "something-else", "high")).toBeUndefined();
+    }
+  });
+
+  test("prefers default when a shared model has an unknown thinking level", () => {
     const tiers = TIER_MAP.kiro;
-    expect(tierForModel(tiers, "claude-opus-5-5", "high")).toBe("heavy");
-    expect(tierForModel(tiers, "claude-sonnet-5", "low")).toBe("light");
-    expect(tierForModel(tiers, "claude-sonnet-5", "medium")).toBe("default");
-    expect(tierForModel(tiers, "claude-sonnet-5", undefined)).toBe("default");
-    expect(tierForModel(tiers, "something-else", "high")).toBeUndefined();
+    expect(tierForModel(tiers, tiers.default.modelId, undefined)).toBe("default");
   });
 });
 
 describe("initialTierFromBranch", () => {
   const tiers = TIER_MAP.kiro;
+  const heavy = tiers.heavy;
+  const light = tiers.light;
   const STATE = "pi.virtual-model-state";
   const stateEntry = (provider: string, tier: string) => ({
     type: "custom",
@@ -158,7 +189,7 @@ describe("initialTierFromBranch", () => {
       stateEntry("kiro", "light"),
       stateEntry("kiro", "heavy"),
       stateEntry("xai", "light"),
-      reply("kiro", "claude-sonnet-5", "low"),
+      reply("kiro", light.modelId, light.thinkingLevel),
     ];
     expect(initialTierFromBranch(branch, "kiro", "router", STATE, tiers)).toBe(
       "heavy",
@@ -167,8 +198,8 @@ describe("initialTierFromBranch", () => {
 
   test("falls back to the last successful reply from this provider", () => {
     const branch = [
-      reply("kiro", "claude-opus-5-5", "high"),
-      reply("kiro", "claude-sonnet-5", "low", "error"),
+      reply("kiro", heavy.modelId, heavy.thinkingLevel),
+      reply("kiro", light.modelId, light.thinkingLevel, "error"),
       reply("xai", "grok-4.7", "low"),
     ];
     expect(initialTierFromBranch(branch, "kiro", "router", STATE, tiers)).toBe(
