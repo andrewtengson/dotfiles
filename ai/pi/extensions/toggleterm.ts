@@ -26,6 +26,8 @@ const MIN_POPUP_HEIGHT = 5;
 const DEFAULT_TERMINAL = "default";
 // Inner tmux binding is a literal backslash; tmux spells it "C-\\".
 const TMUX_DETACH_KEY = "C-\\";
+// Ctrl-b must reach the program in the float (e.g. nvim page-up), never act as a prefix.
+const PASSTHROUGH_PREFIX = "C-b";
 const FORWARD_TABLE = "pi-forward";
 const FORWARD_OPTION = "@pi_forward_key";
 
@@ -119,6 +121,7 @@ function bindPrefixForwarding(
     unbind.push(";", "unbind-key", "-nq", previousPrefix);
   }
   tmux(socket, unbind);
+  if (outer.prefix === PASSTHROUGH_PREFIX) return undefined;
 
   const argv: string[] = [];
   argv.push(
@@ -267,6 +270,11 @@ function ensureSession(
       "-c",
       cwd,
       ...(cmd ? [cmd] : []),
+      ";",
+      "set-option",
+      "-g",
+      "prefix",
+      "None",
       ";",
       "set-option",
       "-g",
