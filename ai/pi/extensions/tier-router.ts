@@ -1,6 +1,6 @@
 /**
  * Tier router: registers `<provider>/router` virtual models that route each new user message to the
- * provider's heavy, default, or light tier (lib/model-tiers.ts) using the Jev classifier.
+ * provider's heavy, default, or light tier (lib/model-tiers.ts) using the Clef-flash classifier (Cloudflare Workers AI).
  *
  *   heavy   - complex reasoning, planning, deep thinking, design and architecture tradeoffs,
  *             debugging failures that persist
@@ -12,7 +12,7 @@
  * so prompt caches and thinking signatures stay valid. The classifier sees only the latest prompt,
  * the two previous user messages, and the last assistant reply's text (see lib/tier-router.ts).
  *
- * Requires TypeSafe credentials. Without them, or when Jev fails, the router keeps the current tier.
+ * Requires a `cloudflare-workers-ai` credential in auth.json. Without it, or when the classifier fails, the router keeps the current tier.
  */
 
 import type { Api, Model } from "@earendil-works/pi-ai";
@@ -40,6 +40,9 @@ import {
 
 const ROUTER_ID = "router";
 const CLASSIFY_TIMEOUT_MS = 1_500;
+/** Credentials come from auth.json (key via `!pass ...`, account ID in `env`). */
+const CLASSIFIER_PROVIDER = "cloudflare-workers-ai";
+const CLASSIFIER_MODEL_ID = "@cf/cloudflare/clef-flash";
 
 /** Providers that get a router. */
 const ROUTED_PROVIDERS: readonly ProviderKey[] = [
@@ -51,7 +54,7 @@ const ROUTED_PROVIDERS: readonly ProviderKey[] = [
 ];
 
 interface TierDecision {
-  /** "classifier": Jev answered; otherwise why the tier was kept. */
+  /** "classifier": the classifier answered; otherwise why the tier was kept. */
   source: "classifier" | "no-classifier" | "no-answer" | "error";
   probabilities?: Record<string, number>;
   error?: string;
@@ -145,12 +148,14 @@ async function classifyTier(
   ctx: ExtensionContext,
   current: RoutedTier | undefined,
 ): Promise<ClassifyOutcome> {
-  const jev = ctx.modelRegistry.findOfType(
+  const classifier = ctx.modelRegistry.findOfType(
     "classifier",
-    "typesafe",
-    "jev-latest",
+    CLASSIFIER_PROVIDER,
+    CLASSIFIER_MODEL_ID,
   );
-  if (!jev) return { tier: undefined, decision: { source: "no-classifier" } };
+  if (!classifier) {
+    return { tier: undefined, decision: { source: "no-classifier" } };
+  }
 
   const timeout = AbortSignal.timeout(CLASSIFY_TIMEOUT_MS);
   const signal = request.signal
@@ -159,7 +164,7 @@ async function classifyTier(
 
   try {
     const result = await ctx.modelRegistry.classify(
-      jev,
+      classifier,
       {
         state: buildClassifierState(request.messages, current),
         questions: { tier: TIER_QUESTION },
@@ -191,7 +196,7 @@ function registerRouter(pi: ExtensionAPI, provider: ProviderKey): void {
   pi.registerVirtualModel<RouterState>({
     provider,
     id: ROUTER_ID,
-    name: "Router (Jev)",
+    name: "Router (Clef)",
     // A single level: each tier sets its own thinking level.
     thinkingLevels: ["medium"],
     async route(request, ctx) {
