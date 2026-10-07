@@ -30,6 +30,7 @@ import {
 } from "./lib/model-tiers.js";
 import {
   buildClassifierState,
+  classifierFailureReason,
   decideTier,
   initialTierFromBranch,
   type RoutedTier,
@@ -39,7 +40,8 @@ import {
 } from "./lib/tier-router.js";
 
 const ROUTER_ID = "router";
-const CLASSIFY_TIMEOUT_MS = 1_500;
+// Warm calls take ~0.4s; cold starts on the first message of a session can exceed 1.5s.
+const CLASSIFY_TIMEOUT_MS = 3_000;
 /** Credentials come from auth.json (key via `!pass ...`, account ID in `env`). */
 const CLASSIFIER_PROVIDER = "cloudflare-workers-ai";
 const CLASSIFIER_MODEL_ID = "@cf/cloudflare/clef-flash";
@@ -173,8 +175,12 @@ async function classifyTier(
     );
     const probabilities = readTierAnswer(result);
     if (!probabilities) {
-      const error = result.errorMessage ?? result.stopReason;
-      console.warn(`[tier-router] classifier returned no answer: ${error}`);
+      const error = classifierFailureReason(
+        result.errorMessage ?? result.stopReason,
+        timeout.aborted,
+        CLASSIFY_TIMEOUT_MS,
+      );
+      console.warn(`[tier-router] ${error}, keeping current tier`);
       return { tier: undefined, decision: { source: "no-answer", error } };
     }
     return {
@@ -182,11 +188,13 @@ async function classifyTier(
       decision: { source: "classifier", probabilities },
     };
   } catch (error) {
-    console.warn(`[tier-router] classifier failed: ${String(error)}`);
-    return {
-      tier: undefined,
-      decision: { source: "error", error: String(error) },
-    };
+    const reason = classifierFailureReason(
+      String(error),
+      timeout.aborted,
+      CLASSIFY_TIMEOUT_MS,
+    );
+    console.warn(`[tier-router] ${reason}, keeping current tier`);
+    return { tier: undefined, decision: { source: "error", error: reason } };
   }
 }
 

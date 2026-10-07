@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import type { Message } from "@earendil-works/pi-ai";
 import {
   buildClassifierState,
+  classifierFailureReason,
   decideTier,
   initialTierFromBranch,
   ROUTED_TIERS,
@@ -220,5 +221,17 @@ describe("initialTierFromBranch", () => {
         tiers,
       ),
     ).toBe("default");
+  });
+});
+
+describe("classifierFailureReason", () => {
+  test("names a timeout instead of the generic abort text", () => {
+    expect(classifierFailureReason("Request aborted", true, 3_000)).toBe(
+      "classifier timed out after 3000ms",
+    );
+  });
+
+  test("keeps the original error when the timeout did not fire", () => {
+    expect(classifierFailureReason("HTTP 500", false, 3_000)).toBe("HTTP 500");
   });
 });

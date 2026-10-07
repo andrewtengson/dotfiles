@@ -216,3 +216,12 @@ export function initialTierFromBranch(
 
   return "default";
 }
+
+/** Readable reason for a failed classification; a fired timeout reads better than "Request aborted". */
+export function classifierFailureReason(
+  error: string,
+  timedOut: boolean,
+  timeoutMs: number,
+): string {
+  return timedOut ? `classifier timed out after ${timeoutMs}ms` : error;
+}
