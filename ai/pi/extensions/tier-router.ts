@@ -41,7 +41,7 @@ import {
 
 const ROUTER_ID = "router";
 // Warm calls take ~0.4s; cold starts on the first message of a session can exceed 1.5s.
-const CLASSIFY_TIMEOUT_MS = 3_000;
+const CLASSIFY_TIMEOUT_MS = 5_000;
 /** Credentials come from auth.json (key via `!pass ...`, account ID in `env`). */
 const CLASSIFIER_PROVIDER = "cloudflare-workers-ai";
 const CLASSIFIER_MODEL_ID = "@cf/cloudflare/clef-flash";
