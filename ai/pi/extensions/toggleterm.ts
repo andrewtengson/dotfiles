@@ -65,12 +65,25 @@ function tmuxVersion(): [number, number] | undefined {
   return match ? [Number(match[1]), Number(match[2])] : undefined;
 }
 
-function supportsForwarding(): boolean {
+function atLeast(min: readonly [number, number]): boolean {
   const version = tmuxVersion();
   if (!version) return false;
   const [major, minor] = version;
-  const [minMajor, minMinor] = FORWARD_MIN_VERSION;
+  const [minMajor, minMinor] = min;
   return major > minMajor || (major === minMajor && minor >= minMinor);
+}
+
+function supportsForwarding(): boolean {
+  return atLeast(FORWARD_MIN_VERSION);
+}
+
+// tmux 3.8 defaults popup-style to theme greys, and "default" resolves to them
+// inside a popup; "terminal" (new in 3.8) is the real terminal default colour.
+const THEMED_POPUP_VERSION = [3, 8] as const;
+
+function popupStyleArgs(): string[] {
+  if (!atLeast(THEMED_POPUP_VERSION)) return [];
+  return ["-s", "bg=terminal,fg=terminal", "-S", "bg=terminal"];
 }
 
 function outerTmuxInfo(): OuterTmux | undefined {
@@ -405,6 +418,7 @@ function openPopup(
         ...popupSizeArgs(),
         "-b",
         "single",
+        ...popupStyleArgs(),
         "-d",
         cwd,
         "--",
