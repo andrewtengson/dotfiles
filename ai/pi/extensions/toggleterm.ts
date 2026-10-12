@@ -17,6 +17,12 @@ import type {
   ExtensionAPI,
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
+import {
+  reapStaleSockets,
+  shutdownSocket,
+  socketDir,
+  socketName,
+} from "./lib/toggleterm-sockets.js";
 
 const TOGGLE_KEY = "ctrl+\\";
 const FLOAT_RATIO = 0.9;
@@ -465,7 +471,7 @@ function reportAttach(ctx: ExtensionContext, result: AttachResult): void {
 }
 
 export default function (pi: ExtensionAPI) {
-  const socket = `pi-toggleterm-${process.pid}`;
+  const socket = socketName(process.pid);
   let isOpen = false;
   let boundPrefix: string | undefined;
 
@@ -533,7 +539,15 @@ export default function (pi: ExtensionAPI) {
     handler: (args, ctx) => toggle(ctx, args?.trim() || undefined),
   });
 
+  pi.on("session_start", () => {
+    // Sockets of pi processes that exited (or crashed before session_shutdown).
+    reapStaleSockets(
+      socketDir(process.env, process.getuid?.() ?? 0),
+      process.pid,
+    );
+  });
+
   pi.on("session_shutdown", () => {
-    tmux(socket, ["kill-server"]);
+    shutdownSocket(socketDir(process.env, process.getuid?.() ?? 0), socket);
   });
 }
