@@ -1,312 +1,269 @@
 /**
- * Patched @juicesharp/rpiv-btw — /btw side-question slash command.
+ * /btw side session: a full pi session (extensions, codemode, tool search, MCP, skills, AGENTS.md)
+ * seeded with the main conversation and kept in memory. It never writes to the main session.
  *
- * PATCH: strips toolUse/toolResult blocks from cloned conversation before
- * sending to the model. Fixes Bedrock validation error:
- *   "The toolConfig field must be defined when using toolUse and toolResult content blocks"
- *
- * Original: https://github.com/juicesharp/rpiv-mono/tree/main/packages/rpiv-btw
+ * A side session is created lazily per main session and reused for follow-ups. Changing the main
+ * session's model, or clearing, disposes it; the next question starts a fresh one seeded from the
+ * main conversation at that point.
  */
 
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { Api, Message, Model } from "@earendil-works/pi-ai";
 import {
-  type AssistantMessage,
-  completeSimple,
-  type Message,
-  type StopReason,
-  type UserMessage,
-} from "@earendil-works/pi-ai";
-import {
+  type AgentSession,
+  buildSessionContext,
   convertToLlm,
-  type ExtensionAPI,
+  createAgentSession,
+  createCodemodeExtension,
+  createMcpExtension,
+  createToolSearchExtension,
+  DefaultResourceLoader,
   type ExtensionContext,
+  getAgentDir,
+  type LoadExtensionsResult,
+  ModelRuntime,
   type SessionEntry,
+  SessionManager,
+  SettingsManager,
 } from "@earendil-works/pi-coding-agent";
-import { stripToolMessages } from "./strip-tools.js";
+import {
+  isExcludedExtension,
+  resolveBtwTarget,
+  seedMessages,
+} from "./context.js";
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
+const BTW_STATE_KEY = Symbol.for("dotfiles-btw");
+const SHUTDOWN_TIMEOUT_MS = 2_000;
 
-export const BTW_COMMAND_NAME = "btw";
-export const BTW_STATE_KEY = Symbol.for("rpiv-btw");
-export const CROSS_SESSION_HINT_LIMIT = 10;
-
-const _MSG_REQUIRES_INTERACTIVE = "/btw requires interactive mode";
-const _MSG_USAGE = "Usage: /btw <question>";
-const MSG_NO_MODEL = "/btw requires an active model";
-const ERR_EMPTY_RESPONSE = "/btw returned no text content.";
-
-const errMisconfigured = (label: string, err: string) =>
-  `/btw model (${label}) is misconfigured: ${err}`;
-const errNoApiKey = (label: string) =>
-  `/btw model (${label}) has no API key available.`;
-const errCallFailed = (err: string | undefined) =>
-  `/btw call failed: ${err ?? "unknown error"}`;
-const errCallThrew = (msg: string) => `/btw call threw: ${msg}`;
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-export interface BtwTurn {
-  userMessage: UserMessage;
-  assistantMessage: AssistantMessage;
-}
-
-export interface BtwState {
-  histories: Map<string, BtwTurn[]>;
-  snapshots: Map<string, { messages: Message[] }>;
-}
-
-// ---------------------------------------------------------------------------
-// System prompt
-// ---------------------------------------------------------------------------
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// Prompt file lives at extensions/prompts/btw-system.txt (two levels up from lib/btw/)
-export const BTW_SYSTEM_PROMPT = readFileSync(
-  join(__dirname, "..", "..", "prompts", "btw-system.txt"),
+const BTW_PROMPT = readFileSync(
+  join(
+    dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "..",
+    "prompts",
+    "btw-system.txt",
+  ),
   "utf-8",
 ).trimEnd();
 
-// ---------------------------------------------------------------------------
-// Storage — globalThis-keyed, process-scoped
-// ---------------------------------------------------------------------------
+type ThinkingLevel = Parameters<AgentSession["setThinkingLevel"]>[0];
 
-function getState(): BtwState {
-  const g = globalThis as unknown as { [k: symbol]: BtwState | undefined };
-  let state = g[BTW_STATE_KEY];
-  if (!state) {
-    state = { histories: new Map(), snapshots: new Map() };
-    g[BTW_STATE_KEY] = state;
-  }
-  return state;
+interface SideSession {
+  session: AgentSession;
+  /** Label of the model the session was created with. */
+  modelLabel: string;
+  /** Number of main-conversation messages the session was seeded with. */
+  seedCount: number;
 }
 
-function getSessionFile(ctx: ExtensionContext): string {
+interface BtwState {
+  /** Side sessions by main-session key. */
+  sessions: Map<string, Promise<SideSession>>;
+}
+
+/** globalThis-keyed so side sessions survive /reload, which re-imports this module. */
+function state(): BtwState {
+  const g = globalThis as unknown as Record<symbol, BtwState | undefined>;
+  let s = g[BTW_STATE_KEY];
+  if (!s) {
+    s = { sessions: new Map() };
+    g[BTW_STATE_KEY] = s;
+  }
+  return s;
+}
+
+export function sessionKey(ctx: ExtensionContext): string {
   return (
     ctx.sessionManager.getSessionFile() ??
     `memory:${ctx.sessionManager.getSessionId()}`
   );
 }
 
-function getSessionHistory(ctx: ExtensionContext): BtwTurn[] {
-  const key = getSessionFile(ctx);
-  const state = getState();
-  let turns = state.histories.get(key);
-  if (!turns) {
-    turns = [];
-    state.histories.set(key, turns);
-  }
-  return turns;
-}
-
-function _pushSessionTurn(ctx: ExtensionContext, turn: BtwTurn): void {
-  getSessionHistory(ctx).push(turn);
-}
-
-export function clearSessionHistory(ctx: ExtensionContext): void {
-  getState().histories.set(getSessionFile(ctx), []);
-}
-
-function getSnapshot(
-  ctx: ExtensionContext,
-): { messages: Message[] } | undefined {
-  return getState().snapshots.get(getSessionFile(ctx));
-}
-
-function setSnapshot(
-  ctx: ExtensionContext,
-  snapshot: { messages: Message[] },
-): void {
-  getState().snapshots.set(getSessionFile(ctx), snapshot);
-}
-
-export function invalidateSnapshot(ctx: ExtensionContext): void {
-  getState().snapshots.delete(getSessionFile(ctx));
-}
-
-export function userMessageText(msg: UserMessage): string {
-  if (typeof msg.content === "string") return msg.content;
-  return msg.content
-    .filter((c): c is { type: "text"; text: string } => c.type === "text")
-    .map((c) => c.text)
-    .join("\n");
-}
-
-export function assistantMessageText(msg: AssistantMessage): string {
-  return msg.content
-    .filter((c): c is { type: "text"; text: string } => c.type === "text")
-    .map((c) => c.text)
-    .join("\n");
-}
-
-function getCrossSessionHint(): string {
-  const allTurns: { q: string; ts: number }[] = [];
-  for (const turns of getState().histories.values()) {
-    for (const t of turns) {
-      allTurns.push({
-        q: userMessageText(t.userMessage),
-        ts: t.userMessage.timestamp,
-      });
-    }
-  }
-  if (allTurns.length === 0) return "";
-  const recent = allTurns
-    .sort((a, b) => a.ts - b.ts)
-    .slice(-CROSS_SESSION_HINT_LIMIT);
-  const lines = recent.map(
-    (t, i) => `${i + 1}. ${t.q.replace(/\s+/g, " ").slice(0, 200)}`,
-  );
-  return `\n\n## Recent /btw questions across sessions (oldest first)\n\n${lines.join("\n")}`;
-}
-
-// ---------------------------------------------------------------------------
-// Executor
-// ---------------------------------------------------------------------------
-
-export interface BtwExecResult {
-  ok: boolean;
-  answer?: string;
-  userMessage?: UserMessage;
-  assistantMessage?: AssistantMessage;
-  error?: string;
-  stopReason?: StopReason;
-  aborted?: boolean;
-}
-
-function readBranchMessages(ctx: ExtensionContext): Message[] {
-  const cached = getSnapshot(ctx);
-  if (cached) return cached.messages;
+function mainMessages(ctx: ExtensionContext): Message[] {
   const branch = ctx.sessionManager.getBranch() as SessionEntry[];
-  const agentMessages = branch
-    .filter(
-      (e): e is SessionEntry & { type: "message" } => e.type === "message",
-    )
-    .map((e) => e.message);
-  return convertToLlm(agentMessages);
+  return convertToLlm(buildSessionContext(branch).messages);
 }
 
-function buildBtwMessages(
-  ctx: ExtensionContext,
-  userMessage: UserMessage,
-): Message[] {
-  const branchMessages = readBranchMessages(ctx);
-  const history = getSessionHistory(ctx);
-  const historyMessages: Message[] = history.flatMap((h) => [
-    h.userMessage,
-    h.assistantMessage,
-  ]);
-
-  // PATCH: strip toolUse/toolResult blocks to avoid Bedrock validation error
-  const cleanBranch = stripToolMessages(branchMessages);
-  const cleanHistory = stripToolMessages(historyMessages);
-
-  return [...cleanBranch, ...cleanHistory, userMessage];
-}
-
-function buildSystemPrompt(): string {
-  return BTW_SYSTEM_PROMPT + getCrossSessionHint();
-}
-
-export async function executeBtw(
-  question: string,
-  ctx: ExtensionContext,
-  controller: AbortController,
-): Promise<BtwExecResult> {
-  const model = ctx.model;
-  if (!model) {
-    return { ok: false, error: MSG_NO_MODEL };
-  }
-  const modelLabel = `${model.provider}:${model.id}`;
-
-  const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-  if (!auth.ok) {
-    return { ok: false, error: errMisconfigured(modelLabel, auth.error) };
-  }
-  if (!auth.apiKey) {
-    return { ok: false, error: errNoApiKey(modelLabel) };
-  }
-
-  const userMessage: UserMessage = {
-    role: "user",
-    content: [{ type: "text", text: question }],
-    timestamp: Date.now(),
+/** Drop process-scoped extensions; see isExcludedExtension. */
+function withoutExcluded(result: LoadExtensionsResult): LoadExtensionsResult {
+  return {
+    ...result,
+    extensions: result.extensions.filter(
+      (ext) => !isExcludedExtension(ext.resolvedPath || ext.path),
+    ),
   };
-  const messages = buildBtwMessages(ctx, userMessage);
-  const systemPrompt = buildSystemPrompt();
+}
 
-  try {
-    const response = await completeSimple(
-      model,
-      { systemPrompt, messages, tools: [] },
+function modelLabel(model: Model<Api>, thinkingLevel: string): string {
+  const level = thinkingLevel === "off" ? "" : ` · ${thinkingLevel}`;
+  return `${model.provider}/${model.id}${level}`;
+}
+
+async function createSideSession(ctx: ExtensionContext): Promise<SideSession> {
+  const selected = ctx.model;
+  if (!selected) throw new Error("/btw requires an active model");
+
+  const main = mainMessages(ctx);
+  const cwd = ctx.cwd;
+  const agentDir = getAgentDir();
+  const settingsManager = SettingsManager.create(cwd, agentDir, {
+    projectTrusted: ctx.isProjectTrusted(),
+  });
+
+  // SDK sessions do not get the CLI's built-in extensions; add them the way pi's main() does.
+  const loader = new DefaultResourceLoader({
+    cwd,
+    agentDir,
+    settingsManager,
+    extensionFactories: [
       {
-        apiKey: auth.apiKey,
-        headers: auth.headers,
-        signal: controller.signal,
+        name: "codemode",
+        factory: createCodemodeExtension(),
+        replaceable: true,
+        builtin: true,
       },
+      {
+        name: "tool-search",
+        factory: createToolSearchExtension(),
+        replaceable: true,
+        builtin: true,
+      },
+      {
+        name: "mcp",
+        factory: createMcpExtension(),
+        replaceable: true,
+        builtin: true,
+      },
+    ],
+    extensionsOverride: withoutExcluded,
+    appendSystemPromptOverride: (base) => [...base, BTW_PROMPT],
+  });
+  // The extension loader caches modules by path. Marking the loader as loaded makes reload() clear
+  // that cache, so the side session gets its own extension instances instead of sharing the main
+  // session's module state.
+  (loader as unknown as { loaded: boolean }).loaded = true;
+  await loader.reload();
+
+  const modelRuntime = await ModelRuntime.create({ allowModelNetwork: false });
+  const target = resolveBtwTarget<Model<Api>>(
+    selected,
+    ctx.thinkingLevel ?? "off",
+    main,
+    (provider, id) => ctx.modelRegistry.find(provider, id),
+  );
+
+  const sessionManager = SessionManager.inMemory(cwd);
+  const seed = seedMessages(main);
+  for (const message of seed) sessionManager.appendMessage(message);
+
+  const { session } = await createAgentSession({
+    cwd,
+    agentDir,
+    modelRuntime,
+    resourceLoader: loader,
+    sessionManager,
+    settingsManager,
+    sessionStartEvent: { type: "session_start", reason: "startup" },
+  });
+  await session.bindExtensions({
+    mode: "print",
+    onError: (error) =>
+      console.warn(
+        `[btw] ${error.extensionPath} ${error.event}: ${error.error}`,
+      ),
+  });
+
+  // Extensions register providers and virtual models while binding, so the target model only
+  // resolves in the side runtime now.
+  const sideModel = modelRuntime.getModel(
+    target.model.provider,
+    target.model.id,
+  );
+  if (!sideModel) {
+    await disposeSession(session);
+    throw new Error(
+      `/btw: ${target.model.provider}/${target.model.id} is not available in the side session`,
     );
+  }
+  await session.setModel(sideModel);
+  session.setThinkingLevel(target.thinkingLevel as ThinkingLevel);
 
-    if (response.stopReason === "aborted") {
-      return { ok: false, aborted: true, stopReason: response.stopReason };
-    }
-    if (response.stopReason === "error") {
-      return {
-        ok: false,
-        error: errCallFailed(response.errorMessage),
-        stopReason: response.stopReason,
-      };
-    }
+  // Count raw session messages: the overlay slices session.messages, not the LLM view.
+  const seedCount = session.messages.length;
+  return {
+    session,
+    modelLabel: modelLabel(sideModel, target.thinkingLevel),
+    seedCount,
+  };
+}
 
-    const answerText = assistantMessageText(response).trim();
-    if (!answerText) {
-      return {
-        ok: false,
-        error: ERR_EMPTY_RESPONSE,
-        stopReason: response.stopReason,
-      };
+async function disposeSession(session: AgentSession): Promise<void> {
+  try {
+    await session.abort();
+    const runner = session.extensionRunner;
+    if (runner.hasHandlers("session_shutdown")) {
+      await Promise.race([
+        runner.emit({ type: "session_shutdown", reason: "quit" }),
+        new Promise((resolve) =>
+          setTimeout(resolve, SHUTDOWN_TIMEOUT_MS).unref(),
+        ),
+      ]);
     }
-
-    return {
-      ok: true,
-      answer: answerText,
-      userMessage,
-      assistantMessage: response,
-      stopReason: response.stopReason,
-    };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (controller.signal.aborted) {
-      return { ok: false, aborted: true };
-    }
-    return { ok: false, error: errCallThrew(message) };
+  } catch (error) {
+    console.warn(
+      `[btw] side session shutdown failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  } finally {
+    session.dispose();
   }
 }
 
-// ---------------------------------------------------------------------------
-// Registrars
-// ---------------------------------------------------------------------------
+export type { SideSession };
 
-export function registerMessageEndSnapshot(pi: ExtensionAPI): void {
-  pi.on("message_end", async (event, ctx) => {
-    const msg = event.message;
-    if (msg.role !== "assistant") return;
-    if ((msg as AssistantMessage).stopReason === "toolUse") return;
-    const branch = ctx.sessionManager.getBranch() as SessionEntry[];
-    const agentMessages = branch
-      .filter(
-        (e): e is SessionEntry & { type: "message" } => e.type === "message",
-      )
-      .map((e) => e.message);
-    setSnapshot(ctx, { messages: convertToLlm(agentMessages) });
-  });
+/** Side session for the current main session, created on first use. */
+export function getSideSession(ctx: ExtensionContext): Promise<SideSession> {
+  const key = sessionKey(ctx);
+  const sessions = state().sessions;
+  let pending = sessions.get(key);
+  if (!pending) {
+    pending = createSideSession(ctx);
+    sessions.set(key, pending);
+    // A failed creation must not stick; the next question retries.
+    pending.catch(() => {
+      if (sessions.get(key) === pending) sessions.delete(key);
+    });
+  }
+  return pending;
 }
 
-export function registerInvalidationHooks(pi: ExtensionAPI): void {
-  pi.on("session_compact", async (_e, ctx) => invalidateSnapshot(ctx));
-  pi.on("session_tree", async (_e, ctx) => invalidateSnapshot(ctx));
+/** The side session if one exists and has finished starting. */
+export async function existingSideSession(
+  ctx: ExtensionContext,
+): Promise<SideSession | undefined> {
+  const pending = state().sessions.get(sessionKey(ctx));
+  if (!pending) return undefined;
+  try {
+    return await pending;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Dispose the side session for a main session; the next question starts a fresh one. */
+export async function resetSideSession(key: string): Promise<void> {
+  const sessions = state().sessions;
+  const pending = sessions.get(key);
+  if (!pending) return;
+  sessions.delete(key);
+  try {
+    await disposeSession((await pending).session);
+  } catch {
+    // Creation failed; nothing to dispose.
+  }
+}
+
+export async function resetAllSideSessions(): Promise<void> {
+  await Promise.all([...state().sessions.keys()].map(resetSideSession));
 }

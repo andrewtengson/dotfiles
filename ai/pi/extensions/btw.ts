@@ -1,51 +1,60 @@
 /**
- * Patched /btw extension — fixes Bedrock "toolConfig must be defined" error
- * by stripping toolUse/toolResult blocks from the cloned conversation.
+ * /btw: a side pi session with full tools that starts from the main conversation and never writes
+ * back to it. Works while the main agent is streaming.
  *
- * Drop-in replacement for npm:@juicesharp/rpiv-btw.
- * Remove the package from settings.json and add this extension instead.
+ * The side session loads the same extensions, skills, AGENTS.md, codemode, tool search, and MCP as
+ * a normal session, except process-scoped extensions (see lib/btw/context.ts), and renders in a
+ * floating window with pi's own chat components. With a virtual model selected (e.g. kiro/router),
+ * it uses the physical model and thinking level that produced the main session's latest response.
+ *
+ *   /btw <question>   ask, opening the window
+ *   /btw              reopen the side thread
+ *   /btw:new          dispose the side session; the next question starts fresh
  */
 
 import type {
   ExtensionAPI,
   ExtensionCommandContext,
-  ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
+import { SettingsManager } from "@earendil-works/pi-coding-agent";
 import {
-  BTW_COMMAND_NAME,
-  type BtwTurn,
-  clearSessionHistory,
-  executeBtw,
-  registerInvalidationHooks,
-  registerMessageEndSnapshot,
+  existingSideSession,
+  getSideSession,
+  resetAllSideSessions,
+  resetSideSession,
+  type SideSession,
+  sessionKey,
 } from "./lib/btw/btw.js";
-import { showBtwOverlay } from "./lib/btw/btw-ui.js";
+import {
+  BTW_OVERLAY_OPTIONS,
+  type BtwDisplaySettings,
+  BtwOverlay,
+} from "./lib/btw/btw-ui.js";
 
-function getSessionHistory(ctx: ExtensionContext): BtwTurn[] {
-  const BTW_STATE_KEY = Symbol.for("rpiv-btw");
-  const g = globalThis as unknown as {
-    [k: symbol]: { histories: Map<string, BtwTurn[]> } | undefined;
-  };
-  const state = g[BTW_STATE_KEY];
-  if (!state) return [];
-  const key =
-    ctx.sessionManager.getSessionFile() ??
-    `memory:${ctx.sessionManager.getSessionId()}`;
-  return state.histories.get(key) ?? [];
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
-async function handleBtwCommand(
-  _pi: ExtensionAPI,
-  args: string,
+/** The display settings interactive mode uses, read from the user's settings. */
+function displaySettings(ctx: ExtensionCommandContext): BtwDisplaySettings {
+  const settings = SettingsManager.create(ctx.cwd, undefined, {
+    projectTrusted: ctx.isProjectTrusted(),
+  });
+  return {
+    outputPad: settings.getOutputPad(),
+    hideThinkingBlock: settings.getHideThinkingBlock(),
+    showImages: settings.getShowImages(),
+    imageWidthCells: settings.getImageWidthCells(),
+    codeBlockIndent: settings.getCodeBlockIndent(),
+  };
+}
+
+async function openBtw(
+  question: string,
   ctx: ExtensionCommandContext,
 ): Promise<void> {
   if (!ctx.hasUI) {
     ctx.ui.notify("/btw requires interactive mode", "error");
-    return;
-  }
-  const question = args.trim();
-  if (!question) {
-    ctx.ui.notify("Usage: /btw <question>", "warning");
     return;
   }
   if (!ctx.model) {
@@ -53,62 +62,101 @@ async function handleBtwCommand(
     return;
   }
 
-  const controller = new AbortController();
-  const historySnapshot = [...getSessionHistory(ctx)];
+  const key = sessionKey(ctx);
+  const display = displaySettings(ctx);
+  let detach: (() => void) | undefined;
 
-  const { overlayPromise, controllerReady } = showBtwOverlay({
-    ctx,
-    question,
-    history: historySnapshot,
-    controller,
-    onClearHistory: () => clearSessionHistory(ctx),
-  });
+  await ctx.ui.custom<void>(
+    (tui, theme, keybindings, done) => {
+      let attached: SideSession | undefined;
 
-  const overlayCtl = await controllerReady;
-  const result = await executeBtw(question, ctx, controller);
+      const attach = async (): Promise<SideSession> => {
+        if (attached) return attached;
+        overlay.setStatus("Starting side session");
+        try {
+          const side = await getSideSession(ctx);
+          attached = side;
+          detach = overlay.attach(
+            side.session,
+            side.seedCount,
+            side.modelLabel,
+          );
+          return side;
+        } finally {
+          overlay.setStatus(undefined);
+        }
+      };
 
-  if (
-    result.ok &&
-    result.answer &&
-    result.userMessage &&
-    result.assistantMessage
-  ) {
-    overlayCtl.setAnswer(result.answer);
-    // Push to history via the same globalThis state
-    const BTW_STATE_KEY = Symbol.for("rpiv-btw");
-    const g = globalThis as unknown as {
-      [k: symbol]: { histories: Map<string, BtwTurn[]> } | undefined;
-    };
-    const state = g[BTW_STATE_KEY];
-    if (state) {
-      const key =
-        ctx.sessionManager.getSessionFile() ??
-        `memory:${ctx.sessionManager.getSessionId()}`;
-      let turns = state.histories.get(key);
-      if (!turns) {
-        turns = [];
-        state.histories.set(key, turns);
-      }
-      turns.push({
-        userMessage: result.userMessage,
-        assistantMessage: result.assistantMessage,
+      const submit = (text: string): void => {
+        void (async () => {
+          try {
+            const { session } = await attach();
+            if (session.isStreaming) {
+              await session.prompt(text, { streamingBehavior: "steer" });
+            } else {
+              await session.prompt(text);
+            }
+          } catch (error) {
+            overlay.showError(errorText(error));
+          }
+        })();
+      };
+
+      const overlay = new BtwOverlay(tui, theme, keybindings, display, {
+        onSubmit: submit,
+        onAbort: () => {
+          void attached?.session.abort();
+        },
+        onReset: () => {
+          detach?.();
+          detach = undefined;
+          attached = undefined;
+          overlay.detach();
+          void resetSideSession(key);
+        },
+        onClose: () => done(),
       });
-    }
-  } else if (result.aborted) {
-    // User Esc'd
-  } else if (result.error) {
-    overlayCtl.setError(result.error);
-  }
 
-  await overlayPromise;
+      // Reopening shows the existing thread; a question starts or continues it.
+      void existingSideSession(ctx).then(async (existing) => {
+        try {
+          if (existing) await attach();
+          if (question) submit(question);
+        } catch (error) {
+          overlay.showError(errorText(error));
+        }
+      });
+      return overlay;
+    },
+    { overlay: true, overlayOptions: BTW_OVERLAY_OPTIONS },
+  );
+
+  detach?.();
 }
 
-export default function (pi: ExtensionAPI): void {
-  pi.registerCommand(BTW_COMMAND_NAME, {
-    description: "Ask a side question without polluting the main conversation",
+export default function btwExtension(pi: ExtensionAPI): void {
+  pi.registerCommand("btw", {
+    description:
+      "Side pi session with full tools; nothing reaches the main conversation",
     handler: (args: string, ctx: ExtensionCommandContext) =>
-      handleBtwCommand(pi, args, ctx),
+      openBtw(args.trim(), ctx),
   });
-  registerMessageEndSnapshot(pi);
-  registerInvalidationHooks(pi);
+
+  pi.registerCommand("btw:new", {
+    description:
+      "Discard the /btw side session; the next question starts fresh",
+    handler: async (_args: string, ctx: ExtensionCommandContext) => {
+      await resetSideSession(sessionKey(ctx));
+      ctx.ui.notify("Started a fresh /btw side session.", "info");
+    },
+  });
+
+  // A model change or branch navigation makes the side session's seed stale.
+  pi.on("model_select", async (_event, ctx) =>
+    resetSideSession(sessionKey(ctx)),
+  );
+  pi.on("session_tree", async (_event, ctx) =>
+    resetSideSession(sessionKey(ctx)),
+  );
+  pi.on("session_shutdown", async () => resetAllSideSessions());
 }
