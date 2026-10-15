@@ -133,9 +133,20 @@ async function fetchKiroUsageLimits(
   return resp.json();
 }
 
-async function fetchKiroUsage(): Promise<UsageSnapshot> {
+// auth.json holds the token as last persisted; after an idle session it is
+// expired and Kiro answers 400. Resolving through pi's model registry
+// refreshes expired OAuth credentials first.
+async function fetchKiroUsage(
+  resolveToken?: () => Promise<string | undefined>,
+): Promise<UsageSnapshot> {
   const auth = readPiAuth();
-  const token = auth.kiro?.access as string | undefined;
+  let token: string | undefined;
+  try {
+    token = await resolveToken?.();
+  } catch {
+    // fall back to the persisted token
+  }
+  token ??= auth.kiro?.access as string | undefined;
   if (!token) return { provider: "Kiro", windows: [], error: "Not logged in" };
 
   const ssoRegion = (auth.kiro?.region as string) || "us-east-1";
@@ -524,17 +535,27 @@ class UsageComponent {
   private theme: any;
   private done: () => void;
 
-  // biome-ignore lint/suspicious/noExplicitAny: pi TUI types not exported
-  constructor(tui: any, theme: any, done: () => void, provider: string) {
+  constructor(
+    // biome-ignore lint/suspicious/noExplicitAny: pi TUI types not exported
+    tui: any,
+    // biome-ignore lint/suspicious/noExplicitAny: pi theme type
+    theme: any,
+    done: () => void,
+    provider: string,
+    resolveToken: (provider: string) => Promise<string | undefined>,
+  ) {
     this.tui = tui;
     this.theme = theme;
     this.done = done;
-    this.load(provider);
+    this.load(provider, resolveToken);
   }
 
-  private async load(provider: string) {
+  private async load(
+    provider: string,
+    resolveToken: (provider: string) => Promise<string | undefined>,
+  ) {
     const fetchers: Record<string, () => Promise<UsageSnapshot>> = {
-      kiro: fetchKiroUsage,
+      kiro: () => fetchKiroUsage(() => resolveToken("kiro")),
       anthropic: fetchClaudeUsage,
       "google-gemini-cli": fetchGeminiUsage,
       "openai-codex": fetchCodexUsage,
@@ -635,7 +656,13 @@ export default function (pi: ExtensionAPI) {
       if (!ctx.hasUI) return;
       const provider = String(ctx.model?.provider ?? "");
       await ctx.ui.custom((_tui, theme, _kb, done) => {
-        return new UsageComponent(_tui, theme, () => done(), provider);
+        return new UsageComponent(
+          _tui,
+          theme,
+          () => done(),
+          provider,
+          (id) => ctx.modelRegistry.getApiKeyForProvider(id),
+        );
       });
     },
   });
