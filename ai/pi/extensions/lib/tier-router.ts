@@ -15,25 +15,29 @@ export const ROUTED_TIERS: readonly RoutedTier[] = [
   "heavy",
 ];
 
-/** Probability the classifier must give a stronger tier before moving up. */
-export const UPGRADE_THRESHOLD = 0.7;
-/** Probability the classifier must give a weaker tier before moving down. */
-export const DOWNGRADE_THRESHOLD = 0.85;
+/** Combined probability the classifier must give the stronger tiers before moving up. */
+export const UPGRADE_THRESHOLD = 0.6;
+/** Combined probability the classifier must give the weaker tiers before moving down. */
+export const DOWNGRADE_THRESHOLD = 0.6;
 
 const MAX_PROMPT_CHARS = 8_000;
 const MAX_USER_MESSAGE_CHARS = 1_000;
 const MAX_ASSISTANT_CHARS = 2_000;
 const RECENT_USER_MESSAGES = 2;
 
+// Wording tuned against labelled session prompts with clef-flash: investigation and review stay on
+// heavy, and short follow-ups (commit, ok, continue) are judged on their own instead of the thread.
 export const TIER_QUESTION = {
   type: "choice",
   instructions:
-    "Which kind of work does `prompt` request? Use `recent_user_messages` and `last_assistant_reply` only as context for short or follow-up prompts.",
+    "Which kind of work does `prompt` ask for next? Judge the request itself, not how hard the surrounding conversation is. For short follow-ups (ok, sure, continue, commit), use `recent_user_messages` and `last_assistant_reply` only to see what the next step is.",
   criteria: {
     heavy:
-      "Complex reasoning, planning, deep thinking, design and architecture tradeoffs, debugging failures that persist after attempts",
-    default: "Research, implementation, general work",
-    light: "Fast retrieval, scouting, context gathering",
+      "Investigating why something fails, errors, or behaves unexpectedly, or checking whether something works correctly; reviewing code, merge requests, scripts, or designs; proposing fixes, options, or alternatives; open-ended design, architecture, or planning that weighs tradeoffs; requests that ask for careful or deep thinking",
+    default:
+      "Implementing, changing, or fixing a scoped task whose cause and approach are already known; researching docs or how something works",
+    light:
+      "Quick lookups, factual or yes/no questions, confirmations, git commit/push/MR steps, rerunning a command or confirming a change landed, small edits",
   },
 } as const;
 
@@ -97,9 +101,9 @@ export function readTierAnswer(
 
 /**
  * Sticky tier decision. Without a current tier, take the most likely tier. Otherwise move up when
- * the stronger tiers together reach UPGRADE_THRESHOLD (to the most likely of them), and down only
- * when a single weaker tier reaches DOWNGRADE_THRESHOLD. Stay put otherwise. Upgrades pool
- * probability because under-powering a task costs more than over-powering it.
+ * the stronger tiers together reach UPGRADE_THRESHOLD, and down when the weaker tiers together
+ * reach DOWNGRADE_THRESHOLD, each time to the most likely tier on that side. Stay put otherwise.
+ * Pooling in both directions keeps a follow-up split between default and light from pinning heavy.
  */
 export function decideTier(
   current: RoutedTier | undefined,
@@ -128,10 +132,11 @@ export function decideTier(
     return mostLikely(stronger) ?? current;
   }
 
-  const weaker = ROUTED_TIERS.slice(0, rank).find(
-    (tier) => probability(tier) >= DOWNGRADE_THRESHOLD,
-  );
-  return weaker ?? current;
+  const weaker = ROUTED_TIERS.slice(0, rank);
+  if (weaker.length > 0 && total(weaker) >= DOWNGRADE_THRESHOLD) {
+    return mostLikely(weaker) ?? current;
+  }
+  return current;
 }
 
 /** Tier whose model and thinking level match, preferring an exact thinking match. */

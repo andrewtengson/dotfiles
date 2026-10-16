@@ -7,6 +7,7 @@ import {
   initialTierFromBranch,
   ROUTED_TIERS,
   readTierAnswer,
+  TIER_QUESTION,
   tierForModel,
 } from "../extensions/lib/tier-router.js";
 import { type ProviderKey, TIER_MAP } from "../extensions/lib/model-tiers.js";
@@ -45,43 +46,44 @@ describe("decideTier", () => {
     );
   });
 
-  test("moves up when the higher tier is fairly confident", () => {
-    expect(decideTier("default", { heavy: 0.72, default: 0.2, light: 0.08 })).toBe(
+  test("moves up when the higher tier reaches the threshold", () => {
+    expect(decideTier("default", { heavy: 0.61, default: 0.22, light: 0.17 })).toBe(
       "heavy",
     );
   });
 
   test("stays when an upgrade is not confident enough", () => {
-    expect(decideTier("default", { heavy: 0.6, default: 0.3, light: 0.1 })).toBe(
+    expect(decideTier("default", { heavy: 0.56, default: 0.35, light: 0.09 })).toBe(
       "default",
     );
   });
 
   test("upgrades on the combined probability of stronger tiers", () => {
     // Neither stronger tier reaches the threshold alone, but together they do.
-    expect(decideTier("light", { heavy: 0.29, default: 0.63, light: 0.08 })).toBe(
+    expect(decideTier("light", { heavy: 0.29, default: 0.35, light: 0.36 })).toBe(
       "default",
     );
-    expect(decideTier("light", { heavy: 0.5, default: 0.3, light: 0.2 })).toBe(
+    expect(decideTier("light", { heavy: 0.4, default: 0.3, light: 0.3 })).toBe(
       "heavy",
     );
   });
 
-  test("downgrades only when a single weaker tier is very confident", () => {
-    expect(decideTier("heavy", { heavy: 0.1, default: 0.45, light: 0.45 })).toBe(
-      "heavy",
+  test("downgrades on the combined probability of weaker tiers", () => {
+    // Follow-ups like "commit" split between default and light; together they leave heavy.
+    expect(decideTier("heavy", { heavy: 0.28, default: 0.4, light: 0.32 })).toBe(
+      "default",
     );
-    expect(decideTier("heavy", { heavy: 0.05, default: 0.1, light: 0.85 })).toBe(
+    expect(decideTier("heavy", { heavy: 0.1, default: 0.2, light: 0.7 })).toBe(
       "light",
     );
   });
 
-  test("moves down only when the lower tier is very confident", () => {
-    expect(decideTier("heavy", { heavy: 0.05, default: 0.9, light: 0.05 })).toBe(
-      "default",
-    );
-    expect(decideTier("heavy", { heavy: 0.1, default: 0.8, light: 0.1 })).toBe(
+  test("stays when a downgrade is not confident enough", () => {
+    expect(decideTier("heavy", { heavy: 0.44, default: 0.5, light: 0.06 })).toBe(
       "heavy",
+    );
+    expect(decideTier("default", { heavy: 0.2, default: 0.25, light: 0.55 })).toBe(
+      "default",
     );
   });
 
@@ -233,5 +235,14 @@ describe("classifierFailureReason", () => {
 
   test("keeps the original error when the timeout did not fire", () => {
     expect(classifierFailureReason("HTTP 500", false, 3_000)).toBe("HTTP 500");
+  });
+});
+
+describe("TIER_QUESTION", () => {
+  test("routes investigation and review to heavy and git steps to light", () => {
+    expect(TIER_QUESTION.criteria.heavy).toContain("Investigating why something fails");
+    expect(TIER_QUESTION.criteria.heavy).toContain("reviewing code");
+    expect(TIER_QUESTION.criteria.default).toContain("already known");
+    expect(TIER_QUESTION.criteria.light).toContain("git commit/push/MR steps");
   });
 });
