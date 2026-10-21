@@ -3,7 +3,6 @@
   "defaultProvider": "amazon-bedrock",
   "awsProfile": "isse-se-prod",
   "defaultModel": "global.anthropic.claude-opus-5",
-  "defaultThinkingLevel": "high",
   "enableInstallTelemetry": false,
   "quietStartup": true,
   "theme": "ghostty",
