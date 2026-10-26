@@ -52,7 +52,7 @@ const ANTHROPIC_TIERS = {
   heavy: { modelId: "claude-opus-5-5", thinkingLevel: "medium" },
   default: { modelId: "claude-sonnet-5-5", thinkingLevel: "high" },
   light: { modelId: "claude-sonnet-5-5", thinkingLevel: "low" },
-  fast: { modelId: "claude-haiku-4-5", thinkingLevel: "off" },
+  fast: { modelId: "claude-haiku-5-5", thinkingLevel: "low" },
 } satisfies Record<Tier, TierTarget>;
 
 function withModelPrefix(tiers: TierMap, prefix: string): TierMap {
