@@ -7,7 +7,7 @@
 import { getSupportedThinkingLevels } from "@earendil-works/pi-ai/models";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-const SHORTCUT = "ctrl+i";
+const SHORTCUT = "ctrl+h";
 
 export default function(pi: ExtensionAPI) {
   pi.registerShortcut(SHORTCUT, {
