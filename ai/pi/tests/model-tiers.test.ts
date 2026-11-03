@@ -52,6 +52,10 @@ describe("resolveTierMap", () => {
     }
   });
 
+  test("shares Anthropic ids between direct Anthropic and Kiro", () => {
+    expect(resolveTierMap("anthropic")).toBe(TIER_MAP.kiro);
+  });
+
   test("prefixes Bedrock ids with the global inference profile", () => {
     const bedrock = modelIds(resolveTierMap("amazon-bedrock"));
     const kiro = modelIds(resolveTierMap("kiro"));

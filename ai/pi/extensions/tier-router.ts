@@ -48,6 +48,7 @@ const CLASSIFIER_MODEL_ID = "@cf/cloudflare/clef-flash";
 
 /** Providers that get a router. */
 const ROUTED_PROVIDERS: readonly ProviderKey[] = [
+  "anthropic",
   "kiro",
   "openai-codex",
   "azure-openai-responses",

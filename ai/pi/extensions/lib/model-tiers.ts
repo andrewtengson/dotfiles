@@ -14,6 +14,7 @@ export type ThinkingLevel =
 export type Tier = "heavy" | "default" | "light" | "fast";
 export type ProviderKey =
   | "amazon-bedrock"
+  | "anthropic"
   | "openai-codex"
   | "kiro"
   | "azure-openai-responses"
@@ -65,6 +66,7 @@ function withModelPrefix(tiers: TierMap, prefix: string): TierMap {
 }
 
 export const TIER_MAP: Record<ProviderKey, TierMap> = {
+  anthropic: ANTHROPIC_TIERS,
   "amazon-bedrock": withModelPrefix(ANTHROPIC_TIERS, "global.anthropic."),
   "openai-codex": OPENAI_TIERS,
   "azure-openai-responses": OPENAI_TIERS,
