@@ -65,6 +65,7 @@ dotfiles=(
   ".config/zsh"
   ".config/kitty"
   ".config/ghostty"
+  ".config/cursor-agent"
 )
 
 if [[ "$(uname -s)" == "Darwin" ]] || [[ $USER == "deck" ]]; then

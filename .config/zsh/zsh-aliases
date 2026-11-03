@@ -23,3 +23,11 @@ esac
 if [[ -f "$HOME/.claude/local/claude" ]]; then
   alias claude="~/.claude/local/claude"
 fi
+
+cursor_sync_shim="$HOME/.config/cursor-agent/sync-output.cjs"
+if [[ -f "$cursor_sync_shim" ]]; then
+  alias \
+    cursor-agent="NODE_OPTIONS=\"\${NODE_OPTIONS:+\$NODE_OPTIONS }--require $cursor_sync_shim\" cursor-agent" \
+    agent="NODE_OPTIONS=\"\${NODE_OPTIONS:+\$NODE_OPTIONS }--require $cursor_sync_shim\" agent"
+fi
+unset cursor_sync_shim
