@@ -200,9 +200,68 @@ async function fetchKiroUsage(
 // Claude (Anthropic)
 // ============================================================================
 
-async function fetchClaudeUsage(): Promise<UsageSnapshot> {
+interface ClaudeUtilization {
+  utilization?: number | null;
+  resets_at?: string | null;
+}
+
+interface ClaudeExtraUsage {
+  is_enabled?: boolean;
+  monthly_limit?: number | null;
+  used_credits?: number | null;
+  utilization?: number | null;
+  decimal_places?: number;
+}
+
+function claudeWindow(
+  label: string,
+  bucket: ClaudeUtilization | null | undefined,
+): RateWindow | undefined {
+  if (typeof bucket?.utilization !== "number") return undefined;
+  const reset = bucket.resets_at
+    ? formatReset(new Date(bucket.resets_at))
+    : undefined;
+  return {
+    label,
+    usedPercent: bucket.utilization,
+    detail: reset ? `resets ${reset}` : undefined,
+  };
+}
+
+// Accounts on usage-based billing have null 5h/weekly buckets; only the
+// extra_usage spend cap is populated. Amounts are in minor currency units.
+function claudeExtraUsageWindow(
+  extra: ClaudeExtraUsage | null | undefined,
+): RateWindow | undefined {
+  if (!extra?.is_enabled || typeof extra.monthly_limit !== "number")
+    return undefined;
+  const divisor = 10 ** (extra.decimal_places ?? 2);
+  const used = (extra.used_credits ?? 0) / divisor;
+  const limit = extra.monthly_limit / divisor;
+  const pct =
+    typeof extra.utilization === "number"
+      ? extra.utilization
+      : limit > 0
+        ? (used / limit) * 100
+        : 0;
+  return {
+    label: "Extra",
+    usedPercent: Math.min(pct, 100),
+    detail: `$${used.toFixed(2)}/$${limit.toFixed(2)}`,
+  };
+}
+
+async function fetchClaudeUsage(
+  resolveToken?: () => Promise<string | undefined>,
+): Promise<UsageSnapshot> {
   const auth = readPiAuth();
-  let token = auth.anthropic?.access as string | undefined;
+  let token: string | undefined;
+  try {
+    token = await resolveToken?.();
+  } catch {
+    // fall back to the persisted token
+  }
+  token ??= auth.anthropic?.access as string | undefined;
 
   if (!token) {
     try {
@@ -234,21 +293,16 @@ async function fetchClaudeUsage(): Promise<UsageSnapshot> {
 
     // biome-ignore lint/suspicious/noExplicitAny: untyped API response
     const data = (await resp.json()) as any;
-    const windows: RateWindow[] = [];
+    const windows: RateWindow[] = [
+      claudeWindow("5h", data.five_hour),
+      claudeWindow("Week", data.seven_day),
+      claudeWindow("Opus", data.seven_day_opus),
+      claudeWindow("Sonnet", data.seven_day_sonnet),
+      claudeExtraUsageWindow(data.extra_usage),
+    ].filter((w): w is RateWindow => w !== undefined);
 
-    if (data.five_hour?.utilization !== undefined) {
-      const reset = data.five_hour.resets_at
-        ? formatReset(new Date(data.five_hour.resets_at))
-        : undefined;
-      windows.push({
-        label: "5h",
-        usedPercent: data.five_hour.utilization,
-        detail: reset ? `resets ${reset}` : undefined,
-      });
-    }
-    if (data.seven_day?.utilization !== undefined) {
-      windows.push({ label: "Week", usedPercent: data.seven_day.utilization });
-    }
+    if (windows.length === 0)
+      return { provider: "Claude", windows: [], error: "No data" };
 
     return { provider: "Claude", windows };
   } catch (e) {
@@ -556,7 +610,7 @@ class UsageComponent {
   ) {
     const fetchers: Record<string, () => Promise<UsageSnapshot>> = {
       kiro: () => fetchKiroUsage(() => resolveToken("kiro")),
-      anthropic: fetchClaudeUsage,
+      anthropic: () => fetchClaudeUsage(() => resolveToken("anthropic")),
       "google-gemini-cli": fetchGeminiUsage,
       "openai-codex": fetchCodexUsage,
       openai: fetchCodexUsage,
