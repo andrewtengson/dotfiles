@@ -29,7 +29,7 @@ export type TierMap = Record<Tier, TierTarget>;
 
 // GPT-6 has Sol and Luna, no Terra. Sol covers heavy and default.
 const OPENAI_TIERS = {
-  heavy: { modelId: "gpt-6.1-sol", thinkingLevel: "medium" },
+  heavy: { modelId: "gpt-6.2-sol", thinkingLevel: "medium" },
   default: { modelId: "gpt-6.1-terra", thinkingLevel: "high" },
   light: { modelId: "gpt-6.1-terra", thinkingLevel: "low" },
   fast: { modelId: "gpt-6-luna", thinkingLevel: "low" },
