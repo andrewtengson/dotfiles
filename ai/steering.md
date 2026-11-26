@@ -2,73 +2,88 @@
 
 ## Shared Design Before Code
 
-- When requirements are ambiguous or underspecified, ask clarifying questions before generating code. Interview the user until the design is clear — don't guess and generate.
-- If a task involves non-trivial design decisions (new features, architecture changes, data modeling), confirm the approach before implementing.
-- Prefer a short back-and-forth to establish shared understanding over a single large code dump that misses the intent.
-- Use the `grilling` skill when the user wants to stress-test a plan, get grilled on their design, or explicitly says "grill me." Invoke it proactively when a request is large or underspecified enough that jumping to code would be premature.
-
-## Test-Driven Development
-
-- When implementing new functionality, write the test first, then the implementation. Don't generate both in a single pass without running the test.
-- Take small, deliberate steps. One test, one behavior. Avoid generating large blocks of untested code.
-- Use the test as a feedback loop: write test, run it (expect failure), implement, run it (expect pass), then move to the next behavior.
-- For throwaway or exploratory work where the design is still unknown, use the `prototype` skill instead of TDD; return to test-first once the approach is settled.
-- Use the `tdd` skill when the user wants to build features or fix bugs using TDD, mentions "red-green-refactor", wants integration tests, or asks for test-first development. Invoke it proactively when implementing non-trivial features to enforce vertical slicing over bulk code generation.
-
-## Deep Modules
-
-- Favor large, self-contained modules with simple interfaces over many small, fragmented files.
-- A module should hide complexity behind a clean API. Internal implementation details should not leak into the interface.
-- When organizing code, optimize for navigability and testability — not for maximum file count or maximum granularity.
-- Use the `improve-codebase-architecture` skill when the user wants to refactor, consolidate fragmented modules, or improve testability. Suggest it when a codebase has many small tightly-coupled files that would benefit from being wrapped behind clean interfaces.
+- When requirements are ambiguous or underspecified, interview the user until the design is clear, then generate code. A short back-and-forth beats a large code dump that misses the intent.
+- For non-trivial design decisions (new features, architecture changes, data modeling), confirm the approach before implementing.
+- Use the `grilling` skill when the user wants a plan stress-tested or says "grill me". Invoke it proactively when a request is large or underspecified enough that jumping to code would be premature.
 
 ## Interface-First Design
 
-- For non-trivial modules, design the interface (function signatures, types, contracts) before writing the implementation.
-- Present the interface to the user for review before filling in the logic.
+- For non-trivial modules, design the interface (signatures, types, contracts) first and present it for review before filling in the logic.
 - Treat complex modules as gray boxes: the interface is the contract, the implementation is delegated detail.
+
+## Deep Modules
+
+- Favor large, self-contained modules with simple interfaces over many small, fragmented files. Hide complexity behind a clean API.
+- Optimize code organization for navigability and testability, not file count or granularity.
+- Use the `improve-codebase-architecture` skill when the user wants to refactor, consolidate fragmented modules, or improve testability. Suggest it when many small tightly-coupled files would benefit from one clean interface.
+
+## Test-Driven Development
+
+- Work red-green: write one test for one behavior, run it and watch it fail, implement, run it and watch it pass, then take the next behavior.
+- Keep steps small. Each new block of code is covered by a test that ran before it existed.
+- Use the `tdd` skill when the user asks for test-first work, red-green-refactor, or integration tests. Invoke it proactively for non-trivial features to enforce vertical slices.
+- For throwaway or exploratory work where the design is still unknown, use the `prototype` skill instead; return to test-first once the approach is settled.
+
+# UI and Visual Design
+
+Load the matching skill before building or reviewing anything visual. Several can apply at once; load every one whose case matches.
+
+## Skill Routing
+
+- **Websites and public pages** (landing, marketing, portfolio, product page, hero), new or existing: load both `hallmark` and `design-taste-frontend`. Hallmark's Floor is the hard baseline; taste deals the direction and runs the look-and-fix loop. For an existing page, invoke Hallmark in its `redesign <path>` or `audit <path>` mode.
+- **Product UI** (dashboards, admin panels, settings, tools, data views): `interface-design`.
+- **Interaction polish** (press and hover states, popovers, tooltips, transitions, component feel): `emil-design-eng`.
+- **Apple-style fluid UI** (springs, momentum, interruptible transitions, materials and depth, optical typography): `apple-design`.
+- **Diagrams and charts** (architecture, flowchart, sequence, ER, timeline, any data chart): `diagram-design`.
+- **Worst-case data stress test** of a component or screen: `break-ui`.
+- **Mobile web** (PWA, touch, viewport, safe areas, "feels wrong on my phone"): `mobile-native`. React Native or Expo motion: `animate-expo`.
+
+## Motion
+
+- Build one animation: `animate`. Several elements moving together (stagger, sequence, crossfade): `choreograph`.
+- Drag, swipe, sheets, fling, pull-to-refresh: `gestures`.
+- Jank or dropped frames, choosing which property to animate: `animation-performance`.
+- Critique existing motion or a diff: `review-animations`. Audit a whole codebase into a plan: `improve-animations`.
+- Find places that should animate: `find-animation-opportunities`. Strip excess motion ("feels slow", "too much animation"): `remove-animations`.
+
+## Verify Visually
+
+- Look at what you built before handing it back: render it and take screenshots (`agent-browser`) at mobile, tablet, and desktop widths, then fix what you see.
 
 # General
 
-## Code Quality Standards
+## Code
 
-- Write minimal, production-ready code. No placeholder comments, no TODO markers, no example data.
-- Prioritize type safety. Use strict typing in TypeScript and type hints in Python.
-- No emojis in responses or code comments.
-- Favor explicit over implicit. Clear variable names, obvious function signatures.
-- Error handling is mandatory. No silent failures, no bare try-catch blocks.
-
-## Code Style
-
-- Keep functions small and focused. Single responsibility principle.
-- Avoid over-engineering. Solve the actual problem, not hypothetical future problems.
-- No unnecessary abstractions. Add layers only when complexity demands it.
-- Comments explain why, not what. Code should be self-documenting.
+- Start with the simplest solution that works. Add abstractions only when complexity demands them, and optimize only for a measured need.
+- Write minimal, production-ready code: complete implementations with real values, no placeholders or TODO markers.
+- Use strict typing: strict mode in TypeScript, full type hints in Python.
+- Favor explicit over implicit: clear names, obvious signatures, small single-purpose functions.
+- Handle every error deliberately: catch specific exceptions, log or surface them, and fail loudly.
+- Comments explain why. Names and structure explain what.
+- Prefer the standard library over new dependencies.
+- Treat security and performance as requirements from the first draft.
+- No emojis in code, comments, or responses.
 
 ## Response Style
 
-- Be extremely concise by default. Sacrifice grammar for concision — drop articles, pronouns, and filler words when meaning stays clear. Applies to chat prose only, not code, comments, commit messages, or user-facing docs.
-- Concision yields to clarity during design dialogue: when asking clarifying questions or working through a design, favor being understood over being terse.
-- Be direct. Skip pleasantries and filler phrases.
-- Show code, not explanations. Let implementations speak for themselves.
-- When explaining is necessary, be concise. One clear sentence beats three vague ones.
-- No recap summaries unless explicitly requested.
-- When rules conflict, prioritize: correctness > security > clarity > concision.
+- Be extremely concise in chat prose: drop articles, pronouns, and filler when meaning stays clear. Write code, comments, commit messages, and user-facing docs in full sentences.
+- During design dialogue and clarifying questions, favor being understood over being terse.
+- Lead with code or the answer. Explain only what the code cannot show, in one clear sentence.
+- End without a recap summary unless one is requested.
+- When rules conflict: correctness > security > clarity > concision.
+
+## Output Location
+
+- Deliver investigations, analyses, debugging results, research, and recommendations directly in chat.
+- Create files only for code that runs, project configuration, or when the user explicitly asks for a file. Summary or notes documents count as "explicitly asked" only.
 
 ## Git Commits
 
-- Use conventional commits (e.g., `fix:`, `feat:`) in a single line unless a multiline message is absolutely necessary.
-
-## Implementation Approach
-
-- Start with the simplest solution that works.
-- Optimize only when there's a measurable need.
-- Prefer standard library over dependencies.
-- Security and performance are non-negotiable, not afterthoughts.
+- Use single-line conventional commits (`fix:`, `feat:`, `chore:`). Go multiline only when one line cannot carry the change.
 
 ## Subagent Delegation
 
-Delegation is pre-authorized for the cases below. Do not wait to be asked. Direct work remains the default for everything else.
+Delegation is pre-authorized for the cases below; delegate without waiting to be asked. Everything else is direct work.
 
 Delegate when:
 
@@ -82,69 +97,53 @@ Work directly when:
 
 - Designing, clarifying requirements, or debugging.
 - The edit is small or touches only a few lines.
-- The task depends on conversation history or decisions made earlier in the session, unless the agent forks context.
+- The task depends on conversation history or earlier decisions, unless the agent forks context.
 - Work touches production, infrastructure state, credentials, or anything irreversible.
 
 Handoff and verification:
 
-- Give fresh-context subagents a self-contained brief: goal, relevant paths, constraints, prior decisions, and the expected output format.
-- Treat subagent summaries as claims, not facts. After a worker edits, read the diff and rerun the check yourself before reporting success.
-- Parallelize only independent read-heavy work. Never run parallel writers on the same files.
+- Give fresh-context subagents a self-contained brief: goal, relevant paths, constraints, prior decisions, and expected output format.
+- Treat subagent summaries as claims. After a worker edits, read the diff and rerun the check yourself before reporting success.
+- Parallelize only independent read-heavy work. One writer per set of files.
 
 ## Hard Stop Rule
 
-Never end a turn while an executable next step remains. Any stated or implied next action must be executed via tool call in the same turn. Progress updates are not stopping points. End only when complete, genuinely blocked on user input or permission, or no executable action remains.
-
-## Output Preferences
-
-- Default to displaying results directly in the chat window. No file creation for investigations, analyses, or solutions.
-- Never create markdown files, text files, or documentation files to summarize findings unless explicitly requested.
-- File creation is only appropriate when:
-  - User explicitly asks to create a file
-  - Implementing actual code that needs to be executed
-  - Creating configuration files for a project setup
-- For research, debugging, explanations, or recommendations: output directly to chat.
+Never end a turn while an executable next step remains. Execute any stated or implied next action via tool call in the same turn; progress updates are not stopping points. End only when the work is complete, you are blocked on user input or permission, or no executable action remains.
 
 # Python Standards
 
 ## Type Annotations
 
-- Use modern syntax: `list[T]`, `dict[K, V]`, `X | None` instead of `List[T]`, `Dict[K, V]`, `Optional[X]`.
-- For JSON responses from APIs, use `dict[str, Any]` with explicit type annotations.
-- Annotate all function parameters and return types.
-- Use `from typing import Any` when dealing with unstructured data.
-- Use `.get()` methods with defaults when accessing optional dictionary fields from APIs (Python-specific).
-- Add explicit type annotations to variables: `items: list[dict[str, Any]] = []` (Python-specific).
+- Use modern syntax: `list[T]`, `dict[K, V]`, `X | None`.
+- Annotate every parameter, return type, and collection variable: `items: list[dict[str, Any]] = []`.
+- Type unstructured API JSON as `dict[str, Any]` and read optional fields with `.get()` and a default.
 
 ## Logging
 
-- Use Python's `logging` module, not print statements for operational messages.
-- Configure log level via `LOG_LEVEL` environment variable (default: INFO).
-- Format: `'%(asctime)s - %(levelname)s - %(message)s'` with `'%Y-%m-%d %H:%M:%S'`.
-- Use appropriate levels: DEBUG (detailed), INFO (progress), WARNING (recoverable), ERROR (failures).
+- Use the `logging` module for operational messages; reserve `print` for intended program output.
+- Read the level from the `LOG_LEVEL` environment variable (default `INFO`).
+- Format: `'%(asctime)s - %(levelname)s - %(message)s'` with datefmt `'%Y-%m-%d %H:%M:%S'`.
+- Levels: DEBUG for detail, INFO for progress, WARNING for recoverable issues, ERROR for failures.
 
-## Concurrency and HTTP Requests
+## Concurrency and HTTP
 
-- Use `ThreadPoolExecutor` for I/O-bound tasks (API calls, file operations) (Python-specific).
-- Reuse HTTP connections with `requests.Session()` for multiple requests to the same host (Python-specific).
-- Session objects are thread-safe and maintain connection pools automatically (Python-specific).
-- For scraping/API projects: pass session to worker functions to share connection pool (Python-specific).
-- Set appropriate worker counts (10-20 for API calls, adjust based on rate limits).
+- Match the concurrency model to the code: `asyncio` with `httpx.AsyncClient` when the code is already async, otherwise `ThreadPoolExecutor` for I/O-bound work (API calls, file operations). Start at 10-20 concurrent requests and tune to the rate limit; bound async fan-out with an `asyncio.Semaphore`.
+- Reuse one client per host for its connection pool: `requests.Session`, `httpx.Client`, or `httpx.AsyncClient`. Size the pool to the concurrency: `HTTPAdapter(pool_maxsize=<workers>)` for requests (default 10), `httpx.Limits(max_connections=<workers>)` for httpx (default 100).
+- Configure the client (headers, auth, timeouts, pool limits) before starting workers, and pass it to them; workers only send requests through it.
+- Close clients when done: use them as context managers (`with` / `async with`).
 
-## AWS SDK Best Practices
+## AWS SDK (boto3)
 
-- Configure retry policies and connection pooling in boto3 client config (Python-specific).
-- Use `cast()` for AWS TypedDict responses to maintain type compatibility (Python-specific).
-- Handle AWS-specific exceptions (ThrottlingException) with appropriate retry logic (Python-specific).
-- Implement efficient API usage patterns (avoid N×M combinations when possible).
-- Configure region via environment variables for flexibility.
+- Build clients with `botocore.config.Config`: `retries={"mode": "standard"}` (or `"adaptive"` under sustained throttling) and `max_pool_connections` matching the worker count.
+- The retry mode already retries throttling errors. Add explicit backoff only around loops that still exceed limits after retries.
+- Use `cast()` on TypedDict responses to keep type checkers satisfied.
+- Design call patterns to avoid N×M request fan-out; prefer batch and paginated APIs.
+- Read the region from environment variables.
 
 ## AWS CLI
 
-- When running AWS CLI `help` commands, set `MANPAGER=cat` for that invocation (e.g., `MANPAGER=cat aws s3 help`, `MANPAGER=cat aws help`). The shell's default `MANPAGER` is `nvim`, which opens an interactive pager that blocks non-interactive execution.
+- Prefix AWS CLI `help` commands with `MANPAGER=cat` (e.g., `MANPAGER=cat aws s3 help`). The shell's default `MANPAGER` is `nvim`, which blocks non-interactive execution.
 
 # Terraform Standards
 
-## Best Practices
-
-- Always consult the official Terraform provider documentation (registry.terraform.io) when working with resources, data sources, or provider configurations. Verify argument names, required vs optional attributes, and default values before writing or modifying resource blocks.
+- Consult the official provider docs on registry.terraform.io before writing or modifying resources, data sources, or provider configuration. Verify argument names, required vs optional attributes, and defaults.
