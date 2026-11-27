@@ -152,10 +152,6 @@ Never end a turn while an executable next step remains. Execute any stated or im
 - Design call patterns to avoid N×M request fan-out; prefer batch and paginated APIs.
 - Read the region from environment variables.
 
-## AWS CLI
-
-- Prefix AWS CLI `help` commands with `MANPAGER=cat` (e.g., `MANPAGER=cat aws s3 help`). The shell's default `MANPAGER` is `nvim`, which blocks non-interactive execution.
-
 # Terraform Standards
 
 - Consult the official provider docs on registry.terraform.io before writing or modifying resources, data sources, or provider configuration. Verify argument names, required vs optional attributes, and defaults.

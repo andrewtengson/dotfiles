@@ -37,7 +37,3 @@ export PATH=$PATH:~/.krew/bin
 export PATH=$PATH:~/.local/bin
 
 add_brew_packages_to_path
-
-if type nvim >/dev/null 2>&1; then
-  export MANPAGER="nvim +Man!"
-fi
