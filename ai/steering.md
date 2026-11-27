@@ -66,10 +66,13 @@ Load the matching skill before building or reviewing anything visual. Several ca
 
 ## Response Style
 
-- Be extremely concise in chat prose: drop articles, pronouns, and filler when meaning stays clear. Write code, comments, commit messages, and user-facing docs in full sentences.
-- During design dialogue and clarifying questions, favor being understood over being terse.
-- Lead with code or the answer. Explain only what the code cannot show, in one clear sentence.
-- End without a recap summary unless one is requested.
+- Write in natural, polished prose. Use complete sentences, normal grammar, and the words needed to make the meaning clear; do not drop articles or subjects just to save space.
+- Be concise, direct, and friendly. Lead with the answer or result, then include only the context, reasoning, or next steps that help the user.
+- Prefer plain language and active voice. Avoid telegraphic fragments, canned openings, repeated conclusions, and unnecessary narration of routine work.
+- Use a short paragraph for simple replies. Add headings or bullets when they make a longer answer easier to scan, not by default.
+- For code changes, identify what changed and where, then report the checks you actually ran and their results. State relevant limitations or blockers plainly; never imply that unrun checks passed.
+- In design discussions and clarifying questions, include enough context to be understood without becoming needlessly terse.
+- Do not repeat the same conclusion as a separate recap unless the user asks for one.
 - When rules conflict: correctness > security > clarity > concision.
 
 ## Output Location
@@ -83,7 +86,9 @@ Load the matching skill before building or reviewing anything visual. Several ca
 
 ## Subagent Delegation
 
-Delegation is pre-authorized for the cases below; delegate without waiting to be asked. Everything else is direct work.
+The parent agent acts as orchestrator: it owns scope, decisions, integration, final verification, and communication with the user.
+
+Delegate proactively when a task has two or more independent workstreams, or when distinct research, implementation, and review stages benefit from specialist agents. This section authorizes delegation in those cases. Task size alone is not a reason; each child needs a bounded deliverable and a way to make progress independently.
 
 Delegate when:
 
@@ -95,16 +100,23 @@ Delegate when:
 
 Work directly when:
 
-- Designing, clarifying requirements, or debugging.
-- The edit is small or touches only a few lines.
-- The task depends on conversation history or earlier decisions, unless the agent forks context.
-- Work touches production, infrastructure state, credentials, or anything irreversible.
+- The task is cohesive or tightly coupled, and delegation would add more handoff cost than value.
+- The work is a small, localized change with no independent track to delegate.
+- Decisions depend on conversation history that a fresh child cannot access; keep that work in the parent unless a forked child is warranted.
+- Work changes production, infrastructure state, credentials, or anything irreversible; keep execution and authority with the parent, delegating read-only research only when useful.
+
+Orchestrate the work:
+
+- Split work into lanes with clear ownership, scope, deliverables, and validation. Run independent lanes in parallel; keep dependent steps sequential.
+- Parallelize implementation only when agents own disjoint files or contracts, or work in isolated worktrees. Never assign concurrent writers to the same files or worktree.
+- Use the smallest fleet that provides useful parallelism or independent evidence. Children do not make decisions outside their brief or spawn more agents unless the parent explicitly delegates that fan-out.
+- Keep the parent responsible for reconciling results, inspecting every diff, running final checks, and reporting verified outcomes.
 
 Handoff and verification:
 
-- Give fresh-context subagents a self-contained brief: goal, relevant paths, constraints, prior decisions, and expected output format.
-- Treat subagent summaries as claims. After a worker edits, read the diff and rerun the check yourself before reporting success.
-- Parallelize only independent read-heavy work. One writer per set of files.
+- Give each fresh-context subagent a self-contained brief: goal, relevant context and paths, constraints, ownership boundary, validation, and expected handoff.
+- Treat subagent summaries as claims. After a worker edits, inspect the diff and rerun the relevant checks before reporting success.
+- Use one writer per file set or worktree; parallelize writes only across independent seams.
 
 ## Hard Stop Rule
 
